@@ -1,0 +1,65 @@
+%% Run energy crossover model multiple times for a range of parameters.
+%% Plot resulting spread in crossover times and cumulative emissions.
+
+close all
+clear all
+
+%set run type (either a single run, or a bunch using LHS).
+%latin_hypercube = 0;
+%single_run =1;
+global run_type;
+run_type = 1;
+
+%Set median values
+n= 0 ;
+n=n+1 ; iV0 = n     ; v(n) = 1.5e18 ;    % Conventional reserves (gC, http://archive.greenpeace.org/climate/science/reports/carbon/clfull-3.html#Heading23)
+n=n+1 ; iPr_ff0 = n ; v(n) = 50.    ;    % Initial cost of fossil fuels ($/bbl oil, typical numbers)
+n=n+1 ; iPr_re0 = n ; v(n) = 350.   ;    % Initial cost of renewables ($/MWh, from UofM Energy Institute Technical Paper "Renewable Energy Technology Review")
+n=n+1 ; ic_tax = n  ; v(n) = 1.     ;    %Taxes increase ff prices if greater than 1, a c_tax of less than 1 implies a ff subsidy.
+n=n+1 ; icCTff = n  ; v(n) = 1.e20  ;    %(J/yr) %'efficiency' of technology improvements to fossil fuel extraction.  Arbitrary and not yet constrained by data.
+n=n+1 ; iCTre = n   ; v(n) = -3.    ;    %($/MWh/yr) % rate of price change of renewables (roughly from UofM Energy Institute Technical Paper "Renewable Energy Technology Review")
+n=n+1 ; ipopmax = n ; v(n) = 9.e9  ;     %projected maximum population (Nature climate change population special issue)
+n=n+1 ; ipcdmax = n ; v(n) = 8..*42.e9 ; %projected maximum per-capita energy consumption (typical North American energy consumption in tons of oil, multiplied by energy density of oil)
+
+if run_type == 0
+    
+    vr = 0.4 ; %assign uniform multiplicative spread to each variable
+    lb = v - v.*vr ;
+    ub = v + v.*vr ;
+    
+    %generate parameter arrays
+    disp(['Generating Latin Hypercube...'])
+    n_samples = 100 ;
+    xn = lhsdesign(n_samples,n);
+    x = bsxfun(@plus,lb,bsxfun(@times,xn,(ub-lb)));
+    disp(['Running ' num2str(n_samples) ' models...'])
+    
+    %run one model run per parameter combination
+    total_emissions = zeros(n_samples,1);
+    cross_dates = zeros(n_samples,1);
+    for n=1:n_samples
+        [total_emissions(n),cross_dates(n)] = energy(x(n,:));
+    end
+    
+    fig1=figure;
+    scnsize=get(0,'Monitorpositions');
+    set(fig1,'Position',scnsize(1,:));
+    subplot(3,1,1)
+    scatter(cross_dates(:),total_emissions(:),'Filled','SizeData',2)
+    xlabel('Cross-over year'),ylabel('Total emissions (Gt C)')
+    subplot(3,1,2)
+    histfit(cross_dates,50,'gamma')
+    xlabel('Cross-over (year)'),ylabel('# of models')
+    title(['50^{th} percentile crossover year: ' num2str(round(prctile(cross_dates,50)))])
+    subplot(3,1,3)
+    histfit(total_emissions,50,'gamma')
+    title(['50^{th} percentile cumulative emissions: ' num2str(round(prctile(total_emissions,50).*10.)./10.) ' Tt C'])
+    xlabel('Total emissions (Tt C)'),ylabel('# of models')
+    
+elseif run_type == 1
+    
+    %run one model, with median values.  Note output for single runs experiments is
+    %within the energy routine at the moment.
+    [total_emissions,cross_dates] = energy(v);
+    
+end
