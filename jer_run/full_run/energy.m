@@ -66,7 +66,7 @@ global  run_type...
     % set some ODE solver options and do the numerical iteration
     options = odeset('RelTol',1e-11,'AbsTol',1e-11,'Events',@events);
     [ t , V , TE, YE, IE] = ode45(@volume,t0:1:tf,V0,options);
-    
+
     yr = 2000 + t ;
     %Post-calculate cumulative emissions
     yearly_emissions = population(t) .* per_cap_demand(t) .* J_2_gC ;

@@ -29,7 +29,7 @@ if run_type == 0
     
     %generate parameter arrays
     disp(['Generating Latin Hypercube...'])
-    n_samples = 10000 ;
+    n_samples = 500 ;
     xn = lhsdesign(n_samples,n);
     x = bsxfun(@plus,lb,bsxfun(@times,xn,(ub-lb)));
     disp(['Running ' num2str(n_samples) ' models...'])
@@ -38,6 +38,7 @@ if run_type == 0
     total_emissions = zeros(n_samples,1);
     cross_dates = zeros(n_samples,1);
     for n=1:n_samples
+        n
         [total_emissions(n),cross_dates(n)] = energy(x(n,:));
     end
     
