@@ -24,6 +24,8 @@ global cCTff;   n=n+1;cCTff=args(n);
 global CTre;    n=n+1;CTre=args(n);
 global popmax;  n=n+1;popmax=args(n);
 global pcdmax;  n=n+1;pcdmax=args(n);
+global fffb;    n=n+1;fffb=args(n);
+global fffcexp; n=n+1;fffcexp=args(n);
 
 %Convert volume of fossil fuels to potential energy (J)
 V0 = V0 ./ J_2_gC ;
@@ -70,11 +72,11 @@ dtot = population(t) .* per_cap_demand(t) ;
 
 function [fff] = frac_of_energy_from_ff( t , V )
 
-%fff = 1 - ( ff_price(V) ./ (ff_price(V) + re_price(t)) ) ;
+global fffb fffcexp
 
 a = 1.0;
-b = 1.0;
-c = 1.e-4;
+b = fffb;
+c = 1.*10^fffcexp;
 ff_pr=ff_price(V);
 re_pr=re_price(t);
 x=(ff_pr-re_pr)./ff_pr;

@@ -1,65 +1,48 @@
-%% Run energy crossover model multiple times for a range of parameters.
-%% Plot resulting spread in crossover times and cumulative emissions.
-
-close all
-clear all
-
-set_global_constants
-
-%Set median values
-n= 0 ;
-n=n+1 ; iV0 = n     ; v(n) = 1.5e18 ;    % Conventional reserves (gC, http://archive.greenpeace.org/climate/science/reports/carbon/clfull-3.html#Heading23)
-n=n+1 ; iPr_ff0 = n ; v(n) = 50.    ;    % Initial cost of fossil fuels ($/bbl oil, typical numbers)
-n=n+1 ; iPr_re0 = n ; v(n) = 350.   ;    % Initial cost of renewables ($/MWh, from UofM Energy Institute Technical Paper "Renewable Energy Technology Review")
-n=n+1 ; ic_tax = n  ; v(n) = 1.     ;    %Taxes increase ff prices if greater than 1, a c_tax of less than 1 implies a ff subsidy.
-n=n+1 ; icCTff = n  ; v(n) = 1.e20  ;    %(J/yr) %'efficiency' of technology improvements to fossil fuel extraction.  Arbitrary and not yet constrained by data.
-n=n+1 ; iCTre = n   ; v(n) = -3.    ;    %($/MWh/yr) % rate of price change of renewables (roughly from UofM Energy Institute Technical Paper "Renewable Energy Technology Review")
-n=n+1 ; ipopmax = n ; v(n) = 9.e9  ;     %projected maximum population (Nature climate change population special issue)
-n=n+1 ; ipcdmax = n ; v(n) = 8..*42.e9 ; %projected maximum per-capita energy consumption (typical North American energy consumption in tons of oil, multiplied by energy density of oil)
-
-variable_scale = 0.4 ; %assign uniform multiplicative spread to each variable
-lb = v - v.*variable_scale ;
-ub = v + v.*variable_scale ;
-
-%Set ensemble size
-n_samples = 500 ;
-
-%generate parameter arrays
-disp('Generating Latin Hypercube...')
-xn = lhsdesign(n_samples,n);
-x = bsxfun(@plus,lb,bsxfun(@times,xn,(ub-lb)));
-
+t_cross_over=nan(length(n_samples));
+t_total_depletion=nan(length(n_samples));
+fossil_fuel_emissions_stop=nan(length(n_samples));
 for n=1:n_samples
-    disp(['Running ensemble number' num2str(n)])
-    [time{n},...
-        ff_volume{n},...
-        event_times{n},...
-        solution_values{n},...
-        which_event{n},...
-        dVdt{n},...
-        burn_rate{n},...
-        ff_fraction{n},...
-        ff_pr{n},...
-        re_pr{n}]...
-        = energy(x(n,:));
-        
-        emissions{n}=burn_rate{n}.* J_2_gC ./ 1.e18 ;
-        cum_emissions{n}=cumsum(emissions{n}) + emissions_to_date;
-        event_times{n}=event_times{n} + present_year;
-        tot_emissions(n)=cum_emissions{n}(end);
-        
+    i=find(which_event{n}==1);
+    if (~isempty(i))
+        t_cross_over(n)=event_times{n}(i);
+    end
+    i=find(which_event{n}==2); 
+    if (~isempty(i))
+        t_total_depletion(n)=event_times{n}(i);
+    end    
+    i=find(which_event{n}==3); 
+    if (~isempty(i))
+        t_fossil_fuel_emissions_stop(n)=event_times{n}(i);
+    end      
 end
 
-hold on
+%plot diagnostics versus input parameters
+%%%diagnostics: 
+%1) cross-over time
+%2) cumulative emissions
+%%%input parameters:
+%x
+close all
+
+nparams=size(x,2);
+for p=1:nparams
+    figure
+    plot(x(:,p),tot_emissions,'.')
+    axis tight
+    xlabel(ParameterName{p})
+    ylabel('Total emissions (gt C)')
+end
+
+figure
 for n=1:n_samples
-    which_event{n}
-    event_times{n}
-    plot(emissions{n})
+    plot(cum_emissions{n})
 end
 figure
 for n=1:n_samples
     hist(tot_emissions,30)
 end
+
+
 
 %     %Output some results here
 %     if time(end)<tf;
