@@ -1,31 +1,22 @@
-function [time,...
-    ff_volume,...
-    event_times,...
-    solution_values,...
-    which_event,...
-    dVdt,...
-    burn_rate,...
-    ff_fraction,...
-    ff_pr,...
-    re_pr]...
-    = energy(args)
+function [so] = emissions_economy(args)
 
 % Can Homo economicus save us from environmental apocolypse?
 
 %source global constants
 set_global_constants
 
-n=0;
-global V0;      n=n+1;V0=args(n);
-global Pr_ff0;  n=n+1;Pr_ff0=args(n);
-global Pr_re0;  n=n+1;Pr_re0=args(n);
-global c_tax;   n=n+1;c_tax=args(n);
-global cCTff;   n=n+1;cCTff=args(n);
-global CTre;    n=n+1;CTre=args(n);
-global popmax;  n=n+1;popmax=args(n);
-global pcdmax;  n=n+1;pcdmax=args(n);
-global fffb;    n=n+1;fffb=args(n);
-global fffcexp; n=n+1;fffcexp=args(n);
+%unpack LHS-varied parameters
+n_unpacked_params=0;
+global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params);
+global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);
+global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);
+global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);
+global cCTff;   n_unpacked_params=n_unpacked_params+1;cCTff=args(n_unpacked_params);
+global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params);
+global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params);
+global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params);
+global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params);
+global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params);
 
 %Convert volume of fossil fuels to potential energy (J)
 V0 = V0 ./ J_2_gC ;
@@ -40,13 +31,36 @@ CTre = CTre ./ mwh_2_J ;
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
 options = odeset('RelTol',1e-11,'AbsTol',1e-11,'Events',@events);
-[ time , ff_volume , event_times, solution_values, which_event] = ...
+[ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
-%Post-calculate other output variables
-[dVdt,burn_rate,ff_fraction,ff_pr,re_pr] = volume( time , ff_volume );
+%Post-calculate some output variables by re-calling volume evolution...
+[so.dVdt,so.burn_rate,so.ff_fraction,so.ff_pr,so.re_pr] = volume( so.time , so.ff_volume );
+%...and others by conversion
+so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
+so.event_times=so.event_times + present_year;
+so.tot_emissions=so.cum_emissions(end);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+i=find(so.which_event==1);
+if (~isempty(i))
+    so.t_cross_over=so.event_times(i);
+end
+i=find(so.which_event==2);
+if (~isempty(i))
+    so.t_total_depletion=so.event_times(i);
+end
+i=find(so.which_event==3);
+if (~isempty(i))
+    so.t_fossil_fuel_emissions_stop=so.event_times(i);
+end
+
+return
+
+
+
+%Worker functions follow.
+
+
 
 function [dVdt,burn_rate,ff_fraction,ff_pr,re_pr] = volume( t , V )
 

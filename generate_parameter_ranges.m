@@ -16,9 +16,9 @@ iPr_ff0 = n ;
 ParameterName{n}='Initial fossil energy unit cost'; 
 ParameterUnits{n}='$/bbl oil';
 ParameterSource{n}='';
-v(n) = 50.;
-lb(n)= 40.;
-ub(n)= 60.;
+v(n) = 90.;
+lb(n)= 100.;
+ub(n)= 80.;
 
 %%%%%%%%%% 
 n=n+1 ; 

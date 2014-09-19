@@ -1,45 +1,31 @@
-t_cross_over=nan(length(n_samples));
-t_total_depletion=nan(length(n_samples));
-fossil_fuel_emissions_stop=nan(length(n_samples));
-for n=1:n_samples
-    i=find(which_event{n}==1);
-    if (~isempty(i))
-        t_cross_over(n)=event_times{n}(i);
-    end
-    i=find(which_event{n}==2); 
-    if (~isempty(i))
-        t_total_depletion(n)=event_times{n}(i);
-    end    
-    i=find(which_event{n}==3); 
-    if (~isempty(i))
-        t_fossil_fuel_emissions_stop(n)=event_times{n}(i);
-    end      
-end
+t_cross_over=nan(ensemble_size,1);
+t_total_depletion=nan(ensemble_size,1);
+t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
 %plot diagnostics versus input parameters
 %%%diagnostics: 
 %1) cross-over time
 %2) cumulative emissions
-%%%input parameters:
-%x
 close all
 
-nparams=size(x,2);
+nparams=size(model_parameters,2);
 for p=1:nparams
     figure
-    plot(x(:,p),tot_emissions,'.')
+    plot(model_parameters(:,p),[so.tot_emissions],'.')
+    lsline
     axis tight
     xlabel(ParameterName{p})
     ylabel('Total emissions (gt C)')
 end
 
 figure
-for n=1:n_samples
-    plot(cum_emissions{n})
+hold on
+for n=1:ensemble_size
+    plot(so(n).cum_emissions)
 end
 figure
-for n=1:n_samples
-    hist(tot_emissions,30)
+for n=1:ensemble_size
+    hist([so.tot_emissions],30)
 end
 
 
