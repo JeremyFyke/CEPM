@@ -9,6 +9,7 @@ set_global_constants
 n_unpacked_params=0;
 global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params);
 global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);
+global iFF_Eden;n_unpacked_params=n_unpacked_params+1;iFF_Eden=args(n_unpacked_params);
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);
 global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);
 global cCTff;   n_unpacked_params=n_unpacked_params+1;cCTff=args(n_unpacked_params);
@@ -19,10 +20,10 @@ global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_param
 global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params);
 
 %Convert volume of fossil fuels to potential energy (J)
-V0 = V0 ./ J_2_gC ;
+V0 = V0 ./ iFF_Eden ;
 %Convert initial cost of fossil fuels from $/bbl to $/J
 Pr_ff0 = Pr_ff0 ./ bbl_2_gC ; % ($/gC)
-Pr_ff0 = Pr_ff0 .* J_2_gC ;  % ($/J)
+Pr_ff0 = Pr_ff0 .* iFF_Eden ;  % ($/J)
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
 Pr_re0 = Pr_re0 ./ mwh_2_J ;
@@ -30,13 +31,14 @@ CTre = CTre ./ mwh_2_J ;
 
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
-options = odeset('RelTol',1e-11,'AbsTol',1e-11,'Events',@events);
+options = odeset('RelTol',1e-5,'AbsTol',1e-3,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
 %Post-calculate some output variables by re-calling volume evolution...
 [so.dVdt,so.burn_rate,so.ff_fraction,so.ff_pr,so.re_pr] = volume( so.time , so.ff_volume );
 %...and others by conversion
+so.burn_rate=so.burn_rate.*iFF_Eden./g_2_Tt;
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
 so.event_times=so.event_times + present_year;
 so.tot_emissions=so.cum_emissions(end);
@@ -57,9 +59,7 @@ end
 return
 
 
-
 %Worker functions follow.
-
 
 
 function [dVdt,burn_rate,ff_fraction,ff_pr,re_pr] = volume( t , V )

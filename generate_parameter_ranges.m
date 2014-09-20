@@ -22,12 +22,22 @@ ub(n)= 80.;
 
 %%%%%%%%%% 
 n=n+1 ; 
+iFF_Eden = n ;
+ParameterName{n}='Average fossil energy density (inverse)'; 
+ParameterUnits{n}='g C/J';
+ParameterSource{n}='http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf';
+v(n) = 2.0e-5;
+lb(n)= 1.4e-5;
+ub(n)= 2.4e-5;
+
+%%%%%%%%%% 
+n=n+1 ; 
 iPr_re0 = n ; 
 ParameterName{n}='Initial renewable unit cost'; 
 ParameterUnits{n}='$/MWh';
 ParameterSource{n}='UofM Energy Institute Technical Paper "Renewable Energy Technology Review"';
-v(n) = 350.;
-lb(n)= 300.;
+v(n) = 375.;
+lb(n)= 350.;
 ub(n)= 400.;
 
 %%%%%%%%%% 
@@ -86,8 +96,8 @@ ParameterName{n}='Fossil fuel to renewables transfer delay parameter';
 ParameterUnits{n}='Unitless';
 ParameterSource{n}='';
 v(n) = 1.;
-lb(n)=0.8;
-ub(n)=1.2;
+lb(n)=0.5;
+ub(n)=1.5;
 
 %%%%%%%%%% 
 n=n+1; 
