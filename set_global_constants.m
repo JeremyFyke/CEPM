@@ -1,6 +1,6 @@
 %Set run-time.
 global t0; t0 = 0. ;               
-global tf; tf = 1500 ;             
+global tf; tf = 5000 ;             
 %Conversion constants
 
 %CAN WE REMOVE THESE, GIVEN THAN I'VE REPLACED J_2_GC WITH AN LHS CONSTANT?

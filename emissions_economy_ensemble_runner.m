@@ -7,7 +7,7 @@ clear all
 set_global_constants
 
 %Set ensemble size
-ensemble_size = 5000 ;
+ensemble_size = 4000 ;
 generate_parameter_ranges;
 
 %generate parameter arrays

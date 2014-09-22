@@ -9,23 +9,33 @@ t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 close all
 
 nparams=size(model_parameters,2);
+
+ymin=mean([so.tot_emissions])-2.*std([so.tot_emissions]);
+ymax=mean([so.tot_emissions])+2.*std([so.tot_emissions]);
 for p=1:nparams
     figure
     plot(model_parameters(:,p),[so.tot_emissions],'.')
+    xmin=min(model_parameters(:,p));
+    xmax=max(model_parameters(:,p));
     lsline
-    axis tight
-    xlabel(ParameterName{p})
-    ylabel('Total emissions (gt C)')
+    axis([xmin xmax ymin ymax]);
+    xlabel(ParameterName{p});
+    ylabel('Total emissions (Tt C)');
 end
 
 figure
 hold on
 for n=1:ensemble_size
-    plot(so(n).cum_emissions)
+    plot(so(n).time+present_year,so(n).cum_emissions)
+    xlabel('Year')
+    ylabel('Cumulative emissions (Tt C)')
 end
+
 figure
 for n=1:ensemble_size
     hist([so.tot_emissions],30)
+    xlabel('Cumulative emissions (Tt C)')
+    ylabel('Number of simulations')    
 end
 
 
