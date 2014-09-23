@@ -13,7 +13,6 @@ nparams=size(model_parameters,2);
 ymin=mean([so.tot_emissions])-2.*std([so.tot_emissions]);
 ymax=mean([so.tot_emissions])+2.*std([so.tot_emissions]);
 for p=1:nparams
-    figure
     plot(model_parameters(:,p),[so.tot_emissions],'.')
     xmin=min(model_parameters(:,p));
     xmax=max(model_parameters(:,p));
@@ -21,22 +20,52 @@ for p=1:nparams
     axis([xmin xmax ymin ymax]);
     xlabel(ParameterName{p});
     ylabel('Total emissions (Tt C)');
+    print('-depsc',strcat('figs/',num2str(p),'_sensitivity'))
 end
 
-figure
-hold on
-for n=1:ensemble_size
-    plot(so(n).time+present_year,so(n).cum_emissions)
-    xlabel('Year')
-    ylabel('Cumulative emissions (Tt C)')
-end
+% clf
+% hold on
+% for n=1:ensemble_size
+%     plot(so(n).time+present_year,so(n).cum_emissions)
+%     xlabel('Year')
+%     ylabel('Cumulative emissions (Tt C)')
+% end
+% print('-depsc','figs/cumulative_carbon_time_series')
 
-figure
+clf
 for n=1:ensemble_size
-    hist([so.tot_emissions],30)
+    cdfplot([so.tot_emissions])
     xlabel('Cumulative emissions (Tt C)')
     ylabel('Number of simulations')    
 end
+print('-depsc','figs/cumulative_carbon_cdf')
+
+clf
+for n=1:ensemble_size
+    cdfplot([so.net_warming])
+    xlabel('Net warming (C)')
+    ylabel('Number of simulations')    
+end
+print('-depsc','figs/cumulative_warming_cdf')
+
+
+clf
+for n=1:ensemble_size
+    subplot(2,1,1)
+    cdfplot([so.t_cross_over]);
+    xlabel('Year')
+    ylabel('Number of simulations')
+    title('Cross over year cdf')
+    ax=axis;ax(1)=2050;ax(2)=2200;axis(ax);
+    subplot(2,1,2)
+    cdfplot([so.t_fossil_fuel_emissions_stop]);
+    xlabel('Year')
+    ylabel('Number of simulations')    
+    title('Cessation of emissions year cdf')
+    ax=axis;ax(1)=2050;ax(2)=2200;axis(ax);
+end
+print('-depsc','figs/cross_over_cdf')
+
 
 
 

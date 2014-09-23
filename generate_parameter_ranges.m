@@ -1,4 +1,4 @@
- dn= 0 ;
+n= 0 ;
 
 %%%%%%%%%%
 n=n+1 ; 
@@ -7,8 +7,8 @@ ParameterName{n}='Current (t=0) conventional reserves';
 ParameterUnits{n}='Gt C';
 ParameterSource{n}='http://archive.greenpeace.org/climate/science/reports/carbon/clfull-3.html#Heading23';
 v(n) = 1.5e18; 
-lb(n)= 1.0e18;
-ub(n)= 2.0e18;
+lb(n)= 1.2e18;
+ub(n)= 1.8e18;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -84,10 +84,20 @@ n=n+1;
 ipcdmax = n; 
 ParameterName{n}='Projected maximum per-capita energy consumption'; 
 ParameterUnits{n}='J/yr';
-ParameterSource{n}='typical North American energy annual consumption in tons of oil, multiplied by energy density of oil';
-v(n) = 8..*42.e9 ;
-lb(n)= 7..*42.e9 ;
-ub(n)= 9..*42.e9 ;
+ParameterSource{n}='typical North American per capita energy annual consumption in Joules';
+v(n) = 3.2e11 ;
+lb(n)= 2.8e11 ;
+ub(n)= 3.6e11 ;
+
+%%%%%%%%%% 
+n=n+1; 
+ipcddub = n; 
+ParameterName{n}='Per-capita energy consumption doubling time'; 
+ParameterUnits{n}='';
+ParameterSource{n}='';
+v(n) = 170 ;
+lb(n)= 150 ;
+ub(n)= 190 ;
 
 %%%%%%%%%% 
 n=n+1; 
@@ -109,3 +119,12 @@ v(n) = -4.;
 lb(n)=-3;
 ub(n)=-5;
 
+%%%%%%%%%% 
+n=n+1; 
+icc2dT = n;
+ParameterName{n}='Ratio of cumulative emissions to net warming'; 
+ParameterUnits{n}='C/Gt C';
+ParameterSource{n}='Matthews et al., 2009 10.1038/nature08047';
+v(n) = 1.5; 
+lb(n)=1.;
+ub(n)=2.1;

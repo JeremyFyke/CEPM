@@ -7,18 +7,16 @@ global bbl_2_gC; bbl_2_gC=              1.14e5 ; %gC/barrel
 global kwh_2_J; kwh_2_J=                3.6e6  ; %J/kwh
 global mwh_2_J; mwh_2_J=                3.6e9  ; %J/mwh
 global g_2_Tt; g_2_Tt=1.e6.*1.e12;
+global quads_2_J; quads_2_J=1.055e18;
 
-%Per capita carbon demand doubling time (linear/constant if inf).
-%Original per capita demand (modern global mean emissions are ~4 mt CO2 / person / year,
-%which yields 4e6 * 12/44 = 1.1e6 gC/person/year modern
-global Cpc; Cpc = 170. ; % (yr)
-global rCpc; rCpc = 1./Cpc ;
-%Original population (7e9 is roughly the 2000 pop)
+USpop2013= 316148990; %People
+UStotenergyuse2013= 97.3; %Quads (IEA or DOE source)
+global USpercapconsump2013; USpercapconsump2013= UStotenergyuse2013.*quads_2_J./USpop2013;
 global P0; P0 = 7.e9 ;
+Globaltotenergyuse2013= 524.; %Quads (IEA source)
+global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013.*quads_2_J./P0;
 global Cpop; Cpop = 54. ; %Population doubling time in years, assuming exponential growth (TODO: was this fitted to data?).
-global rCpop; rCpop = 1./Cpop ;
 
 global present_year; present_year=2014.;
 global emissions_to_date; emissions_to_date=.5; %historical emissions (Gt C) (TODO: make sure this is totally right (get emissions.nc from UVic model?)
-global emissions2warming; emissions2warming=1.5; %mediam GtC to degrees C warming ratio (make this into a LHS variable?)
 
