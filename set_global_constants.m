@@ -1,6 +1,6 @@
 %Set run-time.
 global t0; t0 = 0. ;               
-global tf; tf = 1500 ;             
+global tf; tf = 5000 ;             
 %Conversion constants
 
 global bbl_2_gC; bbl_2_gC=              1.14e5 ; %gC/barrel

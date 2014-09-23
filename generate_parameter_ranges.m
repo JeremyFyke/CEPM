@@ -74,10 +74,10 @@ n=n+1;
 ipopmax = n;
 ParameterName{n}='Projected maximum population'; 
 ParameterUnits{n}='People';
-ParameterSource{n}='Nature climate change population special issue';
-v(n) = 9.e9;
-lb(n)= 7.5e9;
-ub(n)=10.5e9;
+ParameterSource{n}='http://www.sciencemag.org/content/early/2014/09/17/science.1257469.full.pdf (also there is a big Nature special issue on this)';
+v(n) = 10.9e9;
+lb(n)= 9.6e9;
+ub(n)=12.3e9;
 
 %%%%%%%%%% 
 n=n+1; 

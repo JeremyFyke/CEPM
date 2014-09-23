@@ -7,8 +7,8 @@ clear all
 set_global_constants
 
 %Set ensemble size
-ensemble_size = 100 ;
-generate_parameter_ranges;
+
+ensemble_size = 4000 ;
 
 %generate parameter arrays
 disp('Generating Latin Hypercube...')
