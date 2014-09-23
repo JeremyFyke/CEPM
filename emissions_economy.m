@@ -111,8 +111,8 @@ pop = min( popmax , pop );                  %limit to maximum population
 
 function [pcd] = per_cap_demand( t )
 
-global C0 Cpc pcdmax
-
+global Cpc pcdmax iFF_Eden
+C0 = 1.1e6 ./ iFF_Eden ;
 pcd = C0 .* exp( t .* ( log(2) / Cpc) ) ; % exponential per capita demand growth
 pcd = min( pcd , pcdmax) ;      %limit to maximum per capita demand
 
