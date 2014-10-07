@@ -11,12 +11,14 @@ global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)
 global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);
 global FF_Eden;n_unpacked_params=n_unpacked_params+1;FF_Eden=args(n_unpacked_params);
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);
+global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);
 global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);
 global cCTff;   n_unpacked_params=n_unpacked_params+1;cCTff=args(n_unpacked_params);
 global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params);
 global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params);
+global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params);
 global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params);
-global pcddub;  n_unpacked_params=n_unpacked_params+1;pcddub=args(n_unpacked_params);
+global ipcdinc;  n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params);
 global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params);
 global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params);
 global icc2dT; n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params);
@@ -37,14 +39,24 @@ options = odeset('RelTol',1e-5,'AbsTol',1e-2,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
-%Post-calculate some output variables by re-calling volume evolution...
-[so.dVdt,so.burn_rate,so.ff_fraction,so.ff_pr,so.re_pr] = volume( so.time , so.ff_volume );
-%...and others by conversion
+%Post-calculate some fossil fuel reserves and diagnostics by re-calling
+%volume...
+[so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
+%concatenate diagnostics to output structure...
+so=catstruct(so,diagnostics);
+%...and recalculate some other diagnostics by conversion/value picking.
+
 so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
+
+so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
 so.event_times=so.event_times + present_year;
 so.tot_emissions=so.cum_emissions(end);
 so.net_warming=so.tot_emissions.*icc2dT;
+
+so.consumption_init=so.tot_en_demand(1);
+so.burn_rate_init=so.burn_rate(1);
+so.ff_fraction_init=so.ff_fraction(1);
 
 i=find(so.which_event==1);
 if (~isempty(i))
@@ -62,10 +74,10 @@ end
 return
 
 
-%Worker functions follow.
+%Private functions follow.
 
 
-function [dVdt,burn_rate,ff_fraction,ff_pr,re_pr] = volume( t , V )
+function [dVdt,diagnostics] = volume( t , V )
 
 %set fraction of energy demand derived from fossil fuels:
 %as the price of renewables goes down (or fossil fuels goes up), more
@@ -74,10 +86,12 @@ function [dVdt,burn_rate,ff_fraction,ff_pr,re_pr] = volume( t , V )
 burn_rate = total_energy_demand(t) .* frac_of_energy_from_ff(t,V);
 dVdt = ff_discovery_rate(V,t) - burn_rate;
 
-%save for output
-ff_pr=ff_price(V);
-re_pr=re_price(t);
-ff_fraction=frac_of_energy_from_ff(t,V);
+%save secondary fields (aside from dVdt) for diagnostics
+diagnostics.burn_rate=burn_rate;
+diagnostics.ff_pr=ff_price(V);
+diagnostics.re_pr=re_price(t);
+diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
+diagnostics.tot_en_demand=total_energy_demand(t);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -105,16 +119,17 @@ fff = a ./ (1 + b.*c.^(-x)); %sigmoid function
 
 function [pop] = population( t )
 
-global P0 Cpop popmax
-
-pop = P0 .* exp( t .* ( log(2) / Cpop) ) ; %exponential population growth
+global P0 popinc popmax
+popdub=log(2)./(log(1+popinc));
+pop = P0 .* exp( t .* ( log(2) / popdub) ) ; %exponential population growth
 pop = min( popmax , pop );                  %limit to maximum population
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [pcd] = per_cap_demand( t )
 
-global pcddub pcdmax Globalpercapconsump2013
+global ipcdinc pcdmax Globalpercapconsump2013
+pcddub=log(2)./(log(1+ipcdinc));
 pcd = Globalpercapconsump2013 .* exp( t .* ( log(2) / pcddub) );  % exponential per capita demand growth
 pcd = min( pcd , pcdmax) ;      %limit to maximum per capita demand
 
@@ -136,7 +151,7 @@ global Pr_re0 CTre
 
 Pr_re = Pr_re0 + CTre .* t ;  %assumes simulation starts at year 2000.
 
-Pr_re = max(0.1.*Pr_re0,Pr_re);
+Pr_re = max(0.2.*Pr_re0,Pr_re);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

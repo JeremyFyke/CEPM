@@ -22,7 +22,7 @@ ub(n)= 80.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-iFF_Eden = n ;
+d = n ;
 ParameterName{n}='Average fossil energy density (inverse)'; 
 ParameterUnits{n}='g C/J';
 ParameterSource{n}='http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf';
@@ -39,6 +39,16 @@ ParameterSource{n}='UofM Energy Institute Technical Paper "Renewable Energy Tech
 v(n) = 375.;
 lb(n)= 350.;
 ub(n)= 400.;
+
+%%%%%%%%%% 
+n=n+1 ; 
+iPr_remin = n ; 
+ParameterName{n}='Minimum renewable unit cost'; 
+ParameterUnits{n}='% of initial cost';
+ParameterSource{n}='';
+v(n) = 0.3;
+lb(n)= 0.1;
+ub(n)= 0.5;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -81,6 +91,16 @@ ub(n)=12.3e9;
 
 %%%%%%%%%% 
 n=n+1; 
+ipopinc = n;
+ParameterName{n}='Population annual increase'; 
+ParameterUnits{n}='%';
+ParameterSource{n}='https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&ctype=l&strail=false&bcs=d&nselm=h&met_y=sp_pop_grow&scale_y=lin&ind_y=false&rdim=region&ifdim=region&tdim=true&hl=en&dl=en&ind=false';
+v(n) = 0.015;
+lb(n)= 0.01;
+ub(n)= 0.02;
+
+%%%%%%%%%% 
+n=n+1; 
 ipcdmax = n; 
 ParameterName{n}='Projected maximum per-capita energy consumption'; 
 ParameterUnits{n}='J/yr';
@@ -91,13 +111,13 @@ ub(n)= 3.6e11 ;
 
 %%%%%%%%%% 
 n=n+1; 
-ipcddub = n; 
-ParameterName{n}='Per-capita energy consumption doubling time'; 
-ParameterUnits{n}='';
-ParameterSource{n}='';
-v(n) = 170 ;
-lb(n)= 150 ;
-ub(n)= 190 ;
+ipcdinc = n; 
+ParameterName{n}='Per-capita energy consumption annual increase'; 
+ParameterUnits{n}='%';
+ParameterSource{n}='http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
+v(n) = 0.005 ;
+lb(n)= 0.001 ;
+ub(n)= 0.01 ;
 
 %%%%%%%%%% 
 n=n+1; 
