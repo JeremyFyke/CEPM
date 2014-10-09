@@ -8,7 +8,7 @@ set_global_constants
 
 %Set ensemble size
 
-ensemble_size = 500 ;
+ensemble_size = 1000 ;
 
 generate_parameter_ranges;
 
@@ -26,9 +26,9 @@ end
 [sorted_total_emissions,itotcumranking]=sort([so.tot_emissions]);
 so=so(itotcumranking);
 
-%To do: 
 %To do: add minimum renewables price as LHS var.
 
+close all
 generate_diagnostics
 generate_projection_output
 

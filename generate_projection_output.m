@@ -1,5 +1,3 @@
-close all
-
 plot_params_vs_diags=0
 plot_cum_carb_timeseries=0
 plot_cumulative_emissions_and_warming_cdf=1
@@ -34,7 +32,7 @@ if plot_params_vs_diags
 end
 
 if plot_cum_carb_timeseries
-    clf
+    figure
     hold on
     for n=1:ensemble_size
         plot(so(n).time+present_year,so(n).cum_emissions)
@@ -45,7 +43,7 @@ if plot_cum_carb_timeseries
 end
 
 if plot_cumulative_emissions_and_warming_cdf
-    clf
+    figure
     for n=1:ensemble_size
         cdfplot([so.tot_emissions])
         xlabel('Cumulative emissions (Tt C)')
@@ -53,7 +51,7 @@ if plot_cumulative_emissions_and_warming_cdf
     end
     print('-depsc','figs/cumulative_carbon_cdf')
     
-    clf
+    figure
     for n=1:ensemble_size
         cdfplot([so.net_warming])
         xlabel('Net warming (C)')

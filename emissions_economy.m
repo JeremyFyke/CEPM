@@ -13,7 +13,7 @@ global FF_Eden;n_unpacked_params=n_unpacked_params+1;FF_Eden=args(n_unpacked_par
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);
 global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);
 global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);
-global cCTff;   n_unpacked_params=n_unpacked_params+1;cCTff=args(n_unpacked_params);
+global Dff0;   n_unpacked_params=n_unpacked_params+1;Dff0=args(n_unpacked_params);
 global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params);
 global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params);
 global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params);
@@ -22,6 +22,15 @@ global ipcdinc;  n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_p
 global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params);
 global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params);
 global icc2dT; n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params);
+
+%Convert from billion people, to people
+popmax=popmax.*1.e9;
+%Convert from gigajoules to joules
+pcdmax=pcdmax.*1.e9;
+%Convert from 1/kJ to 1/J
+FF_Eden=FF_Eden./1.e3;
+%Convert from Tt C to g C
+V0=V0.*1.e18;
 
 %Convert volume of fossil fuels to potential energy (J)
 V0 = V0 ./ FF_Eden ;
@@ -39,10 +48,11 @@ options = odeset('RelTol',1e-5,'AbsTol',1e-2,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
+%%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
 %Post-calculate some fossil fuel reserves and diagnostics by re-calling
 %volume...
 [so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
-%concatenate diagnostics to output structure...
+%concatenate diagnostics generated within 'volume' routine to output structure...
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
@@ -55,6 +65,7 @@ so.tot_emissions=so.cum_emissions(end);
 so.net_warming=so.tot_emissions.*icc2dT;
 
 so.consumption_init=so.tot_en_demand(1);
+so.dconsumptiondt_init=so.tot_en_demand(2)-so.tot_en_demand(1);
 so.burn_rate_init=so.burn_rate(1);
 so.ff_fraction_init=so.ff_fraction(1);
 
@@ -74,8 +85,9 @@ end
 return
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Private functions follow.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [dVdt,diagnostics] = volume( t , V )
 
@@ -92,6 +104,9 @@ diagnostics.ff_pr=ff_price(V);
 diagnostics.re_pr=re_price(t);
 diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
 diagnostics.tot_en_demand=total_energy_demand(t);
+diagnostics.pop=population( t );
+diagnostics.per_cap_dem=per_cap_demand( t );
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -110,7 +125,8 @@ b = fffb;
 c = 1.*10^fffcexp;
 ff_pr=ff_price(V);
 re_pr=re_price(t);
-x=(ff_pr-re_pr)./ff_pr;
+scalefac=2;
+x=(ff_pr-re_pr)./ff_pr.*scalefac;
 
 fff = a ./ (1 + b.*c.^(-x)); %sigmoid function
 
@@ -120,9 +136,14 @@ fff = a ./ (1 + b.*c.^(-x)); %sigmoid function
 function [pop] = population( t )
 
 global P0 popinc popmax
-popdub=log(2)./(log(1+popinc));
-pop = P0 .* exp( t .* ( log(2) / popdub) ) ; %exponential population growth
-pop = min( popmax , pop );                  %limit to maximum population
+
+
+e = exp(popinc*t);
+pop = P0*popmax*e./(popmax+P0*(e-1));
+
+popdub=log(2)./(log(1+P0));
+%pop = P0 .* exp( t .* ( log(2) / popdub) ) ; %exponential population growth
+%pop = min( popmax , pop );                  %limit to maximum population
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -147,27 +168,25 @@ Pr_ff = max(0.,Pr_ff);
 
 function [Pr_re] = re_price( t )
 
-global Pr_re0 CTre
+global Pr_re0 CTre Pr_remin
 
 Pr_re = Pr_re0 + CTre .* t ;  %assumes simulation starts at year 2000.
 
-Pr_re = max(0.2.*Pr_re0,Pr_re);
+Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [Ctff] = ff_discovery_rate( V, t )
+function [Dff] = ff_discovery_rate( V, t )
 
-global V0 cCTff
+global V0 Dff0
 
-%discovery of new reserves increases with increasing demand and decreasing
-%reserves.
-
-Ctff = 0.5.*total_energy_demand(t)/total_energy_demand(1) .* frac_of_energy_from_ff( t , V ) .* V0./V ;
-
-%scale to relevant units.
-Ctff = Ctff .* cCTff ;
+Dff = Dff0.*...
+            total_energy_demand(t)./total_energy_demand(1) .*...
+            frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 ) .*...
+            V0./V ;
+        
 %ensure Ctff doesn't go below 0 (implying negative discovery).
-Ctff = max(0,Ctff);
+Dff = max(0,Dff);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
