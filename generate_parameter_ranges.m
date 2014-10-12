@@ -75,13 +75,13 @@ ub(n)= 1.2;
 %%%%%%%%%% 
 n=n+1 ; iDff0 = n; 
 ParameterName{n}='Initial fossil fuel discovery rate'; 
-ParameterUnits{n}='\% (J/yr)';
+ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$D_{ff_0}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='';
-v(n) = 0.;
-lb(n)= 0.;
-ub(n)= 0.;
+v(n) = calculate_historical_reserve_growth_rate();
+lb(n)= v(n)+0.1.*v(n);
+ub(n)= v(n)-0.1.*v(n);
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -164,8 +164,8 @@ ParameterLatexSymbol{n}='$C$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='';
 v(n) = -5.; 
-lb(n)=-4;
-ub(n)=-6;
+lb(n)=-6;
+ub(n)=-4;
 
 %%%%%%%%%% 
 n=n+1; 

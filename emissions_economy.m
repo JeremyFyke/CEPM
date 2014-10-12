@@ -44,12 +44,12 @@ CTre = CTre ./ mwh_2_J ;
 
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
-options = odeset('RelTol',1e-5,'AbsTol',1e-2,'Events',@events);
+options = odeset('RelTol',1e-6,'AbsTol',1e-6,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
 %%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
-%Post-calculate some fossil fuel reserves and diagnostics by re-calling
+%Post-calculate fossil fuel reserve evolution and diagnostics by re-calling
 %volume...
 [so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
 %concatenate diagnostics generated within 'volume' routine to output structure...
@@ -186,7 +186,7 @@ Dff = Dff0.*...
             V0./V ;
         
 %ensure Ctff doesn't go below 0 (implying negative discovery).
-Dff = max(0,Dff);
+Dff = max(0.,Dff);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -203,7 +203,7 @@ isterminal(2) = 1; %stop integration if 1
 direction(2) = 1; %stop if crossing is hit in either direction
 
 %third event: <1% of energy fraction supplied by fossil fuels
-value(3) = frac_of_energy_from_ff(t,V)>0.01;
+value(3) = frac_of_energy_from_ff(t,V)<0.01;
 isterminal(3) = 1; %stop integration if 1
 direction(3) = 0; %stop if crossing is hit in either direction
 

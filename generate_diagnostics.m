@@ -1,7 +1,7 @@
 %Generate diagnostics to test ability of model to capture present day.
 
 %Observed global consumption rates, 1980-2012.
-data=xlsread('Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
+data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
 obs_consumption=data(3,:).*quads_2_J;
 obs_time=data(1,:);
 

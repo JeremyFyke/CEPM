@@ -19,6 +19,7 @@ model_parameters = bsxfun(@plus,lb,bsxfun(@times,xn,(ub-lb)));
 
 for n=1:ensemble_size
     disp(['Running ensemble number' num2str(n)])
+    test = emissions_economy(model_parameters(n,:)); 
     so(n) = emissions_economy(model_parameters(n,:));   
 end
 
