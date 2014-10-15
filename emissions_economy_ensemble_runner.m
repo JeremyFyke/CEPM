@@ -8,7 +8,7 @@ set_global_constants
 
 %Set ensemble size
 
-ensemble_size = 1000 ;
+ensemble_size = 5 ;
 
 generate_parameter_ranges;
 

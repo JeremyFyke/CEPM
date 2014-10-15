@@ -5,7 +5,8 @@ global tf; tf = 5000 ;
 
 global CO2_2_C;  CO2_2_C=               0.2727; %molar ratio (12/44)
 global bbl_2_gC; bbl_2_gC=              0.43.*1.e6.*CO2_2_C;  %gC/barrel source: http://www.epa.gov/cleanenergy/energy-resources/refs.html
-global scf_2_gC; scf_2_gC=              54.4.*CO2_2_C; %implicit /1000*1000 (/thousand cubic feet -> /cubic feet; then kg -> g; source: http://www.eia.gov/environment/emissions/co2_vol_mass.cfm
+cf2cm=35.3145;
+global scm_2_gC; scm_2_gC=              54.4.*cf2cm.*CO2_2_C; %implicit /1000*1000 (/thousand cubic feet -> /cubic feet; then kg -> g; source: http://www.eia.gov/environment/emissions/co2_vol_mass.cfm
 global t_coal_2_gC;t_coal_2_gC=1../.907.*2100.8.*1.e3.*CO2_2_C; %note: conversion from short ton to ton; source: co2_vol_mass.xlsx
 global kwh_2_J; kwh_2_J=                3.6e6  ; %J/kwh
 global mwh_2_J; mwh_2_J=                3.6e9  ; %J/mwh

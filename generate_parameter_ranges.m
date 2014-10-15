@@ -79,9 +79,7 @@ ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$D_{ff_0}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='';
-v(n) = calculate_historical_reserve_growth_rate();
-lb(n)= v(n)+0.1.*v(n);
-ub(n)= v(n)-0.1.*v(n);
+[v(n),lb(n),ub(n)] = calculate_historical_reserve_growth_rate();
 
 %%%%%%%%%% 
 n=n+1 ; 

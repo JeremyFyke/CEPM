@@ -27,7 +27,7 @@ global icc2dT; n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_para
 popmax=popmax.*1.e9;
 %Convert from gigajoules to joules
 pcdmax=pcdmax.*1.e9;
-%Convert from 1/kJ to 1/J
+%Convert from g/kJ to g/J
 FF_Eden=FF_Eden./1.e3;
 %Convert from Tt C to g C
 V0=V0.*1.e18;
@@ -56,7 +56,7 @@ options = odeset('RelTol',1e-6,'AbsTol',1e-6,'Events',@events);
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
+%so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
@@ -95,8 +95,8 @@ function [dVdt,diagnostics] = volume( t , V )
 %as the price of renewables goes down (or fossil fuels goes up), more
 %renewables are generated, so the demand for fossil fuels goes down.
 
-burn_rate = total_energy_demand(t) .* frac_of_energy_from_ff(t,V);
-dVdt = ff_discovery_rate(V,t) - burn_rate;
+burn_rate = total_energy_demand(t) .* frac_of_energy_from_ff(t,V); %Joules
+dVdt = ff_discovery_rate(V,t) - burn_rate; %Joules
 
 %save secondary fields (aside from dVdt) for diagnostics
 diagnostics.burn_rate=burn_rate;
@@ -106,7 +106,7 @@ diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
 diagnostics.tot_en_demand=total_energy_demand(t);
 diagnostics.pop=population( t );
 diagnostics.per_cap_dem=per_cap_demand( t );
-
+diagnostics.discovery_rate=ff_discovery_rate(V,t);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -178,12 +178,11 @@ Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 function [Dff] = ff_discovery_rate( V, t )
 
-global V0 Dff0
-
-Dff = Dff0.*...
-            total_energy_demand(t)./total_energy_demand(1) .*...
-            frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 ) .*...
-            V0./V ;
+global V0 Dff0 FF_Eden
+r1=total_energy_demand(t)./total_energy_demand(1);
+r2=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
+r3=V0./V;
+Dff = Dff0./FF_Eden.*r1.*r2.*r3;
         
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);
