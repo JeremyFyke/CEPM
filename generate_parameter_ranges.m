@@ -15,7 +15,7 @@ ub(n)= 1.8;
 %%%%%%%%%%
 n=n+1 ; 
 iVmax = n; 
-ParameterName{n}='Maximum extractable fossil fuel reservoir volume'; 
+ParameterName{n}='Maximum fossil fuel reservoir volume'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
 ParameterOutputFormat{n}='';
@@ -75,7 +75,7 @@ ub(n)= 0.35;
 %%%%%%%%%% 
 n=n+1 ; 
 ic_tax = n  ; 
-ParameterName{n}='Relative carbon tax (>1=tax, <1=subsidy)'; 
+ParameterName{n}='Relative carbon tax ($>$1=tax, $<$1=subsidy)'; 
 ParameterUnits{n}='\%';
 ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
@@ -108,7 +108,7 @@ ub(n)= -2.8;
 %%%%%%%%%% 
 n=n+1; 
 ipopmax = n;
-ParameterName{n}='Projected maximum population'; 
+ParameterName{n}='Maximum population'; 
 ParameterUnits{n}='Billion people';
 ParameterLatexSymbol{n}='$P_{max}$';
 ParameterOutputFormat{n}='';
@@ -120,8 +120,8 @@ ub(n)=12.3;
 %%%%%%%%%% 
 n=n+1; 
 ipopinc = n;
-ParameterName{n}='Population annual increase'; 
-ParameterUnits{n}='\%';
+ParameterName{n}='Population increase'; 
+ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$P_{inc}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&ctype=l&strail=false&bcs=d&nselm=h&met_y=sp_pop_grow&scale_y=lin&ind_y=false&rdim=region&ifdim=region&tdim=true&hl=en&dl=en&ind=false';
@@ -132,7 +132,7 @@ ub(n)= 0.02;
 %%%%%%%%%% 
 n=n+1; 
 ipcdmax = n; 
-ParameterName{n}='Projected maximum per-capita energy consumption'; 
+ParameterName{n}='Maximum per-capita energy consumption'; 
 ParameterUnits{n}='GJ/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{max}}$';
 ParameterOutputFormat{n}='';
@@ -144,8 +144,8 @@ ub(n)= 3.6e11./1.e9 ;
 %%%%%%%%%% 
 n=n+1; 
 ipcdinc = n; 
-ParameterName{n}='Per-capita energy consumption annual increase'; 
-ParameterUnits{n}='\%';
+ParameterName{n}='Per-capita energy consumption increase'; 
+ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{inc}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
@@ -156,7 +156,7 @@ ub(n)= 0.01 ;
 %%%%%%%%%% 
 n=n+1; 
 ifffb = n; 
-ParameterName{n}='Fossil fuel to renewables transfer delay parameter';
+ParameterName{n}='Fossil fuel to renewables transfer delay';
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$B$';
 ParameterOutputFormat{n}='';
@@ -168,7 +168,7 @@ ub(n)=1.5;
 %%%%%%%%%% 
 n=n+1; 
 ifffcexp = n; 
-ParameterName{n}='Fossil fuel to renewables transfer fade strength parameter'; 
+ParameterName{n}='Fossil fuel to renewables transfer fade strength'; 
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$C$';
 ParameterOutputFormat{n}='';
