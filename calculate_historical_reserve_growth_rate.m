@@ -21,7 +21,10 @@ dcoal_reserves=diff(interp1([1993 2003 2013],coal_reserves,year,'linear','extrap
 coal_production=xlsread(f,'Coal_Production_Tonnes','B53:AH53').*1.e6; %original units: Million tons
 coal_discovery=(dcoal_reserves+coal_production).*t_coal_2_gC;
 
-total_discovery=(oil_discovery+gas_discovery+coal_discovery).*0.1;
+total_discovery=(oil_discovery+gas_discovery+coal_discovery);
+
+total_discovery=total_discovery./g_2_Tt;
+
 mean_discovery=mean(total_discovery); 
 min_discovery=min(total_discovery); 
 max_discovery=max(total_discovery); 

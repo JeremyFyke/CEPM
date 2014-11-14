@@ -8,7 +8,7 @@ set_global_constants
 
 %Set ensemble size
 
-ensemble_size = 5 ;
+ensemble_size = 1000 ;
 
 generate_parameter_ranges;
 
@@ -19,8 +19,8 @@ model_parameters = bsxfun(@plus,lb,bsxfun(@times,xn,(ub-lb)));
 
 for n=1:ensemble_size
     disp(['Running ensemble number' num2str(n)])
-    test = emissions_economy(model_parameters(n,:)); 
-    so(n) = emissions_economy(model_parameters(n,:));   
+    model_output = emissions_economy(model_parameters(n,:)); 
+    so(n) = model_output;   
 end
 
 %sort ensemble members by total emissions
@@ -30,7 +30,7 @@ so=so(itotcumranking);
 %To do: add minimum renewables price as LHS var.
 
 close all
-generate_diagnostics
+%generate_diagnostics
 generate_projection_output
 
 save output so

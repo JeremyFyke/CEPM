@@ -3,7 +3,7 @@ n= 0 ;
 %%%%%%%%%%
 n=n+1 ; 
 iV0 = n; 
-ParameterName{n}=' Initial fossil fuel reservoir volume'; 
+ParameterName{n}='Initial fossil fuel reservoir volume'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_O}$';
 ParameterOutputFormat{n}='';
@@ -11,6 +11,18 @@ ParameterSource{n}='http://archive.greenpeace.org/climate/science/reports/carbon
 v(n) = 1.5; 
 lb(n)= 1.2;
 ub(n)= 1.8;
+
+%%%%%%%%%%
+n=n+1 ; 
+iVmax = n; 
+ParameterName{n}='Maximum extractable fossil fuel reservoir volume'; 
+ParameterUnits{n}='Tt C';
+ParameterLatexSymbol{n}='$V_{ff_max}$';
+ParameterOutputFormat{n}='';
+ParameterSource{n}='';
+v(n) = 3.; 
+lb(n)= 2.;
+ub(n)= 4.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -75,7 +87,7 @@ ub(n)= 1.2;
 %%%%%%%%%% 
 n=n+1 ; iDff0 = n; 
 ParameterName{n}='Initial fossil fuel discovery rate'; 
-ParameterUnits{n}='Tt C';
+ParameterUnits{n}='Tt C/yr';
 ParameterLatexSymbol{n}='$D_{ff_0}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='';
@@ -179,7 +191,7 @@ ub(n)=2.1;
 
 %Convert data to Latex table
 for nn=1:n
-   ParamRange{nn}=strcat(num2str(lb(nn)),'/',num2str(ub(nn))); 
+   ParamRange{nn}=strcat(num2str(lb(nn)),'-',num2str(ub(nn))); 
 end
 data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
 columnlabels={'Symbol','Units','Range'};

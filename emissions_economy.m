@@ -1,4 +1,7 @@
 function [so] = emissions_economy(args)
+global tm1 ff_discovery_tot
+tm1=0;
+ff_discovery_tot=0;
 
 % Can Homo economicus save us from environmental apocolypse?
 
@@ -8,6 +11,7 @@ set_global_constants
 %unpack LHS-varied parameters
 n_unpacked_params=0;
 global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params);
+global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params);
 global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);
 global FF_Eden;n_unpacked_params=n_unpacked_params+1;FF_Eden=args(n_unpacked_params);
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);
@@ -30,10 +34,13 @@ pcdmax=pcdmax.*1.e9;
 %Convert from g/kJ to g/J
 FF_Eden=FF_Eden./1.e3;
 %Convert from Tt C to g C
-V0=V0.*1.e18;
+V0=V0.*g_2_Tt;
+Vmax=Vmax.*g_2_Tt;
+Dff0=Dff0.*g_2_Tt;
 
 %Convert volume of fossil fuels to potential energy (J)
 V0 = V0 ./ FF_Eden ;
+Vmax = Vmax ./ FF_Eden ;
 %Convert initial cost of fossil fuels from $/bbl to $/J
 Pr_ff0 = Pr_ff0 ./ bbl_2_gC ; % ($/gC)
 Pr_ff0 = Pr_ff0 .* FF_Eden ;  % ($/J)
@@ -44,7 +51,7 @@ CTre = CTre ./ mwh_2_J ;
 
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
-options = odeset('RelTol',1e-6,'AbsTol',1e-6,'Events',@events);
+options = odeset('RelTol',1e-4,'AbsTol',1e-4,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
@@ -56,7 +63,7 @@ options = odeset('RelTol',1e-6,'AbsTol',1e-6,'Events',@events);
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-%so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
+so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
@@ -90,14 +97,20 @@ return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [dVdt,diagnostics] = volume( t , V )
+global tm1 ff_discovery_tot
+dt=t-tm1;
+tm1=t;
 
 %set fraction of energy demand derived from fossil fuels:
 %as the price of renewables goes down (or fossil fuels goes up), more
 %renewables are generated, so the demand for fossil fuels goes down.
 
 burn_rate = total_energy_demand(t) .* frac_of_energy_from_ff(t,V); %Joules
-dVdt = ff_discovery_rate(V,t) - burn_rate; %Joules
-
+discovery_rate=ff_discovery_rate(V,t,ff_discovery_tot);
+dVdt = discovery_rate - burn_rate; %Joules
+if isscalar(discovery_rate)
+  ff_discovery_tot=ff_discovery_tot+discovery_rate.*dt;
+end
 %save secondary fields (aside from dVdt) for diagnostics
 diagnostics.burn_rate=burn_rate;
 diagnostics.ff_pr=ff_price(V);
@@ -106,7 +119,7 @@ diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
 diagnostics.tot_en_demand=total_energy_demand(t);
 diagnostics.pop=population( t );
 diagnostics.per_cap_dem=per_cap_demand( t );
-diagnostics.discovery_rate=ff_discovery_rate(V,t);
+diagnostics.discovery_rate=discovery_rate;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -137,11 +150,11 @@ function [pop] = population( t )
 
 global P0 popinc popmax
 
-
+%Lotka population equation
 e = exp(popinc*t);
 pop = P0*popmax*e./(popmax+P0*(e-1));
 
-popdub=log(2)./(log(1+P0));
+%popdub=log(2)./(log(1+P0));
 %pop = P0 .* exp( t .* ( log(2) / popdub) ) ; %exponential population growth
 %pop = min( popmax , pop );                  %limit to maximum population
 
@@ -176,17 +189,27 @@ Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [Dff] = ff_discovery_rate( V, t )
+function [Dff] = ff_discovery_rate( V, t, ff_discovery_tot )
 
-global V0 Dff0 FF_Eden
+global V0 Vmax Dff0 FF_Eden 
 r1=total_energy_demand(t)./total_energy_demand(1);
 r2=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
 r3=V0./V;
-Dff = Dff0./FF_Eden.*r1.*r2.*r3;
-        
+num=Vmax-(ff_discovery_tot+V0);
+den=Vmax-V0;
+r4=num./den;%needs to approach 0, as V approaches V_max
+% if isscalar(r4)
+%     V0
+%     ff_discovery_tot
+%     num
+%     den
+%     error('Why is the initial Vmax-ff_discovery_tot different than Vmax-V0?')
+% end
+Dff = Dff0.*r1.*r2.*r3.*r4;
+Dff = Dff./FF_Eden;
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);
-
+%cum_discoveries=cum_discoveries+Dff.*dt;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [value,isterminal,direction] = events(t,V)
@@ -202,7 +225,7 @@ isterminal(2) = 1; %stop integration if 1
 direction(2) = 1; %stop if crossing is hit in either direction
 
 %third event: <1% of energy fraction supplied by fossil fuels
-value(3) = frac_of_energy_from_ff(t,V)<0.01;
+value(3) = frac_of_energy_from_ff(t,V)<0.05;
 isterminal(3) = 1; %stop integration if 1
 direction(3) = 0; %stop if crossing is hit in either direction
 

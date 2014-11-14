@@ -1,8 +1,8 @@
 plot_params_vs_diags=0
 plot_cum_carb_timeseries=0
-plot_cumulative_emissions_and_warming_cdf=0
+plot_cumulative_emissions_and_warming_cdf=1
 plot_crossover_cdf=0
-plot_ensemble_member_details=1
+plot_ensemble_member_details=0
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -13,7 +13,7 @@ if plot_params_vs_diags
     %%%diagnostics:
     %1) cross-over time
     %2) cumulative emissions
-    close all
+    figure
     
     nparams=size(model_parameters,2);
     
@@ -61,7 +61,7 @@ if plot_cumulative_emissions_and_warming_cdf
 end
 
 if plot_crossover_cdf
-    clf
+    figure
     for n=1:ensemble_size
         subplot(2,1,1)
         cdfplot([so.t_cross_over]);
@@ -80,7 +80,7 @@ if plot_crossover_cdf
 end
 
 if plot_ensemble_member_details
-    n=length(so);
+    figure
     n=1;
     subplot(4,1,1)
     plot(so(n).cum_emissions)
@@ -88,8 +88,8 @@ if plot_ensemble_member_details
     axis tight
     subplot(4,1,2)
     hold on
-    h(1)=plot(so(n).ff_pr,'r')
-    h(2)=plot(so(n).re_pr,'g')
+    h(1)=plot(so(n).ff_pr,'r');
+    h(2)=plot(so(n).re_pr,'g');
     legend(h,{'fossil fuel price','renewable price'})
     axis tight
     subplot(4,1,3)
@@ -98,8 +98,8 @@ if plot_ensemble_member_details
     axis tight
     subplot(4,1,4)
     hold on
-    h(1)=plot(so(n).burn_rate,'r')
-    h(2)=plot(so(n).discovery_rate,'b')    
+    h(1)=plot(so(n).burn_rate,'r');
+    h(2)=plot(so(n).discovery_rate,'b')  ;  
     legend({'burn rate','discovery rate'})
     axis tight
 end
