@@ -18,7 +18,7 @@ iVmax = n;
 ParameterName{n}='Maximum fossil fuel reservoir volume'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
-ParameterOutputFormat{n}='';
+ParameterOutputFormat{n}='Rogner 1997';
 ParameterSource{n}='';
 v(n) = 3.; 
 lb(n)= 2.;
@@ -44,9 +44,9 @@ ParameterUnits{n}='g C/kJ';
 ParameterLatexSymbol{n}='$\sigma_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf';
-v(n) = 2.0e-5.*1.e3;
-lb(n)= 1.4e-5.*1.e3;
-ub(n)= 2.4e-5.*1.e3;
+v(n) = 2.0e-5.*thou;
+lb(n)= 1.4e-5.*thou;
+ub(n)= 2.4e-5.*thou;
 
 %%%%%%%%%% 
 n=n+1 ; 

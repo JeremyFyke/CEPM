@@ -1,14 +1,20 @@
 plot_params_vs_diags=0
-plot_cum_carb_timeseries=0
-plot_cumulative_emissions_and_warming_cdf=1
+plot_cumulative_emissions_and_warming_pdfs=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
+plot_probabalistic_cumulative_emissions=0
+plot_probabalistic_emissions=1
+plot_mean_ending_cum_emissions=0
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
 t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
 if plot_params_vs_diags
+    
+    %USE THESE METHODS:
+    %http://www.mathworks.com/help/stats/design-of-experiments-1.html
+    
     %plot diagnostics versus input parameters
     %%%diagnostics:
     %1) cross-over time
@@ -31,33 +37,21 @@ if plot_params_vs_diags
     end
 end
 
-if plot_cum_carb_timeseries
+if plot_cumulative_emissions_and_warming_pdfs
     figure
-    hold on
-    for n=1:ensemble_size
-        plot(so(n).time+present_year,so(n).cum_emissions)
-        xlabel('Year')
-        ylabel('Cumulative emissions (Tt C)')
-    end
-    print('-depsc','figs/cumulative_carbon_time_series')
-end
-
-if plot_cumulative_emissions_and_warming_cdf
-    figure
-    for n=1:ensemble_size
-        cdfplot([so.tot_emissions])
-        xlabel('Cumulative emissions (Tt C)')
-        ylabel('Number of simulations')
-    end
-    print('-depsc','figs/cumulative_carbon_cdf')
+    subplot(2,1,1)
+    hist([so.tot_emissions],50)
+    shading flat
+    xlabel('Cumulative emissions (Tt C)')
+    ylabel('Number of simulations')
     
-    figure
-    for n=1:ensemble_size
-        cdfplot([so.net_warming])
-        xlabel('Net warming (C)')
-        ylabel('Number of simulations')
-    end
-    print('-depsc','figs/cumulative_warming_cdf')
+    subplot(2,1,2)
+    hist([so.net_warming],50)
+    shading flat
+    xlabel('Net warming (C)')
+    ylabel('Number of simulations')
+
+    print('-depsc','figs/cumulative_carbon_warming_pdfs')
 end
 
 if plot_crossover_cdf
@@ -99,14 +93,124 @@ if plot_ensemble_member_details
     subplot(4,1,4)
     hold on
     h(1)=plot(so(n).burn_rate,'r');
-    h(2)=plot(so(n).discovery_rate,'b')  ;  
+    h(2)=plot(so(n).discovery_rate,'b')  ;
     legend({'burn rate','discovery rate'})
     axis tight
 end
 
+%common variables follow for paintbrush plots
+ensemble_size=length(so);
+nbins=400;
 
+if plot_probabalistic_cumulative_emissions
+    
+    figure
+    
+    cum_emis_arr=nan(ensemble_size,tf);
+    
+    for en=1:ensemble_size
+        cum_emis_arr(en,1:length(so(en).cum_emissions))=so(en).cum_emissions;
+    end
+    max_cum_emis=nanmax(cum_emis_arr(:));
+    
+    %IDEA: PLOT HISTORICAL EMISSIONS ON SAME PLOT?
+    
+    bin_centers=linspace(emissions_to_date,max_cum_emis,nbins);
+    hist_arr=nan(nbins,tf);
+    mean_emis=nan(1,tf);
+    for yr=1:tf
+        hist_arr(:,yr)=hist(cum_emis_arr(:,yr),bin_centers);
+    end
+    hist_arr(hist_arr==0)=nan;
+    pcolor(hist_arr),shading flat
+    
+    ax=axis;
+    ax(2)=400;
+    axis(ax)
+    tickvals=get(gca,'Ytick');
+    set(gca,'YTicklabel',bin_centers(tickvals));
+    tickvals=get(gca,'Xtick')
+    set(gca,'XTicklabel',tickvals+present_year)
+    caxis([0 200])
+    hc=colorbar
+    ylabel(hc,'Ensemble density')
+    xlabel('Year')
+    ylabel('Cumulative emissions (Tt C)')
+    
+    print('-depsc','figs/plot_probabalistic_cumulative_emissions')
+    
+end
 
-%%TO DO: compare CDIAC emission trends with initial burn rates, and burn
-%%rate trends.
+if plot_probabalistic_emissions
+    
+    figure
+    
+    emis_arr=nan(ensemble_size,tf);
+    
+    for en=1:ensemble_size
+        emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
+    end
+    max_emis=nanmax(emis_arr(:));
 
+    bin_centers=linspace(0,max_emis,nbins);
+    hist_arr=nan(nbins,tf);
+    mean_emis=nan(1,tf);
+    for yr=1:tf
+        hist_arr(:,yr)=hist(emis_arr(:,yr),bin_centers);
+    end
+    hist_arr(hist_arr==0)=nan;
+    pcolor(hist_arr),shading flat
+    
+    ax=axis;
+    ax(2)=400;
+    ax(3)=0;
+    axis(ax)
+    tickvals=get(gca,'Ytick');
+    set(gca,'YTicklabel',bin_centers(tickvals));
+    tickvals=get(gca,'Xtick')
+    set(gca,'XTicklabel',tickvals+present_year)
+    caxis([0 200])
+    hc=colorbar
+    ylabel(hc,'Ensemble density')
+    xlabel('Year')
+    ylabel('Emissions (Tt C)')
+    
+    print('-depsc','figs/plot_probabalistic_emissions')
+    
+end
+
+if plot_mean_ending_cum_emissions
+    
+    figure
+    
+    EndYear=floor([so.t_fossil_fuel_emissions_stop]);
+    TotEmissions=[so.tot_emissions];
+    NetWarming=[so.net_warming];
+    nCeasedEmissions=zeros(1,tf);
+    IsMinRenewablesReached=zeros(1,tf);
+    for en=1:ensemble_size
+      FinalRePr(en)=so(en).re_pr(end);
+      MinRePr(en)=so(en).LHSparams.Pr_remin .* so(en).LHSparams.Pr_re0./mwh_2_J;
+    end
+    IsMinRenewablesReached(FinalRePr==MinRePr)=100.;
+    for yr=1:tf
+      i=find(EndYear==yr+present_year);
+      nCeasedEmissions(yr)=numel(i);
+      MeanTotCumEmissions(yr)=mean(TotEmissions(i));
+      MeanNetWarming(yr)=mean(NetWarming(i));
+      MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
+    end
+    year=(1:tf)+present_year;
+    
+    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
+    axis tight
+    colormap('autumn')
+    hc=colorbar
+    ylabel(hc,'% of simulations reaching minimum renewable price')
+    xlabel('Year')
+    ylabel('Cumulative emissions (C)')
+  
+    print('-depsc','figs/plot_mean_ending_cum_emissions')
+    
+end
 
