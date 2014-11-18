@@ -139,7 +139,7 @@ b = fffb;
 c = 1.*10^fffcexp;
 ff_pr=ff_price(V);
 re_pr=re_price(t);
-scalefac=2;
+scalefac=2; %Arbitrary scaling factor, to give curve realistic shape
 x=(ff_pr-re_pr)./ff_pr.*scalefac;
 
 fff = a ./ (1 + b.*c.^(-x)); %sigmoid function

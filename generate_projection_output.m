@@ -10,6 +10,8 @@ t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
 t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
+close all
+
 if plot_params_vs_diags
     
     %USE THESE METHODS:
@@ -107,37 +109,35 @@ if plot_probabalistic_cumulative_emissions
     figure
     
     cum_emis_arr=nan(ensemble_size,tf);
-    
     for en=1:ensemble_size
         cum_emis_arr(en,1:length(so(en).cum_emissions))=so(en).cum_emissions;
     end
-    max_cum_emis=nanmax(cum_emis_arr(:));
     
-    %IDEA: PLOT HISTORICAL EMISSIONS ON SAME PLOT?
-    
-    bin_centers=linspace(emissions_to_date,max_cum_emis,nbins);
+    bin_centers=linspace(0,nanmax(cum_emis_arr(:)),nbins);
     hist_arr=nan(nbins,tf);
-    mean_emis=nan(1,tf);
     for yr=1:tf
         hist_arr(:,yr)=hist(cum_emis_arr(:,yr),bin_centers);
     end
     hist_arr(hist_arr==0)=nan;
-    pcolor(hist_arr),shading flat
+    hist_arrm=hist_arr(:);
+    [yearm,cum_emism]=meshgrid(1:tf,bin_centers);
+    yearm=yearm(:); yearm(isnan(hist_arrm))=[];
+    cum_emism=cum_emism(:); cum_emism(isnan(hist_arrm))=[];    
+    hist_arrm(isnan(hist_arrm))=[];
     
-    ax=axis;
-    ax(2)=400;
-    axis(ax)
-    tickvals=get(gca,'Ytick');
-    set(gca,'YTicklabel',bin_centers(tickvals));
-    tickvals=get(gca,'Xtick')
-    set(gca,'XTicklabel',tickvals+present_year)
-    caxis([0 200])
+    NS=createns([yearm cum_emism]);
+    hold on
+    for en=1:ensemble_size
+        IDX=knnsearch(NS,[so(en).time so(en).cum_emissions]);
+        cline([so(en).time] + present_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
+    end
+    
     hc=colorbar
     ylabel(hc,'Ensemble density')
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C)')
-    
-    print('-depsc','figs/plot_probabalistic_cumulative_emissions')
+    axis tight
+    %print('-depsc','figs/plot_probabalistic_cumulative_emissions')
     
 end
 
@@ -146,35 +146,34 @@ if plot_probabalistic_emissions
     figure
     
     emis_arr=nan(ensemble_size,tf);
-    
     for en=1:ensemble_size
         emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
     end
-    max_emis=nanmax(emis_arr(:));
-
-    bin_centers=linspace(0,max_emis,nbins);
+    
+    bin_centers=linspace(0,nanmax(emis_arr(:)),nbins);
     hist_arr=nan(nbins,tf);
-    mean_emis=nan(1,tf);
     for yr=1:tf
         hist_arr(:,yr)=hist(emis_arr(:,yr),bin_centers);
     end
     hist_arr(hist_arr==0)=nan;
-    pcolor(hist_arr),shading flat
+    hist_arrm=hist_arr(:);
+    [yearm,emism]=meshgrid(1:tf,bin_centers);
+    yearm=yearm(:); yearm(isnan(hist_arrm))=[];
+    emism=emism(:); emism(isnan(hist_arrm))=[];    
+    hist_arrm(isnan(hist_arrm))=[];
     
-    ax=axis;
-    ax(2)=400;
-    ax(3)=0;
-    axis(ax)
-    tickvals=get(gca,'Ytick');
-    set(gca,'YTicklabel',bin_centers(tickvals));
-    tickvals=get(gca,'Xtick')
-    set(gca,'XTicklabel',tickvals+present_year)
-    caxis([0 200])
+    NS=createns([yearm emism]);
+    hold on
+    for en=1:10000
+        IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
+        cline([so(en).time] + present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
+    end
+    
     hc=colorbar
     ylabel(hc,'Ensemble density')
     xlabel('Year')
     ylabel('Emissions (Tt C)')
-    
+    axis tight
     print('-depsc','figs/plot_probabalistic_emissions')
     
 end

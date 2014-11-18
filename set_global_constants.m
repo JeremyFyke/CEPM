@@ -22,9 +22,10 @@ global quads_2_J; quads_2_J=1.055e18;
 
 USpop2013= 316148990; %People
 global USpercapconsump2013; USpercapconsump2013= 5.99842836e13.*mill./USpop2013;%Joules, source: http://www.iea.org/statistics/statisticssearch/report/?&country=USA&year=2012&product=Indicators, converted using EIA converter
-Globaltotenergyuse2013= 3.75926910e14.*1.e6; %Joules, source: http://www.iea.org/statistics/statisticssearch/report/?country=WORLD&product=balances&year=2012, converted using EIA converter
-%error('In set_global_constants: to do: make Globalpercapconsump2013 consistent with the data from BP stats')
+%Observed global consumption rates, 1980-2012.
+data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
+Globaltotenergyuse2013=data(3,end-1).*quads_2_J;
 global P0; P0 = 6.9e9 ;%United Nations Department of Economic and Social Affairs, Population Division
 global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013./P0;
-global present_year; present_year=2014.;
+global present_year; present_year=2012.;
 global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5

@@ -16,7 +16,7 @@ close all
 
 en=2;
 
-nval=30;
+nval=25;
 TotEnDemand=zeros(ensemble_size,nval);
 for en=1:ensemble_size
     TotEnDemand(en,:)=so(en).tot_en_demand(1:nval);
