@@ -36,17 +36,30 @@ v(n) = 90.;
 lb(n)= 80.;
 ub(n)= 100.;
 
+
 %%%%%%%%%% 
 n=n+1 ; 
-iffde = n ;
-ParameterName{n}='Average fossil energy density (inverse)'; 
+iffdtre = n ;
+ParameterName{n}='Average fossil energy density trend (inverse)'; 
+ParameterUnits{n}='g C/kJ';
+ParameterLatexSymbol{n}='$\sigma_{ff}$';
+ParameterOutputFormat{n}='';
+ParameterSource{n}='';
+v(n) = 0.5e-7; %g/J/yr
+lb(n)= 0.0e-7;
+ub(n)= 1.e-7;
+
+%%%%%%%%%% 
+n=n+1 ; 
+iffdfin = n ;
+ParameterName{n}='Final fossil energy density (inverse)'; 
 ParameterUnits{n}='g C/kJ';
 ParameterLatexSymbol{n}='$\sigma_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}='http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf';
-v(n) = 2.0e-5.*thou;
-lb(n)= 1.4e-5.*thou;
-ub(n)= 2.4e-5.*thou;
+v(n) = 1.9e-5; %g/J C, for natural gas
+lb(n)= 1.4e-5;
+ub(n)= 2.4e-5; %g/J C, for coal
 
 %%%%%%%%%% 
 n=n+1 ; 

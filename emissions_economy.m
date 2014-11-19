@@ -14,7 +14,8 @@ n_unpacked_params=0;
 global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params);so.LHSparams.V0=V0;
 global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params);so.LHSparams.Vmax=Vmax;
 global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);so.LHSparams.Pr_ff0=Pr_ff0;
-global FF_Eden;n_unpacked_params=n_unpacked_params+1;FF_Eden=args(n_unpacked_params);so.LHSparams.FF_Eden=FF_Eden;
+global ffdtre;n_unpacked_params=n_unpacked_params+1;ffdtre=args(n_unpacked_params);so.LHSparams.ffdtre=ffdtre;
+global ffdfin;n_unpacked_params=n_unpacked_params+1;ffdfin=args(n_unpacked_params);so.LHSparams.ffdfin=ffdfin;
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);so.LHSparams.Pr_re0=Pr_re0;
 global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);so.LHSparams.Pr_remin=Pr_remin;
 global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);so.LHSparams.c_tax=c_tax;
@@ -32,19 +33,17 @@ global icc2dT; n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_para
 popmax=popmax.*bill;
 %Convert from gigajoules to joules
 pcdmax=pcdmax.*bill;
-%Convert from g/kJ to g/J
-FF_Eden=FF_Eden./thou;
 %Convert from Tt C to g C
 V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
 Dff0=Dff0.*g_2_Tt;
 
-%Convert volume of fossil fuels to potential energy (J)
-V0 = V0 ./ FF_Eden ;
-Vmax = Vmax ./ FF_Eden ;
+%Convert inital and maximum volume of fossil fuels to potential energy (J)
+V0 = V0 ./ ffd0 ;
+Vmax = Vmax ./ ffd0 ;
 %Convert initial cost of fossil fuels from $/bbl to $/J
 Pr_ff0 = Pr_ff0 ./ bbl_2_gC ; % ($/gC)
-Pr_ff0 = Pr_ff0 .* FF_Eden ;  % ($/J)
+Pr_ff0 = Pr_ff0 .* ffd0 ;  % ($/J)
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
 Pr_re0 = Pr_re0 ./ mwh_2_J ;
@@ -58,13 +57,16 @@ options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
 
 %%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
 %Post-calculate fossil fuel reserve evolution and diagnostics by re-calling
-%volume...
+%volume, with time and ff_volume VECTORS.
 [so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
 %concatenate diagnostics generated within 'volume' routine to output structure...
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
+%so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
+
+so.burn_rate=so.burn_rate.*so.ff_energy_density/g_2_Tt;
+so.discovery_rate=so.discovery_rate.*so.ff_energy_density/g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
@@ -108,12 +110,18 @@ tm1=t;
 
 burn_rate = total_energy_demand(t) .* frac_of_energy_from_ff(t,V); %Joules
 discovery_rate=ff_discovery_rate(V,t,ff_discovery_tot); %Joules
+
 dVdt = discovery_rate - burn_rate; %Joules
+
 if isscalar(discovery_rate)
   ff_discovery_tot=ff_discovery_tot+discovery_rate.*dt;
 end
-%save secondary fields (aside from dVdt) for diagnostics
+
+%If being called for diagnostics (and not from the ode45 solver) save secondary fields (aside from dVdt) for diagnostics.  Note that in this case,
+%t and V are vectors.
+
 diagnostics.burn_rate=burn_rate;
+diagnostics.ff_energy_density=fossil_fuel_energy_density(t);
 diagnostics.ff_pr=ff_price(V);
 diagnostics.re_pr=re_price(t);
 diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
@@ -155,10 +163,6 @@ global P0 popinc popmax
 e = exp(popinc*t);
 pop = P0*popmax*e./(popmax+P0*(e-1));
 
-%popdub=log(2)./(log(1+P0));
-%pop = P0 .* exp( t .* ( log(2) / popdub) ) ; %exponential population growth
-%pop = min( popmax , pop );                  %limit to maximum population
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [pcd] = per_cap_demand( t )
@@ -184,15 +188,30 @@ function [Pr_re] = re_price( t )
 
 global Pr_re0 CTre Pr_remin
 
-Pr_re = Pr_re0 + CTre .* t ;  %assumes simulation starts at year 2000.
+Pr_re = Pr_re0 + CTre .* t ; 
 
 Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+function [edens] = fossil_fuel_energy_density( t )
+
+global ffd0 ffdtre ffdfin
+
+%trend initial density to final density, hold constant once there
+if ffd0 > ffdfin 
+  edens = ffd0 - ffdtre .* t ;
+  edens = max(edens,ffdfin);
+else
+  edens = ffd0 + ffdtre .* t ; 
+  edens = min(edens,ffdfin);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [Dff] = ff_discovery_rate( V, t, ff_discovery_tot )
 
-global V0 Vmax Dff0 FF_Eden 
+global V0 Vmax Dff0 
 r1=total_energy_demand(t)./total_energy_demand(1);
 r2=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
 r3=V0./V;
@@ -200,10 +219,10 @@ num=Vmax-(ff_discovery_tot+V0);
 den=Vmax-V0;
 r4=num./den;%needs to approach 0, as V approaches V_max
 Dff = Dff0.*r1.*r2.*r3.*r4;
-Dff = Dff./FF_Eden; %Convert to Joules
+Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);
-%cum_discoveries=cum_discoveries+Dff.*dt;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [value,isterminal,direction] = events(t,V)
@@ -218,7 +237,7 @@ value(2) = 0;
 isterminal(2) = 1; %stop integration if 1
 direction(2) = 1; %stop if crossing is hit in either direction
 
-%third event: <1% of energy fraction supplied by fossil fuels
+%third event: <XXX% of energy fraction supplied by fossil fuels
 value(3) = frac_of_energy_from_ff(t,V)<0.05;
 isterminal(3) = 1; %stop integration if 1
 direction(3) = 0; %stop if crossing is hit in either direction

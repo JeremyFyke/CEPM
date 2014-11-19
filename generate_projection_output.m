@@ -2,8 +2,8 @@ plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
-plot_probabalistic_cumulative_emissions=0
-plot_probabalistic_emissions=1
+plot_probabalistic_cumulative_emissions=1
+plot_probabalistic_emissions=0
 plot_mean_ending_cum_emissions=0
 
 t_cross_over=nan(ensemble_size,1);
@@ -164,7 +164,7 @@ if plot_probabalistic_emissions
     
     NS=createns([yearm emism]);
     hold on
-    for en=1:10000
+    for en=1:ensemble_size
         IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
         cline([so(en).time] + present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
     end
@@ -172,7 +172,7 @@ if plot_probabalistic_emissions
     hc=colorbar
     ylabel(hc,'Ensemble density')
     xlabel('Year')
-    ylabel('Emissions (Tt C)')
+    ylabel('Annual emissions (Tt C/yr)')
     axis tight
     print('-depsc','figs/plot_probabalistic_emissions')
     

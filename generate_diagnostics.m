@@ -1,5 +1,13 @@
 %Generate diagnostics to test ability of model to capture present day.
 
+hold on
+for en=1:ensemble_size
+    plot(so(en).burn_rate,'r')
+    plot(so(en).discovery_rate,'b')    
+end
+
+error()
+
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
 obs_consumption=data(3,:).*quads_2_J;
