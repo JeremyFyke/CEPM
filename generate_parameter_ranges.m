@@ -15,7 +15,7 @@ ub(n)= 1.8;
 %%%%%%%%%%
 n=n+1 ; 
 iVmax = n; 
-ParameterName{n}='Maximum fossil fuel reservoir volume'; 
+ParameterName{n}='Maximum remaining fossil fuel reservoir volume'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
 ParameterOutputFormat{n}='Rogner 1997';

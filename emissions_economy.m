@@ -140,9 +140,9 @@ dtot = population(t) .* per_cap_demand(t) ;
 
 function [fff] = frac_of_energy_from_ff( t , V )
 
-global fffb fffcexp
+global fffb fffcexp ff_frac0
 
-a = 1.0;
+a = ff_frac0;
 b = fffb;
 c = 1.*10^fffcexp;
 ff_pr=ff_price(V);

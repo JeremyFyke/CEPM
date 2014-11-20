@@ -2,13 +2,15 @@ plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
-plot_probabalistic_cumulative_emissions=1
+plot_probabalistic_cumulative_emissions=0
 plot_probabalistic_emissions=0
 plot_mean_ending_cum_emissions=0
+plot_consumption_emission_validation=1
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
 t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
+
 
 close all
 
@@ -102,7 +104,7 @@ end
 
 %common variables follow for paintbrush plots
 ensemble_size=length(so);
-nbins=400;
+nbins=200;
 
 if plot_probabalistic_cumulative_emissions
     
@@ -131,7 +133,7 @@ if plot_probabalistic_cumulative_emissions
         IDX=knnsearch(NS,[so(en).time so(en).cum_emissions]);
         cline([so(en).time] + present_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
     end
-    
+    caxis([1 100])
     hc=colorbar
     ylabel(hc,'Ensemble density')
     xlabel('Year')
@@ -213,3 +215,85 @@ if plot_mean_ending_cum_emissions
     
 end
 
+if plot_consumption_emission_validation
+    
+    h=subplot(2,1,1)
+    subplot_label(h,-0.1,0.9,'a)',25)
+    %Observed global consumption rates, 1980-2012.
+    data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
+    obs_consumption=data(3,1:end-1).*quads_2_J./1.e18; %To EJ
+    obs_time=data(1,1:end-1);
+    p=polyfit(obs_time,obs_consumption,1);
+    obs_consumption_fit=polyval(p,obs_time);
+    nval=30;
+    
+    TotEnDemand=zeros(ensemble_size,nval);
+    for en=1:ensemble_size
+        TotEnDemand(en,:)=so(en).tot_en_demand(1:nval)./1.e18; %To EJ
+    end
+    mod_time=so(en).time(1:nval)+present_year;
+    TEDMean=mean(TotEnDemand,1);
+    TEDMin=min(TotEnDemand,[],1);
+    TEDMax=max(TotEnDemand,[],1);
+    
+    disp(['historical consumption trend=' num2str(p(1))])
+    p=polyfit(mod_time,TEDMean',1);
+    disp(['simulated mean consumption trend=' num2str(p(1))]) 
+    p=polyfit(mod_time,TEDMin',1);
+    disp(['simulated min consumption trend=' num2str(p(1))])     
+    p=polyfit(mod_time,TEDMax',1);
+    disp(['simulated max consumption trend=' num2str(p(1))]) 
+    
+    hold on
+    h(1)=plot(obs_time,obs_consumption,'b--','linewidth',2);
+    h(2)=plot(obs_time,obs_consumption_fit,'b','linewidth',2);    
+    h(3)=errorbar(mod_time,TEDMean,TEDMean-TEDMin,TEDMax-TEDMean,'r','linewidth',2);
+    legend(h,{'Observed consumption' 'Observed consumption linear fit' 'Simulated consumption'},'Location','Northwest');
+    axis tight
+    %ax=axis;ax(3)=0;axis(ax)
+    %title('Global energy demand')
+    xlabel('Year')
+    ylabel('Exajoules (EJ)')
+    
+    %%%
+    h=subplot(2,1,2)
+    subplot_label(h,-0.1,0.9,'b)',25)
+    %Observed global emission rates, 1980-2010.
+    data=load('data/global.1751_2010.ems');
+    obs_emissions=data(end-30:end,2)./1.e6;
+    obs_time=data(end-30:end,1);
+    p=polyfit(obs_time,obs_emissions,1);
+    obs_emissions_fit=polyval(p,obs_time);
+    nval=30;
+    
+    TotEmissions=zeros(ensemble_size,nval);
+    for en=1:ensemble_size
+        TotEmissions(en,:)=so(en).burn_rate(1:nval);
+    end
+    mod_time=so(en).time(1:nval)+present_year;
+    TEDMean=mean(TotEmissions,1);
+    TEDMin=min(TotEmissions,[],1);
+    TEDMax=max(TotEmissions,[],1);
+    
+    disp(['historical emission trend=' num2str(p(1))])
+    p=polyfit(mod_time,TEDMean',1);
+    disp(['simulated mean emission trend=' num2str(p(1))]) 
+    p=polyfit(mod_time,TEDMin',1);
+    disp(['simulated min emission trend=' num2str(p(1))])     
+    p=polyfit(mod_time,TEDMax',1);
+    disp(['simulated max emission trend=' num2str(p(1))]) 
+    
+    hold on
+    h(1)=plot(obs_time,obs_emissions,'b--','linewidth',2);
+    h(2)=plot(obs_time,obs_emissions_fit,'b','linewidth',2);    
+    h(3)=errorbar(mod_time,TEDMean,TEDMean-TEDMin,TEDMax-TEDMean,'r','linewidth',2);
+    legend(h,{'Observed emissions' 'Observed emissions linear fit' 'Simulated emissions'},'Location','Northwest');
+    axis tight
+    %ax=axis;ax(3)=0;axis(ax)
+    %title('Global energy demand')
+    xlabel('Year')
+    ylabel('Tt C') 
+    
+    print('-depsc','figs/consumption_emission_validation')
+    
+end

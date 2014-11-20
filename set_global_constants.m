@@ -30,3 +30,4 @@ global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013.
 global present_year; present_year=2012.;
 global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5
 global ffd0; ffd0=1.9e-5; %g/J
+global ff_frac0; ff_frac0=0.9; %Initial fraction of global energy consumption supplied by renewables
