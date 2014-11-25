@@ -1,4 +1,4 @@
-function [mean_discovery,min_discovery,max_discovery]=calculate_historical_reserve_growth_rate()
+function [mean_discovery,min_discovery,max_discovery,average_energy_density]=calculate_historical_reserve_growth_rate()
 
 set_global_constants
 
@@ -22,20 +22,25 @@ coal_production=xlsread(f,'Coal_Production_Tonnes','B53:AH53').*1.e6; %original 
 coal_discovery=(dcoal_reserves+coal_production).*t_coal_2_gC;
 
 total_discovery=(oil_discovery+gas_discovery+coal_discovery);
-
 total_discovery=total_discovery./g_2_Tt;
-
 mean_discovery=mean(total_discovery); 
 min_discovery=min(total_discovery); 
-max_discovery=max(total_discovery); 
+max_discovery=max(total_discovery);
+
+oil_production=oil_production.*bbl_2_gC;
+gas_production=gas_production.*scm_2_gC;
+coal_production=coal_production.*t_coal_2_gC;
+
+total_production=oil_production+gas_production+coal_production;
+foil_production = oil_production/total_production;
+fgas_production = gas_production/total_production;
+fcoal_production= coal_production/total_production;
+
+%energy density values from http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf
+average_energy_density=coalEdensity.*fcoal_production + oilEdensity.*foil_production + gasEdensity.*fgas_production;
 
 %bar([oil_discovery' gas_discovery' coal_discovery'],'stacked')
 %legend({'oil' 'gas' 'coal'})
 
 return
 end
-
-%TODO: 
-%1. SUBTRACT CONSUMPTION RATE OFF THESE VALUES, TO DETERMINE PURE
-%'DISCOVERY' RATE- SHOULD BE HIGHER.
-%2. DOUBLE-CHECK: new_discovery_rate SEEMS LOW... but maybe because this is only proved reserves, and not estimate resources?

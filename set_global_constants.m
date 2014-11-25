@@ -20,7 +20,7 @@ global mwh_2_J; mwh_2_J=                3.6e9  ; %J/mwh
 global g_2_Tt; g_2_Tt=mill.*tril;
 global quads_2_J; quads_2_J=1.055e18;
 
-USpop2013= 316148990; %People
+USpop2013= 316148990;
 global USpercapconsump2013; USpercapconsump2013= 5.99842836e13.*mill./USpop2013;%Joules, source: http://www.iea.org/statistics/statisticssearch/report/?&country=USA&year=2012&product=Indicators, converted using EIA converter
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
@@ -29,5 +29,9 @@ global P0; P0 = 6.9e9 ;%United Nations Department of Economic and Social Affairs
 global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013./P0;
 global present_year; present_year=2012.;
 global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5
-global ffd0; ffd0=1.9e-5; %g/J
-global ff_frac0; ff_frac0=0.9; %Initial fraction of global energy consumption supplied by renewables
+global coalEdensity;coalEdensity =2.54e-5;
+global oilEdensity;oilEdensity =1.99e-5;
+global gasEdensity;gasEdensity =1.44e-5;
+global ffd0;%this is set to a real value during call to calculate_historical_reserve_growth_rate in generate_parameter_ranges
+global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
+global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6

@@ -3,9 +3,9 @@ plot_cumulative_emissions_and_warming_pdfs=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
 plot_probabalistic_cumulative_emissions=0
-plot_probabalistic_emissions=0
-plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
+plot_probabalistic_emissions=1
+plot_mean_ending_cum_emissions=1
+plot_consumption_emission_validation=0
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -18,6 +18,7 @@ if plot_params_vs_diags
     
     %USE THESE METHODS:
     %http://www.mathworks.com/help/stats/design-of-experiments-1.html
+    %multiple linear regression
     
     %plot diagnostics versus input parameters
     %%%diagnostics:
@@ -104,7 +105,7 @@ end
 
 %common variables follow for paintbrush plots
 ensemble_size=length(so);
-nbins=200;
+nbins=500;
 
 if plot_probabalistic_cumulative_emissions
     
@@ -121,25 +122,40 @@ if plot_probabalistic_cumulative_emissions
         hist_arr(:,yr)=hist(cum_emis_arr(:,yr),bin_centers);
     end
     hist_arr(hist_arr==0)=nan;
-    hist_arrm=hist_arr(:);
-    [yearm,cum_emism]=meshgrid(1:tf,bin_centers);
-    yearm=yearm(:); yearm(isnan(hist_arrm))=[];
-    cum_emism=cum_emism(:); cum_emism(isnan(hist_arrm))=[];    
-    hist_arrm(isnan(hist_arrm))=[];
     
-    NS=createns([yearm cum_emism]);
-    hold on
-    for en=1:ensemble_size
-        IDX=knnsearch(NS,[so(en).time so(en).cum_emissions]);
-        cline([so(en).time] + present_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
-    end
-    caxis([1 100])
-    hc=colorbar
+	pcolor(hist_arr),shading flat
+	
+    axis tight  
+	ax=axis;
+	ax(2)=270;
+	axis(ax)
+	tickvals=get(gca,'Ytick');
+	set(gca,'YTicklabel',bin_centers(tickvals));
+	tickvals=get(gca,'Xtick');
+	set(gca,'XTicklabel',[tickvals+present_year])
+	caxis([0 50])
+    
+    %hist_arrm=hist_arr(:);
+    %[yearm,cum_emism]=meshgrid(1:tf,bin_centers);
+    %yearm=yearm(:); yearm(isnan(hist_arrm))=[];
+    %cum_emism=cum_emism(:); cum_emism(isnan(hist_arrm))=[];    
+    %hist_arrm(isnan(hist_arrm))=[];
+    %NS=createns([yearm cum_emism]);
+    %hold on
+    %for en=1:ensemble_size
+    %    IDX=knnsearch(NS,[so(en).time so(en).cum_emissions]);
+    %    cline([so(en).time] + present_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
+    %    if en==1
+    %      caxis([1 5])
+    %    end
+    %end
+    
+    hc=colorbar;
     ylabel(hc,'Ensemble density')
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C)')
-    axis tight
-    %print('-depsc','figs/plot_probabalistic_cumulative_emissions')
+    
+    print('-depsc','figs/probabalistic_cumulative_emissions')
     
 end
 
@@ -158,25 +174,42 @@ if plot_probabalistic_emissions
         hist_arr(:,yr)=hist(emis_arr(:,yr),bin_centers);
     end
     hist_arr(hist_arr==0)=nan;
-    hist_arrm=hist_arr(:);
-    [yearm,emism]=meshgrid(1:tf,bin_centers);
-    yearm=yearm(:); yearm(isnan(hist_arrm))=[];
-    emism=emism(:); emism(isnan(hist_arrm))=[];    
-    hist_arrm(isnan(hist_arrm))=[];
     
-    NS=createns([yearm emism]);
-    hold on
-    for en=1:ensemble_size
-        IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
-        cline([so(en).time] + present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
-    end
+    pcolor(hist_arr),shading flat
+    ax=axis;
+    axis tight
+    ax(2)=270;
+    ax(3)=0;
+    axis(ax)
+    tickvals=get(gca,'Ytick');
+    tickvals=tickvals(2:end);
+    set(gca,'YTicklabel',bin_centers(tickvals));
+    tickvals=get(gca,'Xtick');
+    set(gca,'XTicklabel',tickvals+present_year)
+    caxis([0 50])
     
-    hc=colorbar
+%     hist_arrm=hist_arr(:);
+%     [yearm,emism]=meshgrid(1:tf,bin_centers);
+%     yearm=yearm(:); yearm(isnan(hist_arrm))=[];
+%     emism=emism(:); emism(isnan(hist_arrm))=[];    
+%     hist_arrm(isnan(hist_arrm))=[];
+%     
+%     NS=createns([yearm emism]);
+%     hold on
+%     for en=1:ensemble_size
+%         IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
+%         cline([so(en).time] + present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
+%         if en==1
+%             caxis([1 5])
+%         end
+%     end
+    
+    hc=colorbar;
     ylabel(hc,'Ensemble density')
     xlabel('Year')
-    ylabel('Annual emissions (Tt C/yr)')
-    axis tight
-    print('-depsc','figs/plot_probabalistic_emissions')
+    ylabel('Annual emissions (Gt C/yr)')
+    
+    print('-depsc','figs/probabalistic_emissions')
     
 end
 
@@ -202,16 +235,20 @@ if plot_mean_ending_cum_emissions
       MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
     end
     year=(1:tf)+present_year;
-    
+    hold on
     scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
+    ie=find(~isnan(MeanTotCumEmissions));
+    p=polyfit(year(ie),MeanTotCumEmissions(ie),3);
+    plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
-    colormap('autumn')
+    ax=axis;ax(4)=3.3;axis(ax)
+    colormap('jet')
     hc=colorbar
     ylabel(hc,'% of simulations reaching minimum renewable price')
     xlabel('Year')
-    ylabel('Cumulative emissions (C)')
+    ylabel('Cumulative emissions (Tt C)')
   
-    print('-depsc','figs/plot_mean_ending_cum_emissions')
+    print('-depsc','figs/mean_ending_cum_emissions')
     
 end
 

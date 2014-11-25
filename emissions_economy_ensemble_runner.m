@@ -27,10 +27,8 @@ end
 [sorted_total_emissions,itotcumranking]=sort([so.tot_emissions]);
 so=so(itotcumranking);
 
-%To do: add minimum renewables price as LHS var.
-
 close all
 %generate_diagnostics
 generate_projection_output
 
-save output so
+save output

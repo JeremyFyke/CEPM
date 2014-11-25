@@ -39,6 +39,7 @@ Vmax=Vmax.*g_2_Tt;
 Dff0=Dff0.*g_2_Tt;
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
+
 V0 = V0 ./ ffd0 ;
 Vmax = Vmax ./ ffd0 ;
 %Convert initial cost of fossil fuels from $/bbl to $/J
@@ -63,8 +64,6 @@ options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-%so.burn_rate=so.burn_rate.*FF_Eden./g_2_Tt;
-
 so.burn_rate=so.burn_rate.*so.ff_energy_density/g_2_Tt;
 so.discovery_rate=so.discovery_rate.*so.ff_energy_density/g_2_Tt;
 
@@ -78,6 +77,7 @@ so.consumption_init=so.tot_en_demand(1);
 so.dconsumptiondt_init=so.tot_en_demand(2)-so.tot_en_demand(1);
 so.burn_rate_init=so.burn_rate(1);
 so.ff_fraction_init=so.ff_fraction(1);
+so.ff_fractional_reservoir_depletion=so.ff_volume(end)./V0;
 
 i=find(so.which_event==1);
 if (~isempty(i))
