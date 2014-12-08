@@ -1,7 +1,5 @@
 global ffd0
 
-
-
 n=0;
 nSource=1;
 %%%%%%%%%%
@@ -12,11 +10,9 @@ ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_O}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
-iMeinshausen_et_al_2009=nSource;
-v(n) = 0.767; 
-lb(n)= 0.693;
-ub(n)= 0.842;
-
+iRogner_et_al_2012=nSource;
+[lb(n),ub(n),tmp1,tmp2]=GEA_ff_reserves_and_resources();
+v(n) = mean([lb(n) ub(n)]);
 %%%%%%%%%%
 n=n+1 ; 
 iVmax = n; 
@@ -25,10 +21,8 @@ ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iRogner_1997=nSource;
-v(n) = 3.; 
-lb(n)= 2.;
-ub(n)= 4.5;
-
+[tmp1,tmp2,lb(n),ub(n)]=GEA_ff_reserves_and_resources();
+v(n) = mean([lb(n) ub(n)]);
 %%%%%%%%%% 
 n=n+1 ; 
 iPr_ff0 = n ; 
@@ -64,7 +58,7 @@ ParameterUnits{n}='g C/kJ';
 ParameterLatexSymbol{n}='$\sigma_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
-[temp1,temp2,temp3,v(n)] = calculate_historical_reserve_growth_rate();
+[tmp1,tmp2,tmp3,v(n)] = calculate_historical_reserve_growth_rate();
 lb(n)= gasEdensity;
 ub(n)= coalEdensity; %g/J C, for coal
 ffd0=v(n);
@@ -223,3 +217,5 @@ data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
 columnlabels={'Symbol','Units','Range'};
 
 matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
+
+clear tmp*

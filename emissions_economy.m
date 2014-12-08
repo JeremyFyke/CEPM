@@ -219,7 +219,7 @@ num=Vmax-(ff_discovery_tot+V0);
 den=Vmax-V0;
 r4=num./den;%needs to approach 0, as V approaches V_max
 Dff = Dff0.*r1.*r2.*r3.*r4;
-Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules
+Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules (output of fossil_fuel_energy_density in g/j)
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);
 

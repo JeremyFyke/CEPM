@@ -1,10 +1,11 @@
-plot_params_vs_diags=0
+plot_params_vs_diags=1
 plot_cumulative_emissions_and_warming_pdfs=0
+plot_final_percent_reserves_depleted=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
-plot_probabalistic_cumulative_emissions=0
-plot_probabalistic_emissions=1
-plot_mean_ending_cum_emissions=1
+plot_probabalistic_cumulative_emissions_paintbrush=0
+plot_probabalistic_emissions_paintbrush=0
+plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 
 t_cross_over=nan(ensemble_size,1);
@@ -20,43 +21,124 @@ if plot_params_vs_diags
     %http://www.mathworks.com/help/stats/design-of-experiments-1.html
     %multiple linear regression
     
-    %plot diagnostics versus input parameters
-    %%%diagnostics:
-    %1) cross-over time
-    %2) cumulative emissions
+    %first: linear regression of 'xn' array against net temperature change.
+   
     figure
     
     nparams=size(model_parameters,2);
     
-    ymin=mean([so.tot_emissions])-2.*std([so.tot_emissions]);
-    ymax=mean([so.tot_emissions])+2.*std([so.tot_emissions]);
+    ymin=mean([so.net_warming])-2.*std([so.net_warming]);
+    ymax=mean([so.net_warming])+2.*std([so.net_warming]);
     for p=1:nparams
-        plot(model_parameters(:,p),[so.tot_emissions],'.')
+        
+        x=xn(:,p);
+        y=[so.net_warming]';
+        [R,P]=corrcoef(x,y);
+        CorrCoef(p)=R(2,1);
+        Pvalue(p)=P(2,1);
+       
+        plot(model_parameters(:,p),[so.net_warming],'.')
         xmin=min(model_parameters(:,p));
         xmax=max(model_parameters(:,p));
         lsline
         axis([xmin xmax ymin ymax]);
         xlabel(ParameterName{p});
-        ylabel('Total emissions (Tt C)');
+        ylabel('Net warming (C)');
         print('-depsc',strcat('figs/',num2str(p),'_sensitivity'))
     end
+    
+    clf
+    %[CorrCoef,I]=sort(abs(CorrCoef));
+    %ParameterNameSorted=ParameterName(I);
+    %bar(CorrCoef)
+    %xticklabel_rotate(1:nparams,45,ParameterNameSorted)
+    %ylabel('Correlation coefficient')
+    
+    X=[ones(size(xn,1),1) xn];
+    a=X\y;
+    a=a(2:end);
+    [a,I]=sort(abs(a));
+    ParameterNameSorted=ParameterName(I);
+    bar(a)
+    xticklabel_rotate(1:nparams,45,ParameterNameSorted)
+    ylabel('Abs(a)')
 end
 
 if plot_cumulative_emissions_and_warming_pdfs
+    
+    tot_emissions=[so.tot_emissions];
+    
+    disp(['Cumulative emissions skew=',num2str(skewness(tot_emissions))])
+ 
+    %determine some climate limits
+    GIS_lim=1.6;
+    cdf=cumsum([so.net_warming]<GIS_lim);%Robinson et al., 2012
+    i=find(cdf==max(cdf),1,'first');
+    GIS_lime=[so(i).tot_emissions so(i).tot_emissions];
+ 
+    Mort_lim=7.;
+    cdf=cumsum([so.net_warming]<Mort_lim);%Sherwood et al., 2010
+    i=find(cdf==max(cdf),1,'first');
+    Mort_lime=[so(i).tot_emissions so(i).tot_emissions];  
+    
+    Veg_C_lim=4.;
+    cdf=cumsum([so.net_warming]<Veg_C_lim);%Friend et al., 2013
+    i=find(cdf==max(cdf),1,'first');
+    Veg_C_lime=[so(i).tot_emissions so(i).tot_emissions];      
+    
     figure
     subplot(2,1,1)
+    hold on
     hist([so.tot_emissions],50)
     shading flat
     xlabel('Cumulative emissions (Tt C)')
     ylabel('Number of simulations')
+    q=prctile([so.tot_emissions],[5 50 95]);
+    disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
     
     subplot(2,1,2)
     hist([so.net_warming],50)
     shading flat
     xlabel('Net warming (C)')
     ylabel('Number of simulations')
-
+    ax=axis;
+    plevels=[0 1 10 33 66 90 99];
+    q=prctile([so.net_warming],plevels);
+    lh=[120 80 40 10 40 80 120];
+    just={};
+    phrase={'Virtually certain' 'Very likely' 'Likely' 'About as likely as not' 'Unlikely' 'Very unlikely' 'Exceptionally unlikely'};
+    disp('Net warming percentiles and IPCC phraseology')
+    for n=1:length(q);
+        disp([num2str(plevels(n)),'/',phrase{n},': ',num2str(q(n))])
+        line([q(n) q(n)],[ax(3) ax(4)+lh(n)],'linestyle','-','color','k','linewidth',4)
+        text(q(n)+0.1,ax(4)+lh(n),phrase{n})
+    end
+    axis(ax)
+    line([GIS_lim GIS_lim],[ax(3) ax(4)],'linestyle','-','color','r','linewidth',2)
+    line([Mort_lim Mort_lim],[ax(3) ax(4)],'linestyle','-','color','y','linewidth',2)
+    line([Veg_C_lim Veg_C_lim],[ax(3) ax(4)],'linestyle','-','color','g','linewidth',2)
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
+end
+
+if plot_final_percent_reserves_depleted
+    for i=1:ensemble_size
+      initial_volume(i)=  so(i).LHSparams.V0;
+      max_volume(i)=so(i).LHSparams.Vmax;
+      tot_emissions(i)=so(i).tot_emissions-emissions_to_date;
+    end
+    percent_depleted=tot_emissions./initial_volume;
+    p=prctile(percent_depleted,[5 50 95]);
+    subplot(2,1,1)
+    hist(percent_depleted,40)
+    shading flat
+    title(['5/50/95 percentiles of ratio of total future emissions to initial ff volume=',num2str(p)])
+    subplot(2,1,2)
+    percent_depleted=tot_emissions./max_volume;
+    p=prctile(percent_depleted,[5 50 95]);
+    hist(percent_depleted,40)
+    shading flat
+    title(['5/50/95 percentiles of ratio of total future emissions to max ff volume=',num2str(p)])
+       
 end
 
 if plot_crossover_cdf
@@ -107,7 +189,7 @@ end
 ensemble_size=length(so);
 nbins=500;
 
-if plot_probabalistic_cumulative_emissions
+if plot_probabalistic_cumulative_emissions_paintbrush
     
     figure
     
@@ -159,7 +241,7 @@ if plot_probabalistic_cumulative_emissions
     
 end
 
-if plot_probabalistic_emissions
+if plot_probabalistic_emissions_paintbrush
     
     figure
     
@@ -241,12 +323,12 @@ if plot_mean_ending_cum_emissions
     p=polyfit(year(ie),MeanTotCumEmissions(ie),3);
     plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
-    ax=axis;ax(4)=3.3;axis(ax)
+    ax=axis;ax(4)=5.3;axis(ax)
     colormap('jet')
     hc=colorbar
     ylabel(hc,'% of simulations reaching minimum renewable price')
     xlabel('Year')
-    ylabel('Cumulative emissions (Tt C)')
+    ylabel('Year-mean cumulative emissions (Tt C)')
   
     print('-depsc','figs/mean_ending_cum_emissions')
     

@@ -24,8 +24,8 @@ for n=1:ensemble_size
 end
 
 %sort ensemble members by total emissions
-[sorted_total_emissions,itotcumranking]=sort([so.tot_emissions]);
-so=so(itotcumranking);
+%[sorted_total_emissions,itotcumranking]=sort([so.tot_emissions]);
+%so=so(itotcumranking);
 
 close all
 %generate_diagnostics

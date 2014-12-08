@@ -29,9 +29,18 @@ global P0; P0 = 6.9e9 ;%United Nations Department of Economic and Social Affairs
 global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013./P0;
 global present_year; present_year=2012.;
 global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5
-global coalEdensity;coalEdensity =2.54e-5;
+global coalEdensity;coalEdensity =2.54e-5;%g/j, source??
 global oilEdensity;oilEdensity =1.99e-5;
 global gasEdensity;gasEdensity =1.44e-5;
+
+%global coalEdensity;coalEdensity =24; %MJ/kg bitumous coal, http://en.wikipedia.org/wiki/Energy_density
+%global oilEdensity;oilEdensity =46.3; %MJ/kg, http://en.wikipedia.org/wiki/Energy_density
+%global gasEdensity;gasEdensity =53.6; %MJ/kg, http://en.wikipedia.org/wiki/Energy_density
+
+global coalEfactor;coalEfactor=25.8; %tons C/terajoule, http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
+global oilEfactor;oilEfactor=20.0; %tons C/terajoule, http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
+global gasEfactor;gasEfactor=15.3; %tons C/terajoule, http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
+
 global ffd0;%this is set to a real value during call to calculate_historical_reserve_growth_rate in generate_parameter_ranges
 global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
 global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6

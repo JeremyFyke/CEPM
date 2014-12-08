@@ -23,14 +23,13 @@ coal_discovery=(dcoal_reserves+coal_production).*t_coal_2_gC;
 
 total_discovery=(oil_discovery+gas_discovery+coal_discovery);
 total_discovery=total_discovery./g_2_Tt;
-mean_discovery=mean(total_discovery); 
-min_discovery=min(total_discovery); 
-max_discovery=max(total_discovery);
-
+mean_discovery=mean(total_discovery);
+std_disc=std(total_discovery);
+min_discovery=mean_discovery-std_disc;
+max_discovery=mean_discovery+std_disc;
 oil_production=oil_production.*bbl_2_gC;
 gas_production=gas_production.*scm_2_gC;
 coal_production=coal_production.*t_coal_2_gC;
-
 total_production=oil_production+gas_production+coal_production;
 foil_production = oil_production/total_production;
 fgas_production = gas_production/total_production;
