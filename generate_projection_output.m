@@ -1,5 +1,6 @@
 plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
+plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
@@ -7,6 +8,7 @@ plot_probabalistic_cumulative_emissions_paintbrush=0
 plot_probabalistic_emissions_paintbrush=1
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
+
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -94,6 +96,19 @@ if plot_cumulative_emissions_and_warming_pdfs
     line([Mort_lim Mort_lim],[ax(3) ax(4)],'linestyle','-','color','y','linewidth',4)
     line([Veg_C_lim Veg_C_lim],[ax(3) ax(4)],'linestyle','-','color','g','linewidth',4)
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
+end
+
+if plot_diversity_of_trajectories
+    q=prctile([so.tot_emissions],[49 51]);
+    i=find([so.tot_emissions]>q(1) & [so.tot_emissions]<q(2));
+    hold on
+    for en=i
+        plot(so(en).time+present_year,so(en).burn_rate,'k','linewidth',1)
+    end
+    title('49th-51th percentile simulations')
+    xlabel('Year')
+    ylabel('Emissions (Tt C/yr)')
+    
 end
 
 if plot_final_percent_reserves_depleted
@@ -241,7 +256,8 @@ if plot_probabalistic_emissions_paintbrush
     axis(ax)
     tickvals=get(gca,'Ytick');
     tickvals=tickvals(2:end);
-    set(gca,'YTicklabel',bin_centers(tickvals));
+    ticklabels=bin_centers(tickvals-49);
+    set(gca,'YTicklabel',ticklabels); %49 a little hacky here... just used to bump first index down to first bin...
     tickvals=get(gca,'Xtick');
     set(gca,'XTicklabel',tickvals+present_year)
     caxis([0 50])
@@ -265,7 +281,7 @@ if plot_probabalistic_emissions_paintbrush
     %hc=colorbar;
     %ylabel(hc,'Ensemble density')
     %xlabel('Year')
-    ylabel('Annual emissions (Gt C/yr)')
+    ylabel('Annual emissions (Tt C/yr)')
     
     print('-depsc','figs/probabalistic_emissions')
     

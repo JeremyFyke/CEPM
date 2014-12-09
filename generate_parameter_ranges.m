@@ -1,7 +1,7 @@
 global ffd0 Dff0
 
 n=0;
-nSource=1;
+nSource=0;
 %%%%%%%%%%
 n=n+1 ; 
 iV0 = n; 
@@ -219,5 +219,5 @@ columnlabels={'Symbol','Units','Range'};
 
 matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
 
-CONTINUE HERE - WRITE REFERENCES INTO A CAPTION FILE.
-fprintf()
+fileID = fopen('paramtable_caption.tex','w');
+caption=fprintf(fileID,'\\caption{Table of parameters varied during latin hypercube sampling-based ensemble.  Values determined from following sources:  1: \\cite{%s}; 2: \\cite{%s}; 3: \\cite{%s}; 4: \\cite{%s}; 5: \\cite{%s}; 6: \\cite{%s}; 7: \\cite{%s}; 8: \\cite{%s}.\\label{table:free_parameters}}',Reference{1},Reference{2},Reference{3},Reference{4},Reference{5},Reference{6},Reference{7},Reference{8});
