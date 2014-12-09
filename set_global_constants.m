@@ -41,6 +41,7 @@ global coalEfactor;coalEfactor=25.8; %tons C/terajoule, http://www.ipcc-nggip.ig
 global oilEfactor;oilEfactor=20.0; %tons C/terajoule, http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 global gasEfactor;gasEfactor=15.3; %tons C/terajoule, http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 
-global ffd0;%this is set to a real value during call to calculate_historical_reserve_growth_rate in generate_parameter_ranges
+%global ffd0; %initial fossil fuel energy density this is set during call to calculate_historical_reserve_growth_rate in generate_parameter_ranges
+%global Dff0; %initial fossil fuel discovery rate, this is set during call to calculate_historical_reserve_growth_rate in generate_parameter_ranges
 global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
 global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6

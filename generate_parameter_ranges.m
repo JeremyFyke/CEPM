@@ -1,4 +1,4 @@
-global ffd0
+global ffd0 Dff0
 
 n=0;
 nSource=1;
@@ -11,7 +11,8 @@ ParameterLatexSymbol{n}='$V_{ff_O}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iRogner_et_al_2012=nSource;
-[lb(n),ub(n),tmp1,tmp2]=GEA_ff_reserves_and_resources();
+Reference{nSource}='Rogner_et_al_2012';
+[lb(n),ub(n),~,~]=GEA_ff_reserves_and_resources();
 v(n) = mean([lb(n) ub(n)]);
 %%%%%%%%%%
 n=n+1 ; 
@@ -19,9 +20,9 @@ iVmax = n;
 ParameterName{n}='Maximum remaining fossil fuel reservoir volume'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
-ParameterSource{n}=nSource;nSource=nSource+1;
-iRogner_1997=nSource;
-[tmp1,tmp2,lb(n),ub(n)]=GEA_ff_reserves_and_resources();
+ParameterSource{n}=nSource;
+nSource=iRogner_et_al_2012;
+[~,~,lb(n),ub(n)]=GEA_ff_reserves_and_resources();
 v(n) = mean([lb(n) ub(n)]);
 %%%%%%%%%% 
 n=n+1 ; 
@@ -32,6 +33,7 @@ ParameterLatexSymbol{n}='$Pr_{ff_0}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iBP_review_2014=nSource;
+Reference{nSource}='BP_statistical_review_2014';
 v(n) = 90.;
 lb(n)= 80.;
 ub(n)= 110.;
@@ -46,6 +48,7 @@ ParameterLatexSymbol{n}='$\sigma_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iauthor_estimate=nSource;
+Reference{nSource}='Author_estimate';
 v(n) = 0.5e-7; %g/J/yr
 lb(n)= 0.0e-7;
 ub(n)= 1.e-7;
@@ -58,10 +61,10 @@ ParameterUnits{n}='g C/kJ';
 ParameterLatexSymbol{n}='$\sigma_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
-[tmp1,tmp2,tmp3,v(n)] = calculate_historical_reserve_growth_rate();
+[Dff0,~,~,ffd0] = calculate_historical_reserve_growth_rate();
 lb(n)= gasEdensity;
 ub(n)= coalEdensity; %g/J C, for coal
-ffd0=v(n);
+v(n)=ffd0;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -72,6 +75,7 @@ ParameterLatexSymbol{n}='$Pr_{ff_0}$ ';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iIEA_medium_term_market_report=nSource;
+Reference{nSource}='IEA_medium_term_renewable_market_report_2014';
 v(n) = 375.;
 lb(n)= 250.;
 ub(n)= 400.;
@@ -100,14 +104,7 @@ v(n) = 1.;
 lb(n)= 0.8;
 ub(n)= 1.2;
 
-%%%%%%%%%% 
-n=n+1 ; iDff0 = n; 
-ParameterName{n}='Initial fossil fuel discovery rate'; 
-ParameterUnits{n}='Tt C/yr';
-ParameterLatexSymbol{n}='$D_{ff_0}$';
-ParameterOutputFormat{n}='';
-ParameterSource{n}=iBP_review_2014;
-[v(n),lb(n),ub(n),temp] = calculate_historical_reserve_growth_rate();
+%[v(n),lb(n),ub(n),temp] = calculate_historical_reserve_growth_rate();
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -130,6 +127,7 @@ ParameterLatexSymbol{n}='$P_{max}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;%10.1126/science.1257469'http://www.sciencemag.org/content/early/2014/09/17/science.1257469.full.pdf (also there is a big Nature special issue on this)';
 iGerland_et_al_2014=nSource;
+Reference{nSource}='Gerland_et_al_2014';
 v(n) = 10.9;
 lb(n)= 9.6;
 ub(n)=12.3;
@@ -142,7 +140,8 @@ ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$P_{inc}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;%'https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&ctype=l&strail=false&bcs=d&nselm=h&met_y=sp_pop_grow&scale_y=lin&ind_y=false&rdim=region&ifdim=region&tdim=true&hl=en&dl=en&ind=false';
-igoogle_public_data=nSource;
+iworld_bank=nSource;
+Reference{nSource}='World_bank_data_2014';
 v(n) = 0.015;
 lb(n)= 0.01;
 ub(n)= 0.02;
@@ -168,6 +167,7 @@ ParameterLatexSymbol{n}='$De_{{pc}_{inc}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
 iIEA_data=nSource;
+Reference{nSource}='EIA_data_2014';
 v(n) = 0.005 ;
 lb(n)= 0.001 ;
 ub(n)= 0.01 ;
@@ -205,17 +205,19 @@ ParameterLatexSymbol{n}='$CCR$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;nSource=nSource+1;
 iMatthews_et_al_2009=nSource;
+Reference{nSource}='Matthews_et_al_2009';
 v(n) = 1.5; 
 lb(n)=1.;
 ub(n)=2.1;
 
 %Convert data to Latex table
 for nn=1:n
-   ParamRange{nn}=strcat(num2str(lb(nn)),'-',num2str(ub(nn)),'$^',num2str(ParameterSource{nn}),'$'); 
+   ParamRange{nn}=strcat(num2str(lb(nn)),'-',num2str(ub(nn)),'$^',num2str(ParameterSource{nn}),'$');  %#ok<SAGROW>
 end
 data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
 columnlabels={'Symbol','Units','Range'};
 
 matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
 
-clear tmp*
+CONTINUE HERE - WRITE REFERENCES INTO A CAPTION FILE.
+fprintf()

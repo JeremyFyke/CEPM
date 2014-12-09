@@ -1,4 +1,7 @@
 function [so] = emissions_economy(args)
+
+global ffd0
+
 global tm1 ff_discovery_tot
 tm1=0;
 ff_discovery_tot=0;
@@ -19,7 +22,6 @@ global ffdfin;n_unpacked_params=n_unpacked_params+1;ffdfin=args(n_unpacked_param
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);so.LHSparams.Pr_re0=Pr_re0;
 global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);so.LHSparams.Pr_remin=Pr_remin;
 global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);so.LHSparams.c_tax=c_tax;
-global Dff0;   n_unpacked_params=n_unpacked_params+1;Dff0=args(n_unpacked_params);so.LHSparams.Dff0=Dff0;
 global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params);so.LHSparams.CTre=CTre;
 global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params);so.LHSparams.popmax=popmax;
 global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params);so.LHSparams.popinc=popinc;
@@ -36,7 +38,7 @@ pcdmax=pcdmax.*bill;
 %Convert from Tt C to g C
 V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
-Dff0=Dff0.*g_2_Tt;
+
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
@@ -211,14 +213,15 @@ end
 
 function [Dff] = ff_discovery_rate( V, t, ff_discovery_tot )
 
-global V0 Vmax Dff0 
+global V0 Vmax Dff0 g_2_Tt
 r1=total_energy_demand(t)./total_energy_demand(1);
 r2=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
 r3=V0./V;
 num=Vmax-(ff_discovery_tot+V0);
 den=Vmax-V0;
 r4=num./den;%needs to approach 0, as V approaches V_max
-Dff = Dff0.*r1.*r2.*r3.*r4;
+Dff0_in_Tt=Dff0.*g_2_Tt;
+Dff = Dff0_in_Tt.*r1.*r2.*r3.*r4;
 Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules (output of fossil_fuel_energy_density in g/j)
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);

@@ -1,10 +1,10 @@
-plot_params_vs_diags=1
+plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_final_percent_reserves_depleted=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
-plot_probabalistic_emissions_paintbrush=0
+plot_probabalistic_emissions_paintbrush=1
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 
@@ -15,53 +15,21 @@ t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
 close all
 
-if plot_params_vs_diags
-    
-    %USE THESE METHODS:
-    %http://www.mathworks.com/help/stats/design-of-experiments-1.html
-    %multiple linear regression
-    
-    %first: linear regression of 'xn' array against net temperature change.
-   
+if plot_params_vs_diags  
     figure
-    
-    nparams=size(model_parameters,2);
-    
-    ymin=mean([so.net_warming])-2.*std([so.net_warming]);
-    ymax=mean([so.net_warming])+2.*std([so.net_warming]);
-    for p=1:nparams
-        
-        x=xn(:,p);
-        y=[so.net_warming]';
-        [R,P]=corrcoef(x,y);
-        CorrCoef(p)=R(2,1);
-        Pvalue(p)=P(2,1);
-       
-        plot(model_parameters(:,p),[so.net_warming],'.')
-        xmin=min(model_parameters(:,p));
-        xmax=max(model_parameters(:,p));
-        lsline
-        axis([xmin xmax ymin ymax]);
-        xlabel(ParameterName{p});
-        ylabel('Net warming (C)');
-        print('-depsc',strcat('figs/',num2str(p),'_sensitivity'))
-    end
-    
-    clf
-    %[CorrCoef,I]=sort(abs(CorrCoef));
-    %ParameterNameSorted=ParameterName(I);
-    %bar(CorrCoef)
-    %xticklabel_rotate(1:nparams,45,ParameterNameSorted)
-    %ylabel('Correlation coefficient')
-    
     X=[ones(size(xn,1),1) xn];
-    a=X\y;
+    a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
     [a,I]=sort(abs(a));
     ParameterNameSorted=ParameterName(I);
-    bar(a)
-    xticklabel_rotate(1:nparams,45,ParameterNameSorted)
-    ylabel('Abs(a)')
+    a(7)=sum(a(1:7));
+    a(1:6)=[];
+    ParameterNameSorted=ParameterNameSorted(7:end);
+    ParameterNameSorted{1}='Remaining parameters';
+    explode=zeros(length(a),1);
+    explode(end)=1;
+    h=pie(a,explode,ParameterNameSorted)
+    set(h(2:2:end),'FontSize',20);
 end
 
 if plot_cumulative_emissions_and_warming_pdfs
@@ -86,6 +54,8 @@ if plot_cumulative_emissions_and_warming_pdfs
     i=find(cdf==max(cdf),1,'first');
     Veg_C_lime=[so(i).tot_emissions so(i).tot_emissions];      
     
+    plevels=[5 50 95];
+    
     figure
     subplot(2,1,1)
     hold on
@@ -93,7 +63,14 @@ if plot_cumulative_emissions_and_warming_pdfs
     shading flat
     xlabel('Cumulative emissions (Tt C)')
     ylabel('Number of simulations')
-    q=prctile([so.tot_emissions],[5 50 95]);
+    q=prctile([so.tot_emissions],plevels);
+    
+    line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
+    line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    
+    box on
+    
     disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
     
     subplot(2,1,2)
@@ -102,21 +79,20 @@ if plot_cumulative_emissions_and_warming_pdfs
     xlabel('Net warming (C)')
     ylabel('Number of simulations')
     ax=axis;
-    plevels=[0 1 10 33 66 90 99];
+    
     q=prctile([so.net_warming],plevels);
-    lh=[120 80 40 10 40 80 120];
-    just={};
-    phrase={'Virtually certain' 'Very likely' 'Likely' 'About as likely as not' 'Unlikely' 'Very unlikely' 'Exceptionally unlikely'};
-    disp('Net warming percentiles and IPCC phraseology')
-    for n=1:length(q);
-        disp([num2str(plevels(n)),'/',phrase{n},': ',num2str(q(n))])
-        line([q(n) q(n)],[ax(3) ax(4)+lh(n)],'linestyle','-','color','k','linewidth',4)
-        text(q(n)+0.1,ax(4)+lh(n),phrase{n})
-    end
-    axis(ax)
-    line([GIS_lim GIS_lim],[ax(3) ax(4)],'linestyle','-','color','r','linewidth',2)
-    line([Mort_lim Mort_lim],[ax(3) ax(4)],'linestyle','-','color','y','linewidth',2)
-    line([Veg_C_lim Veg_C_lim],[ax(3) ax(4)],'linestyle','-','color','g','linewidth',2)
+    
+    line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)    
+    line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    
+     box on
+    
+    disp(['warming 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])    
+
+    line([GIS_lim GIS_lim],[ax(3) ax(4)],'linestyle','-','color','r','linewidth',4)
+    line([Mort_lim Mort_lim],[ax(3) ax(4)],'linestyle','-','color','y','linewidth',4)
+    line([Veg_C_lim Veg_C_lim],[ax(3) ax(4)],'linestyle','-','color','g','linewidth',4)
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
 end
 
@@ -209,7 +185,7 @@ if plot_probabalistic_cumulative_emissions_paintbrush
 	
     axis tight  
 	ax=axis;
-	ax(2)=270;
+	ax(2)=550;
 	axis(ax)
 	tickvals=get(gca,'Ytick');
 	set(gca,'YTicklabel',bin_centers(tickvals));
@@ -232,8 +208,8 @@ if plot_probabalistic_cumulative_emissions_paintbrush
     %    end
     %end
     
-    hc=colorbar;
-    ylabel(hc,'Ensemble density')
+    %hc=colorbar;
+    %ylabel(hc,'Ensemble density')
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C)')
     
@@ -260,7 +236,7 @@ if plot_probabalistic_emissions_paintbrush
     pcolor(hist_arr),shading flat
     ax=axis;
     axis tight
-    ax(2)=270;
+    ax(2)=550;
     ax(3)=0;
     axis(ax)
     tickvals=get(gca,'Ytick');
@@ -286,9 +262,9 @@ if plot_probabalistic_emissions_paintbrush
 %         end
 %     end
     
-    hc=colorbar;
-    ylabel(hc,'Ensemble density')
-    xlabel('Year')
+    %hc=colorbar;
+    %ylabel(hc,'Ensemble density')
+    %xlabel('Year')
     ylabel('Annual emissions (Gt C/yr)')
     
     print('-depsc','figs/probabalistic_emissions')
@@ -319,11 +295,11 @@ if plot_mean_ending_cum_emissions
     year=(1:tf)+present_year;
     hold on
     scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
-    ie=find(~isnan(MeanTotCumEmissions));
-    p=polyfit(year(ie),MeanTotCumEmissions(ie),3);
+    ie=find(~isnan(MeanTotCumEmissions) & nCeasedEmissions>1);
+    p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
     plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
-    ax=axis;ax(4)=5.3;axis(ax)
+    ax=axis;ax(2)=max(year(ie));ax(4)=5.3;axis(ax)
     colormap('jet')
     hc=colorbar
     ylabel(hc,'% of simulations reaching minimum renewable price')
