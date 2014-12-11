@@ -1,11 +1,11 @@
 plot_params_vs_diags=0
-plot_cumulative_emissions_and_warming_pdfs=0
+plot_cumulative_emissions_and_warming_pdfs=1
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_crossover_cdf=0
 plot_ensemble_member_details=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
-plot_probabalistic_emissions_paintbrush=1
+plot_probabalistic_emissions_paintbrush=0
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 
@@ -41,60 +41,83 @@ if plot_cumulative_emissions_and_warming_pdfs
     disp(['Cumulative emissions skew=',num2str(skewness(tot_emissions))])
  
     %determine some climate limits
-    GIS_lim=1.6;
-    cdf=cumsum([so.net_warming]<GIS_lim);%Robinson et al., 2012
-    i=find(cdf==max(cdf),1,'first');
-    GIS_lime=[so(i).tot_emissions so(i).tot_emissions];
- 
-    Mort_lim=7.;
-    cdf=cumsum([so.net_warming]<Mort_lim);%Sherwood et al., 2010
-    i=find(cdf==max(cdf),1,'first');
-    Mort_lime=[so(i).tot_emissions so(i).tot_emissions];  
+    Tlim(1)=1.6;%Greenland, Robinson et al., 2012
+    Tcol{1}=[1 1 0];
+    Tlim(2)=4.5;%Veg C saturation, Friend et al., 2013
+    Tcol{2}=[1 0.5 0];
+    Tlim(3)=7.5;%Mammal mortality, Sherwood et al., 2010
+    Tcol{3}=[1 0 0];
+    Tlimlen=length(Tlim);
     
-    Veg_C_lim=4.;
-    cdf=cumsum([so.net_warming]<Veg_C_lim);%Friend et al., 2013
-    i=find(cdf==max(cdf),1,'first');
-    Veg_C_lime=[so(i).tot_emissions so(i).tot_emissions];      
-    
+    [tot_emissions_sorted,I]=sort([so.tot_emissions]);
+    net_warming=[so.net_warming];
+    net_warming=net_warming(I);
+    for t=1:Tlimlen
+        net_warming_thresh_pass=net_warming>Tlim(t);
+        is=find(net_warming_thresh_pass==1,1,'first')+1;
+        ie=find(net_warming_thresh_pass==0,1,'last');
+        sum_exceeded=cumsum(net_warming_thresh_pass(is:ie));
+        emissions{t}=tot_emissions_sorted(is:ie-1);
+        frac_exceeded{t}=sum_exceeded./sum_exceeded(end);
+        frac_exceeded{t}(end)=[];
+    end
     plevels=[5 50 95];
-    
+     
     figure
     subplot(2,1,1)
     hold on
-    hist([so.tot_emissions],50)
-    shading flat
-    xlabel('Cumulative emissions (Tt C)')
-    ylabel('Number of simulations')
+    hist([so.tot_emissions],50),shading flat
+
     q=prctile([so.tot_emissions],plevels);
+    ax=axis;
     
+    dv=(ax(4)-ax(3))*.03;
+    ax(4)=ax(4)+3.*dv;
+    ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
+
+    for t=1:length(Tlim);       
+        xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
+        xsolid=[emissions{t}(end) ax(2) ax(2) emissions{t}(end)];
+        tm1=t-1;
+        y=[ax(4)-dv.*tm1 ax(4)-dv.*tm1 ax(4)-dv.*t ax(4)-dv.*t];
+        hflfade=fill(xfade,y,'r');
+        hflsolid=fill(xsolid,y,'r');
+        set(hflfade,'FaceColor','interp','EdgeColor','none');
+        set(hflfade,'FaceVertexCData',[1.0 1.0 1.0 ; Tcol{t} ; Tcol{t}; 1.0 1.0 1.0]);
+        set(hflsolid,'EdgeColor','none','FaceColor',Tcol{t});
+    end
+    ax(2)=6.2;
+    axis(ax)
     line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
     line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
-    
+    xlabel('Net cumulative emissions (Tt C)')
+    set(gca,'Ytick',[])
     box on
     
     disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
-    
+
     subplot(2,1,2)
-    hist([so.net_warming],50)
-    shading flat
-    xlabel('Net warming (C)')
-    ylabel('Number of simulations')
-    ax=axis;
+    hist([so.net_warming],50),shading flat
+    set(gca,'ytick',[])
     
+    xlabel('Net warming (^\circC)')
+    ax=axis;
+    ax(1)=1;ax(2)=12.2;
+    axis(ax)
     q=prctile([so.net_warming],plevels);
     
     line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)    
     line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     
-     box on
+    box on
     
-    disp(['warming 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])    
-
-    line([GIS_lim GIS_lim],[ax(3) ax(4)],'linestyle','-','color','r','linewidth',4)
-    line([Mort_lim Mort_lim],[ax(3) ax(4)],'linestyle','-','color','y','linewidth',4)
-    line([Veg_C_lim Veg_C_lim],[ax(3) ax(4)],'linestyle','-','color','g','linewidth',4)
+    disp(['warming 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
+    
+    for t=1:length(Tlim);
+        line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
+    end
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
 end
 
