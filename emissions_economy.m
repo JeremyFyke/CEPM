@@ -215,13 +215,14 @@ function [Dff] = ff_discovery_rate( V, t, ff_discovery_tot )
 
 global V0 Vmax Dff0 g_2_Tt
 r1=total_energy_demand(t)./total_energy_demand(1);
-r2=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
-r3=V0./V;
+r2=V0./V;
+r3=frac_of_energy_from_ff( t , V )./frac_of_energy_from_ff( 1 , V0 );
 num=Vmax-(ff_discovery_tot+V0);
 den=Vmax-V0;
 r4=num./den;%needs to approach 0, as V approaches V_max
 Dff0_in_Tt=Dff0.*g_2_Tt;
 Dff = Dff0_in_Tt.*r1.*r2.*r3.*r4;
+
 Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules (output of fossil_fuel_energy_density in g/j)
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);

@@ -1,5 +1,5 @@
 plot_params_vs_diags=0
-plot_cumulative_emissions_and_warming_pdfs=1
+plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_crossover_cdf=0
@@ -7,7 +7,7 @@ plot_ensemble_member_details=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
 plot_probabalistic_emissions_paintbrush=0
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=0
+plot_consumption_emission_validation=1
 
 
 t_cross_over=nan(ensemble_size,1);
@@ -20,6 +20,7 @@ close all
 if plot_params_vs_diags  
     figure
     X=[ones(size(xn,1),1) xn];
+    y=[so.net_warming]';
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
     [a,I]=sort(abs(a));
@@ -30,8 +31,15 @@ if plot_params_vs_diags
     ParameterNameSorted{1}='Remaining parameters';
     explode=zeros(length(a),1);
     explode(end)=1;
+    
     h=pie(a,explode,ParameterNameSorted)
     set(h(2:2:end),'FontSize',20);
+    
+    print('-depsc','figs/param_sense.eps')
+    
+    figure
+    h=pie(a)
+    
 end
 
 if plot_cumulative_emissions_and_warming_pdfs
@@ -71,11 +79,11 @@ if plot_cumulative_emissions_and_warming_pdfs
     q=prctile([so.tot_emissions],plevels);
     ax=axis;
     
-    dv=(ax(4)-ax(3))*.03;
+    dv=(ax(4)-ax(3))*.05;
     ax(4)=ax(4)+3.*dv;
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
-
-    for t=1:length(Tlim);       
+    ax(2)=7.;
+    for t=1:length(Tlim);
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
         xsolid=[emissions{t}(end) ax(2) ax(2) emissions{t}(end)];
         tm1=t-1;
@@ -86,7 +94,7 @@ if plot_cumulative_emissions_and_warming_pdfs
         set(hflfade,'FaceVertexCData',[1.0 1.0 1.0 ; Tcol{t} ; Tcol{t}; 1.0 1.0 1.0]);
         set(hflsolid,'EdgeColor','none','FaceColor',Tcol{t});
     end
-    ax(2)=6.2;
+    
     axis(ax)
     line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
@@ -103,7 +111,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     
     xlabel('Net warming (^\circC)')
     ax=axis;
-    ax(1)=1;ax(2)=12.2;
+    ax(1)=1;ax(2)=13.;
     axis(ax)
     q=prctile([so.net_warming],plevels);
     
@@ -367,8 +375,11 @@ if plot_consumption_emission_validation
     end
     mod_time=so(en).time(1:nval)+present_year;
     TEDMean=mean(TotEnDemand,1);
-    TEDMin=min(TotEnDemand,[],1);
-    TEDMax=max(TotEnDemand,[],1);
+    TEDStd=std(TotEnDemand,1);
+    TEDMin=TEDMean-TEDStd;
+    TEDMax=TEDMean+TEDStd;
+    %TEDMin=min(TotEnDemand,[],1);
+    %TEDMax=max(TotEnDemand,[],1);
     
     disp(['historical consumption trend=' num2str(p(1))])
     p=polyfit(mod_time,TEDMean',1);
@@ -406,8 +417,11 @@ if plot_consumption_emission_validation
     end
     mod_time=so(en).time(1:nval)+present_year;
     TEDMean=mean(TotEmissions,1);
-    TEDMin=min(TotEmissions,[],1);
-    TEDMax=max(TotEmissions,[],1);
+    TEDStd=std(TotEmissions,1);
+    TEDMin=TEDMean-TEDStd;
+    TEDMax=TEDMean+TEDStd;
+    %TEDMin=min(TotEmissions,[],1);
+    %TEDMax=max(TotEmissions,[],1);
     
     disp(['historical emission trend=' num2str(p(1))])
     p=polyfit(mod_time,TEDMean',1);

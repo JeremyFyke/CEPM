@@ -10,6 +10,9 @@ icoal=3;
 %resources.  First index is lower bound, second index is higher bound . In
 %the case of oil and gas, X+Y indicates conventional+unconventional.
 %All units in EJ
+
+%%%%NOTE: USE OF THIS ROUTINE HAS BEEN REPLACED WITH DIRECT QUOTES FROM IPCC AR5 WG3, Ch.7
+
 reserves(ioil,:)=[4900+3750 7610+5600];
 resources(ioil,:)=[4170+11280 6150+14800];
 
