@@ -2,13 +2,10 @@ plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
-plot_crossover_cdf=0
-plot_ensemble_member_details=0
-plot_probabalistic_cumulative_emissions_paintbrush=0
+plot_probabalistic_cumulative_emissions_paintbrush=1
 plot_probabalistic_emissions_paintbrush=0
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
-
+plot_consumption_emission_validation=0
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -45,7 +42,8 @@ end
 if plot_cumulative_emissions_and_warming_pdfs
     
     tot_emissions=[so.tot_emissions];
-    
+    disp(['Min cumulative emissions=' num2str(min(tot_emissions))]);
+    disp(['Max cumulative emissions=' num2str(max(tot_emissions))]);    
     disp(['Cumulative emissions skew=',num2str(skewness(tot_emissions))])
  
     %determine some climate limits
@@ -60,6 +58,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     [tot_emissions_sorted,I]=sort([so.tot_emissions]);
     net_warming=[so.net_warming];
     net_warming=net_warming(I);
+    
     for t=1:Tlimlen
         net_warming_thresh_pass=net_warming>Tlim(t);
         is=find(net_warming_thresh_pass==1,1,'first')+1;
@@ -83,7 +82,8 @@ if plot_cumulative_emissions_and_warming_pdfs
     ax(4)=ax(4)+3.*dv;
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
     ax(2)=7.;
-    for t=1:length(Tlim);
+    for t=1:Tlimlen;
+        emissions{t}(end)
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
         xsolid=[emissions{t}(end) ax(2) ax(2) emissions{t}(end)];
         tm1=t-1;
@@ -94,7 +94,7 @@ if plot_cumulative_emissions_and_warming_pdfs
         set(hflfade,'FaceVertexCData',[1.0 1.0 1.0 ; Tcol{t} ; Tcol{t}; 1.0 1.0 1.0]);
         set(hflsolid,'EdgeColor','none','FaceColor',Tcol{t});
     end
-    
+   
     axis(ax)
     line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
@@ -109,6 +109,13 @@ if plot_cumulative_emissions_and_warming_pdfs
     hist([so.net_warming],50),shading flat
     set(gca,'ytick',[])
     
+    p_100=prctile([so.net_warming],1:100);
+    
+    for t=1:Tlimlen
+        disp([num2str(t) ' threshold T percentile:' num2str(find(p_100>Tlim(t),1,'first'))])
+        disp([num2str(t) 'threshold max safe emissions:' num2str(emissions{t}(end))]);
+    end
+    
     xlabel('Net warming (^\circC)')
     ax=axis;
     ax(1)=1;ax(2)=13.;
@@ -122,6 +129,8 @@ if plot_cumulative_emissions_and_warming_pdfs
     box on
     
     disp(['warming 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
+    disp(['Min warming=' num2str(min([so.net_warming]))]);
+    disp(['Max warming=' num2str(max([so.net_warming]))]);
     
     for t=1:length(Tlim);
         line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
@@ -139,72 +148,33 @@ if plot_diversity_of_trajectories
     title('49th-51th percentile simulations')
     xlabel('Year')
     ylabel('Emissions (Tt C/yr)')
-    
+    max_burn_rate_49_51=[so(i).burn_rate_max];
+    disp(['Maximum peak emissions within 49-51 percentile band=' num2str(max([so(i).burn_rate_max])) ])
+    disp(['Minimum peak emissions within 49-51 percentile band=' num2str(min([so(i).burn_rate_max])) ])
 end
 
 if plot_final_percent_reserves_depleted
     for i=1:ensemble_size
-      initial_volume(i)=  so(i).LHSparams.V0;
-      max_volume(i)=so(i).LHSparams.Vmax;
-      tot_emissions(i)=so(i).tot_emissions-emissions_to_date;
+        clear t
+        t=find(so(i).burn_rate==so(i).burn_rate_max)
+        cum_emissions_at_max_burn_rate(i)=so(i).cum_emissions(t);
+        initial_volume(i)=so(i).LHSparams.V0;
+        max_volume(i)=so(i).LHSparams.Vmax;
+        tot_emissions(i)=so(i).tot_emissions;
     end
-    percent_depleted=tot_emissions./initial_volume;
-    p=prctile(percent_depleted,[5 50 95]);
+    peak_ff=cum_emissions_at_max_burn_rate./tot_emissions;
+    p=prctile(peak_ff,[5 50 95]);
     subplot(2,1,1)
-    hist(percent_depleted,40)
+    hist(peak_ff,40)
     shading flat
-    title(['5/50/95 percentiles of ratio of total future emissions to initial ff volume=',num2str(p)])
+    title(['5/50/95 percentiles of peak_ff=',num2str(p)])
     subplot(2,1,2)
     percent_depleted=tot_emissions./max_volume;
     p=prctile(percent_depleted,[5 50 95]);
     hist(percent_depleted,40)
     shading flat
     title(['5/50/95 percentiles of ratio of total future emissions to max ff volume=',num2str(p)])
-       
-end
 
-if plot_crossover_cdf
-    figure
-    for n=1:ensemble_size
-        subplot(2,1,1)
-        cdfplot([so.t_cross_over]);
-        xlabel('Year')
-        ylabel('Number of simulations')
-        title('Cross over year cdf')
-        ax=axis;ax(1)=2050;ax(2)=2200;axis(ax);
-        subplot(2,1,2)
-        cdfplot([so.t_fossil_fuel_emissions_stop]);
-        xlabel('Year')
-        ylabel('Number of simulations')
-        title('Cessation of emissions year cdf')
-        ax=axis;ax(1)=2050;ax(2)=2200;axis(ax);
-    end
-    print('-depsc','figs/cross_over_cdf')
-end
-
-if plot_ensemble_member_details
-    figure
-    n=1;
-    subplot(4,1,1)
-    plot(so(n).cum_emissions)
-    ylabel('cumulative emissions')
-    axis tight
-    subplot(4,1,2)
-    hold on
-    h(1)=plot(so(n).ff_pr,'r');
-    h(2)=plot(so(n).re_pr,'g');
-    legend(h,{'fossil fuel price','renewable price'})
-    axis tight
-    subplot(4,1,3)
-    plot(so(n).ff_volume)
-    ylabel('fossil fuel volume')
-    axis tight
-    subplot(4,1,4)
-    hold on
-    h(1)=plot(so(n).burn_rate,'r');
-    h(2)=plot(so(n).discovery_rate,'b')  ;
-    legend({'burn rate','discovery rate'})
-    axis tight
 end
 
 %common variables follow for paintbrush plots
@@ -227,17 +197,15 @@ if plot_probabalistic_cumulative_emissions_paintbrush
     end
     hist_arr(hist_arr==0)=nan;
     
-	pcolor(hist_arr),shading flat
-	
-    axis tight  
-	ax=axis;
-	ax(2)=550;
-	axis(ax)
-	tickvals=get(gca,'Ytick');
-	set(gca,'YTicklabel',bin_centers(tickvals));
-	tickvals=get(gca,'Xtick');
-	set(gca,'XTicklabel',[tickvals+present_year])
-	caxis([0 50])
+    x=(1:tf)+present_year;
+    y=bin_centers;
+    pcolor(x,y,hist_arr),shading flat
+    axis tight
+    ax=axis;
+    ax(2)=2500;
+    caxis([0 100])
+    axis(ax)
+
     
     %hist_arrm=hist_arr(:);
     %[yearm,cum_emism]=meshgrid(1:tf,bin_centers);
@@ -266,7 +234,17 @@ end
 if plot_probabalistic_emissions_paintbrush
     
     figure
-    
+    clear RCP*
+    %load RCP emission pathways
+    data=xlsread('data/rcp_db.xls','data');
+    ts=5;
+    te=16;
+    RCPyear=data(1,ts:te);
+    RCP(1,:)=data(4,ts:te)./1000.;
+    RCP(2,:)=data(3,ts:te)./1000.;
+    RCP(3,:)=data(2,ts:te)./1000.;
+    RCP(4,:)=data(5,ts:te)./1000.;
+
     emis_arr=nan(ensemble_size,tf);
     for en=1:ensemble_size
         emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
@@ -278,20 +256,14 @@ if plot_probabalistic_emissions_paintbrush
         hist_arr(:,yr)=hist(emis_arr(:,yr),bin_centers);
     end
     hist_arr(hist_arr==0)=nan;
-    
-    pcolor(hist_arr),shading flat
-    ax=axis;
+    whos hist_arr
+    x=(1:tf)+present_year;
+    y=bin_centers;
+    pcolor(x,y,hist_arr),shading flat
     axis tight
-    ax(2)=550;
-    ax(3)=0;
+    ax(2)=2500;
+    caxis([0 100])
     axis(ax)
-    tickvals=get(gca,'Ytick');
-    tickvals=tickvals(2:end);
-    ticklabels=bin_centers(tickvals-49);
-    set(gca,'YTicklabel',ticklabels); %49 a little hacky here... just used to bump first index down to first bin...
-    tickvals=get(gca,'Xtick');
-    set(gca,'XTicklabel',tickvals+present_year)
-    caxis([0 50])
     
 %     hist_arrm=hist_arr(:);
 %     [yearm,emism]=meshgrid(1:tf,bin_centers);
@@ -308,14 +280,18 @@ if plot_probabalistic_emissions_paintbrush
 %             caxis([1 5])
 %         end
 %     end
-    
-    %hc=colorbar;
-    %ylabel(hc,'Ensemble density')
-    %xlabel('Year')
-    ylabel('Annual emissions (Tt C/yr)')
-    
-    print('-depsc','figs/probabalistic_emissions')
-    
+
+xlabel('Year')
+ylabel('Annual emissions (Tt C/yr)')
+hold on
+RCPname={'RCP2.6' 'RCP4.5' 'RCP6.0' 'RCP8.5'};
+for nRCP=2:4
+    plot(RCPyear,squeeze(RCP(nRCP,:)),'k','linewidth',4)
+    text(RCPyear(end),squeeze(RCP(nRCP,end)),RCPname{nRCP},'fontsize',30)
+end
+
+print('-depsc','figs/probabalistic_emissions')
+
 end
 
 if plot_mean_ending_cum_emissions
