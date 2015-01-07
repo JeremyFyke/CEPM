@@ -203,14 +203,14 @@ n=n+1;
 icc2dT = n;
 ParameterName{n}='Ratio of cumulative emissions to net warming'; 
 ParameterUnits{n}='C/Gt C';
-ParameterLatexSymbol{n}='$CCR$';
+ParameterLatexSymbol{n}='$TCRE$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
-iMatthews_et_al_2009=nSource;
-Reference{nSource}='Matthews_et_al_2009';nSource=nSource+1;
+iCollins_et_al_2013=nSource;
+Reference{nSource}='Collins_et_al_2013';nSource=nSource+1;
 v(n) = 1.5; 
-lb(n)=1.;
-ub(n)=2.1;
+lb(n)=0.8;
+ub(n)=2.5;
 
 %Convert data to Latex table
 for nn=1:n

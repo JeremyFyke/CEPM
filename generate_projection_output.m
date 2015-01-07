@@ -2,10 +2,10 @@ plot_params_vs_diags=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
-plot_probabalistic_cumulative_emissions_paintbrush=1
+plot_probabalistic_cumulative_emissions_paintbrush=0
 plot_probabalistic_emissions_paintbrush=0
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=0
+plot_consumption_emission_validation=1
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -26,7 +26,7 @@ if plot_params_vs_diags
     a(1:6)=[];
     ParameterNameSorted=ParameterNameSorted(7:end);
     ParameterNameSorted{1}='Remaining parameters';
-    explode=zeros(length(a),1);
+    explode=zeros(length(a),1); %Set up TCRE to be detached from rest of pie
     explode(end)=1;
     
     h=pie(a,explode,ParameterNameSorted)
