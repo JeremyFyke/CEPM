@@ -3,9 +3,9 @@ plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
-plot_probabalistic_emissions_paintbrush=0
+plot_probabalistic_emissions_paintbrush=1
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
+plot_consumption_emission_validation=0
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -234,6 +234,7 @@ end
 if plot_probabalistic_emissions_paintbrush
     
     figure
+    hold on
     clear RCP*
     %load RCP emission pathways
     data=xlsread('data/rcp_db.xls','data');
@@ -244,7 +245,10 @@ if plot_probabalistic_emissions_paintbrush
     RCP(2,:)=data(3,ts:te)./1000.;
     RCP(3,:)=data(2,ts:te)./1000.;
     RCP(4,:)=data(5,ts:te)./1000.;
-
+    data=load('data/global.1751_2010.ems');
+    obs_emissions=data(end-30:end,2)./1.e6;
+    obs_time=data(end-30:end,1);
+   
     emis_arr=nan(ensemble_size,tf);
     for en=1:ensemble_size
         emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
@@ -253,18 +257,17 @@ if plot_probabalistic_emissions_paintbrush
     bin_centers=linspace(0,nanmax(emis_arr(:)),nbins);
     hist_arr=nan(nbins,tf);
     for yr=1:tf
-        hist_arr(:,yr)=hist(emis_arr(:,yr),bin_centers);
+        e=emis_arr(:,yr);
+        hist_arr(:,yr)=hist(e,bin_centers);
+        emis_mean(yr)=median(e(~isnan(e)));
     end
     hist_arr(hist_arr==0)=nan;
-    whos hist_arr
     x=(1:tf)+present_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
-    axis tight
-    ax(2)=2500;
-    caxis([0 100])
-    axis(ax)
     
+    caxis([0 100])
+
 %     hist_arrm=hist_arr(:);
 %     [yearm,emism]=meshgrid(1:tf,bin_centers);
 %     yearm=yearm(:); yearm(isnan(hist_arrm))=[];
@@ -284,12 +287,21 @@ if plot_probabalistic_emissions_paintbrush
 xlabel('Year')
 ylabel('Annual emissions (Tt C/yr)')
 hold on
+plot(obs_time,obs_emissions,'r--','linewidth',4)
+text(1990,0.002,{'Observed';'emissions'},'fontsize',30,'color','r');
+plot(x,emis_mean,'k','linewidth',12)
+text(2160,0.015,{'Median simulated';'emissions'},'fontsize',30,'color','k');
 RCPname={'RCP2.6' 'RCP4.5' 'RCP6.0' 'RCP8.5'};
-for nRCP=2:4
-    plot(RCPyear,squeeze(RCP(nRCP,:)),'k','linewidth',4)
-    text(RCPyear(end),squeeze(RCP(nRCP,end)),RCPname{nRCP},'fontsize',30)
+for nRCP=1:4
+    plot(RCPyear(3:end),squeeze(RCP(nRCP,3:end)),'r','linewidth',4)
+    text(RCPyear(end),squeeze(RCP(nRCP,end)),RCPname{nRCP},'fontsize',30,'color','r')
 end
 
+    axis tight
+    ax=axis;
+    ax(1)=1980;ax(2)=2300;ax(3)=-0.003;
+    axis(ax)
+    
 print('-depsc','figs/probabalistic_emissions')
 
 end
