@@ -1,8 +1,8 @@
-plot_params_vs_diags=0
+plot_params_vs_diags=1
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
-plot_probabalistic_cumulative_emissions_paintbrush=1
+plot_probabalistic_cumulative_emissions_paintbrush=0
 plot_probabalistic_emissions_paintbrush=0
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0

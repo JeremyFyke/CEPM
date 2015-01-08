@@ -14,22 +14,22 @@ set_global_constants
 %globalize LHS parameters; count LHS parameters; unpack LHS-varied
 %parameters; assign LHS parameters to ensemble struture for diagnostics
 n_unpacked_params=0;
-global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params);so.LHSparams.V0=V0;
-global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params);so.LHSparams.Vmax=Vmax;
-global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params);so.LHSparams.Pr_ff0=Pr_ff0;
-global ffdtre;n_unpacked_params=n_unpacked_params+1;ffdtre=args(n_unpacked_params);so.LHSparams.ffdtre=ffdtre;
-global ffdfin;n_unpacked_params=n_unpacked_params+1;ffdfin=args(n_unpacked_params);so.LHSparams.ffdfin=ffdfin;
-global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params);so.LHSparams.Pr_re0=Pr_re0;
+global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)      ;so.LHSparams.V0=V0;
+global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params)    ;so.LHSparams.Vmax=Vmax;
+global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params)  ;so.LHSparams.Pr_ff0=Pr_ff0;
+global ffeftre; n_unpacked_params=n_unpacked_params+1;ffeftre=args(n_unpacked_params) ;so.LHSparams.ffeftre=ffeftre;
+global ffeffin; n_unpacked_params=n_unpacked_params+1;ffeffin=args(n_unpacked_params) ;so.LHSparams.ffeffin=ffeffin;
+global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params)  ;so.LHSparams.Pr_re0=Pr_re0;
 global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);so.LHSparams.Pr_remin=Pr_remin;
-global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params);so.LHSparams.c_tax=c_tax;
-global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params);so.LHSparams.CTre=CTre;
-global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params);so.LHSparams.popmax=popmax;
-global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params);so.LHSparams.popinc=popinc;
-global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params);so.LHSparams.pcdmax=pcdmax;
-global ipcdinc;  n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params);so.LHSparams.ipcdinc=ipcdinc;
-global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params);so.LHSparams.fffb=fffb;
-global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params);so.LHSparams.fffcexp=fffcexp;
-global icc2dT; n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params);so.LHSparams.icc2dT=icc2dT;
+global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params)   ;so.LHSparams.c_tax=c_tax;
+global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params)    ;so.LHSparams.CTre=CTre;
+global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params)  ;so.LHSparams.popmax=popmax;
+global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params)  ;so.LHSparams.popinc=popinc;
+global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params)  ;so.LHSparams.pcdmax=pcdmax;
+global ipcdinc; n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params) ;so.LHSparams.ipcdinc=ipcdinc;
+global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params)    ;so.LHSparams.fffb=fffb;
+global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params) ;so.LHSparams.fffcexp=fffcexp;
+global icc2dT;  n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params)  ;so.LHSparams.icc2dT=icc2dT;
 
 %Convert from billion people, to people
 popmax=popmax.*bill;
@@ -66,8 +66,8 @@ options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-so.burn_rate=so.burn_rate.*so.ff_energy_density/g_2_Tt;
-so.discovery_rate=so.discovery_rate.*so.ff_energy_density/g_2_Tt;
+so.burn_rate=so.burn_rate.*so.ff_emission_factor/g_2_Tt;
+so.discovery_rate=so.discovery_rate.*so.ff_emission_factor/g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + emissions_to_date;
@@ -123,7 +123,7 @@ end
 %t and V are vectors.
 
 diagnostics.burn_rate=burn_rate;
-diagnostics.ff_energy_density=fossil_fuel_energy_density(t);
+diagnostics.ff_emission_factor=fossil_fuel_emission_factor(t);
 diagnostics.ff_pr=ff_price(V);
 diagnostics.re_pr=re_price(t);
 diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
@@ -196,17 +196,17 @@ Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [edens] = fossil_fuel_energy_density( t )
+function [efac] = fossil_fuel_emission_factor( t )
 
-global ffd0 ffdtre ffdfin
+global ffd0 ffeftre ffeffin
 
-%trend initial density to final density, hold constant once there
-if ffd0 > ffdfin 
-  edens = ffd0 - ffdtre .* t ;
-  edens = max(edens,ffdfin);
+%trend initial emission factor (g/J) to final factor, hold constant once there
+if ffd0 > ffeffin 
+  efac = ffd0 - ffeftre .* t ;
+  efac = max(efac,ffeffin);
 else
-  edens = ffd0 + ffdtre .* t ; 
-  edens = min(edens,ffdfin);
+  efac = ffd0 + ffeftre .* t ; 
+  efac = min(efac,ffeffin);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,7 +223,7 @@ r4=num./den;%needs to approach 0, as V approaches V_max
 Dff0_in_Tt=Dff0.*g_2_Tt;
 Dff = Dff0_in_Tt.*r1.*r2.*r3.*r4;
 
-Dff = Dff./fossil_fuel_energy_density( t ); %Convert to Joules (output of fossil_fuel_energy_density in g/j)
+Dff = Dff./fossil_fuel_emission_factor( t ); %Convert to Joules 
 %ensure Ctff doesn't go below 0 (implying negative discovery).
 Dff = max(0.,Dff);
 

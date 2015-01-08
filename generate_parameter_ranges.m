@@ -3,8 +3,7 @@ global ffd0 Dff0
 n=0;
 nSource=1;
 %%%%%%%%%%
-n=n+1 ; 
-iV0 = n; 
+n=n+1 ;
 ParameterName{n}='Initial fossil fuel reservoir reserves'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_O}$';
@@ -18,7 +17,6 @@ v(n) = mean([lb(n) ub(n)]);
 
 %%%%%%%%%%
 n=n+1 ; 
-iVmax = n; 
 ParameterName{n}='Maximum fossil fuel resources'; 
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_max}$';
@@ -28,8 +26,7 @@ ub(n)=7.665; %From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, an
 v(n) = mean([lb(n) ub(n)]);
 
 %%%%%%%%%% 
-n=n+1 ; 
-iPr_ff0 = n ; 
+n=n+1 ;  
 ParameterName{n}='Initial fossil fuel cost'; 
 ParameterUnits{n}='\$/bbl oil';
 ParameterLatexSymbol{n}='$Pr_{ff_0}$';
@@ -43,10 +40,9 @@ ub(n)= 110.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-iffdtre = n ;
-ParameterName{n}='Average fossil energy density trend (inverse)'; 
+ParameterName{n}='Final fossil energy emission factor'; 
 ParameterUnits{n}='g C/J/yr';
-ParameterLatexSymbol{n}='$\rho_{ff}$';
+ParameterLatexSymbol{n}='$E_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iauthor_estimate=nSource;
@@ -57,20 +53,18 @@ ub(n)= 1.e-7;
 
 %%%%%%%%%% 
 n=n+1 ; 
-iffdfin = n ;
-ParameterName{n}='Final fossil energy density (inverse)'; 
+ParameterName{n}='Final fossil energy emission factor'; 
 ParameterUnits{n}='g C/J';
-ParameterLatexSymbol{n}='$\rho_{ff_{minmax}}$';
+ParameterLatexSymbol{n}='$E_{ff_{minmax}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
 [Dff0,~,~,ffd0] = calculate_historical_reserve_growth_rate();
-lb(n)= gasEdensity;
-ub(n)= coalEdensity; %g/J C, for coal
+lb(n)= gasEfactor;
+ub(n)= coalEfactor; %g/J C, for coal
 v(n)=ffd0;
 
 %%%%%%%%%% 
 n=n+1 ; 
-iPr_re0 = n ; 
 ParameterName{n}='Initial renewable unit cost'; 
 ParameterUnits{n}='\$/MWh';
 ParameterLatexSymbol{n}='$Pr_{ff_0}$ ';
@@ -84,7 +78,6 @@ ub(n)= 400.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-iPr_remin = n ; 
 ParameterName{n}='Minimum renewable unit cost'; 
 ParameterUnits{n}='\% of initial cost';
 ParameterLatexSymbol{n}='$Pr_{re_{min}}$';
@@ -96,7 +89,6 @@ ub(n)= 0.5;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ic_tax = n  ; 
 ParameterName{n}='Relative carbon tax ($>$1=tax, $<$1=subsidy)'; 
 ParameterUnits{n}='\%';
 ParameterLatexSymbol{n}='$S_{ff}$';
@@ -106,11 +98,8 @@ v(n) = 1.;
 lb(n)= 0.8;
 ub(n)= 1.2;
 
-%[v(n),lb(n),ub(n),temp] = calculate_historical_reserve_growth_rate();
-
 %%%%%%%%%% 
 n=n+1 ; 
-iCTre = n;
 ParameterName{n}='Rate of renewable cost decline';
 ParameterUnits{n}='\$/MWh/yr';
 ParameterLatexSymbol{n}='$T_{re}$';
@@ -122,7 +111,6 @@ ub(n)= -2.8;
 
 %%%%%%%%%% 
 n=n+1; 
-ipopmax = n;
 ParameterName{n}='Maximum population'; 
 ParameterUnits{n}='Billion people';
 ParameterLatexSymbol{n}='$P_{max}$';
@@ -136,7 +124,6 @@ ub(n)=12.3;
 
 %%%%%%%%%% 
 n=n+1; 
-ipopinc = n;
 ParameterName{n}='Population increase'; 
 ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$P_{inc}$';
@@ -150,7 +137,6 @@ ub(n)= 0.02;
 
 %%%%%%%%%% 
 n=n+1; 
-ipcdmax = n; 
 ParameterName{n}='Maximum per-capita energy consumption'; 
 ParameterUnits{n}='GJ/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{max}}$';
@@ -162,7 +148,6 @@ ub(n)= 3.6e11./1.e9 ;
 
 %%%%%%%%%% 
 n=n+1; 
-ipcdinc = n; 
 ParameterName{n}='Per-capita energy consumption increase'; 
 ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{inc}}$';
@@ -176,7 +161,6 @@ ub(n)= 0.01 ;
 
 %%%%%%%%%% 
 n=n+1; 
-ifffb = n; 
 ParameterName{n}='Fossil fuel to renewables transfer delay';
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$B$';
@@ -188,7 +172,6 @@ ub(n)=1.5;
 
 %%%%%%%%%% 
 n=n+1; 
-ifffcexp = n; 
 ParameterName{n}='Fossil fuel to renewables transfer fade strength'; 
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$C$';
@@ -200,7 +183,6 @@ ub(n)=-4;
 
 %%%%%%%%%% 
 n=n+1; 
-icc2dT = n;
 ParameterName{n}='Ratio of cumulative emissions to net warming'; 
 ParameterUnits{n}='C/Gt C';
 ParameterLatexSymbol{n}='$TCRE$';
