@@ -3,8 +3,8 @@ plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
-plot_probabalistic_emissions_paintbrush=1
-plot_mean_ending_cum_emissions=0
+plot_probabalistic_emissions_paintbrush=0
+plot_mean_ending_cum_emissions=1
 plot_consumption_emission_validation=0
 
 t_cross_over=nan(ensemble_size,1);
@@ -317,7 +317,7 @@ if plot_mean_ending_cum_emissions
     TotEmissions=[so.tot_emissions];
     NetWarming=[so.net_warming];
     nCeasedEmissions=zeros(1,tf);
-    IsMinRenewablesReached=zeros(1,tf);
+    IsMinRenewablesReached=zeros(1,ensemble_size);
     for en=1:ensemble_size
       FinalRePr(en)=so(en).re_pr(end);
       MinRePr(en)=so(en).LHSparams.Pr_remin .* so(en).LHSparams.Pr_re0./mwh_2_J;
@@ -337,7 +337,7 @@ if plot_mean_ending_cum_emissions
     p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
     plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
-    ax=axis;ax(2)=max(year(ie));ax(4)=5.3;axis(ax)
+    ax=axis;ax(2)=2300;ax(4)=5.3;axis(ax)
     colormap('jet')
     hc=colorbar
     ylabel(hc,'% of simulations reaching minimum renewable price')

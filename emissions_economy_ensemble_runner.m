@@ -13,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 100 ;
+ensemble_size = 10000 ;
 
 %generate parameter arrays
 generate_parameter_ranges;
