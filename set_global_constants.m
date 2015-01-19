@@ -25,7 +25,7 @@ global USpercapconsump2013; USpercapconsump2013= 5.99842836e13.*mill./USpop2013;
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
 global Globaltotenergyuse2013; Globaltotenergyuse2013=data(3,end-1).*quads_2_J;
-global P0; P0 = 6.9e9 ;%United Nations Department of Economic and Social Affairs, Population Division
+global P0; P0 = 7.2e9 ;%Gerland et al., 2014
 global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013./P0;
 global present_year; present_year=2012.;
 global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5
@@ -35,7 +35,7 @@ global oilEfactor;oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.j
 global gasEfactor;gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 
 global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
-global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6
+%global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6
 
 
 

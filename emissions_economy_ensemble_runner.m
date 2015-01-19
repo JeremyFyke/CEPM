@@ -1,3 +1,4 @@
+
 %% Run energy crossover model multiple times for a range of parameters.
 %% Plot resulting spread in crossover times and cumulative emissions.
 
@@ -12,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 10000 ;
+ensemble_size = 100 ;
 
 %generate parameter arrays
 generate_parameter_ranges;

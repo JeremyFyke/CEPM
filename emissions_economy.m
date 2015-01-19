@@ -144,15 +144,14 @@ function [fff] = frac_of_energy_from_ff( t , V )
 
 global fffb fffcexp ff_frac0
 
-a = ff_frac0;
 b = fffb;
 c = 1.*10^fffcexp;
 ff_pr=ff_price(V);
 re_pr=re_price(t);
-scalefac=2; %Arbitrary scaling factor, to give curve realistic shape
+scalefac=1; %Arbitrary scaling factor, to give curve realistic shape
 x=(ff_pr-re_pr)./ff_pr.*scalefac;
 
-fff = a ./ (1 + b.*c.^(-x)); %sigmoid function
+fff = ff_frac0 ./ (1 + b.*c.^(-x)); %sigmoid function
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,8 +169,8 @@ pop = P0*popmax*e./(popmax+P0*(e-1));
 function [pcd] = per_cap_demand( t )
 
 global ipcdinc pcdmax Globalpercapconsump2013
-pcddub=log(2)./(log(1+ipcdinc));
-pcd = Globalpercapconsump2013 .* exp( t .* ( log(2) / pcddub) );  % exponential per capita demand growth
+
+pcd = Globalpercapconsump2013 .* exp( t .* (ipcdinc));  % exponential per capita demand growth
 pcd = min( pcd , pcdmax) ;      %limit to maximum per capita demand
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

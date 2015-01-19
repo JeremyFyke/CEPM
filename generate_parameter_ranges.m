@@ -10,7 +10,7 @@ ParameterLatexSymbol{n}='$V_{ff_O}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iRogner_et_al_2012=nSource;
-Reference{nSource}='Rogner_et_al_2012';nSource=nSource+1;
+Reference{nSource}='Collins_et_al_2013';nSource=nSource+1;
 lb(n)=1.002;
 ub(n)=1.94;
 v(n) = mean([lb(n) ub(n)]);
@@ -19,7 +19,7 @@ v(n) = mean([lb(n) ub(n)]);
 n=n+1 ; 
 ParameterName{n}='Maximum fossil fuel resources'; 
 ParameterUnits{n}='Tt C';
-ParameterLatexSymbol{n}='$V_{ff_max}$';
+ParameterLatexSymbol{n}='$V_{ff_{max}}$';
 ParameterSource{n}=iRogner_et_al_2012;
 lb(n)=2.535;
 ub(n)=7.665; %From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, and coal resources reduced by 80% according to Rogner arguement on practical availability
@@ -40,14 +40,14 @@ ub(n)= 110.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Final fossil energy emission factor'; 
+ParameterName{n}='Fossil energy emission factor trend'; 
 ParameterUnits{n}='g C/J/yr';
-ParameterLatexSymbol{n}='$E_{ff}$';
+ParameterLatexSymbol{n}='$T_{E_{ff}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iauthor_estimate=nSource;
 Reference{nSource}='Author_estimate';nSource=nSource+1;
-v(n) = 0.5e-7; %g/J/yr
+v(n) = 0.5e-7;
 lb(n)= 0.0e-7;
 ub(n)= 1.e-7;
 
@@ -55,7 +55,7 @@ ub(n)= 1.e-7;
 n=n+1 ; 
 ParameterName{n}='Final fossil energy emission factor'; 
 ParameterUnits{n}='g C/J';
-ParameterLatexSymbol{n}='$E_{ff_{minmax}}$';
+ParameterLatexSymbol{n}='$E_{ff_f}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
 [Dff0,~,~,ffd0] = calculate_historical_reserve_growth_rate();
@@ -67,7 +67,7 @@ v(n)=ffd0;
 n=n+1 ; 
 ParameterName{n}='Initial renewable unit cost'; 
 ParameterUnits{n}='\$/MWh';
-ParameterLatexSymbol{n}='$Pr_{ff_0}$ ';
+ParameterLatexSymbol{n}='$Pr_{nff_0}$ ';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iIEA_medium_term_market_report=nSource;
@@ -80,7 +80,7 @@ ub(n)= 400.;
 n=n+1 ; 
 ParameterName{n}='Minimum renewable unit cost'; 
 ParameterUnits{n}='\% of initial cost';
-ParameterLatexSymbol{n}='$Pr_{re_{min}}$';
+ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 0.3;
@@ -184,7 +184,7 @@ ub(n)=-4;
 %%%%%%%%%% 
 n=n+1; 
 ParameterName{n}='Ratio of cumulative emissions to net warming'; 
-ParameterUnits{n}='C/Gt C';
+ParameterUnits{n}='$^\circ$C/Gt C';
 ParameterLatexSymbol{n}='$TCRE$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
@@ -201,7 +201,7 @@ end
 data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
 columnlabels={'Symbol','Units','Range'};
 
+!rm *.tex
 matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
-
 fileID = fopen('paramtable_caption.tex','w');
 caption=fprintf(fileID,'\\caption{Table of parameters varied during latin hypercube sampling-based ensemble.  Values determined from following sources:  1: \\cite{%s}; 2: \\cite{%s}; 3: \\cite{%s}; 4: \\cite{%s}; 5: \\cite{%s}; 6: \\cite{%s}; 7: \\cite{%s}; 8: \\cite{%s}.\\label{table:free_parameters}}',Reference{1},Reference{2},Reference{3},Reference{4},Reference{5},Reference{6},Reference{7},Reference{8});
