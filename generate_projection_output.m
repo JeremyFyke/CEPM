@@ -1,11 +1,13 @@
-plot_params_vs_diags=0
-plot_cumulative_emissions_and_warming_pdfs=0
+relative_parameter_sensitivities_for_final_cumulative_carbon=0
+relative_parameter_sensitivities_at_2100=0
+plot_cumulative_emissions_and_warming_pdfs=1
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
 plot_probabalistic_emissions_paintbrush=0
-plot_mean_ending_cum_emissions=1
+plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
+plot_diagnostic_output=1
 
 t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
@@ -14,9 +16,9 @@ t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
 close all
 
-if plot_params_vs_diags  
+if relative_parameter_sensitivities_for_final_cumulative_carbon  
     figure
-    X=[ones(size(xn,1),1) xn];
+    X=[ones(ensemble_size,1) xn];
     y=[so.net_warming]';
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
@@ -36,7 +38,64 @@ if plot_params_vs_diags
     
     figure
     h=pie(a)
+end
+
+if relative_parameter_sensitivities_at_2100 
+
+    figure
+    X=[ones(ensemble_size,1) xn];
+    tmax=200;
+    a=zeros(tmax,size(xn,2));
+    for t=1:tmax
+        t
+        n=0;
+        ycorr=zeros(ensemble_size,1);
+        xcorr=zeros(size(X));
+        for en=1:ensemble_size
+            if length(so(en).cum_emissions)>=t;
+                n=n+1;
+                ycorr(n)=so(en).cum_emissions(t);
+                xcorr(n,:)=X(en,:);
+            end
+        end
+        xcorr(n+1:ensemble_size,:)=[];
+        ycorr(n+1:ensemble_size)=[];
+        lr=xcorr\ycorr; %multiple linear regression, a are regression coefficients
+        a(t,:)=abs(lr(2:end));
+        a(t,:)=a(t,:)./sum(a(t,:));
+    end
     
+    [asrt,I]=sort(squeeze(a(end,:)));
+    a=a(:,I);
+    clear lab
+    for n=1:length(I)
+        lab{n}=ParameterName{I(n)};
+    end
+    bar(a,'stack')
+    axis tight
+    ax=axis;
+    ax(1)=2;
+    axis(ax)
+    legend(lab,'Eastoutside')
+    
+    error()
+    
+    [a,I]=sort(abs(a));
+    ParameterNameSorted=ParameterName(I);
+    a(7)=sum(a(1:7));
+    a(1:6)=[];
+    ParameterNameSorted=ParameterNameSorted(7:end);
+    ParameterNameSorted{1}='Remaining parameters';
+    explode=zeros(length(a),1); %Set up TCRE to be detached from rest of pie
+    explode(end)=1;
+    
+    h=pie(a,explode,ParameterNameSorted)
+    set(h(2:2:end),'FontSize',20);
+    
+    print('-depsc','figs/param_sense_at_2100.eps')
+    
+    figure
+    h=pie(a)
 end
 
 if plot_cumulative_emissions_and_warming_pdfs
@@ -49,10 +108,12 @@ if plot_cumulative_emissions_and_warming_pdfs
     %determine some climate limits
     Tlim(1)=1.6;%Greenland, Robinson et al., 2012
     Tcol{1}=[1 1 0];
-    Tlim(2)=4.5;%Veg C saturation, Friend et al., 2013
-    Tcol{2}=[1 0.5 0];
-    Tlim(3)=7.5;%Mammal mortality, Sherwood et al., 2010
-    Tcol{3}=[1 0 0];
+    Tlim(2)=2.0;%2C threshold, cite...
+    Tcol{2}=[1 0.66 0];    
+    Tlim(3)=4.5;%Veg C saturation, Friend et al., 2013
+    Tcol{3}=[1 0.33 0];
+    Tlim(4)=7.5;%Mammal mortality, Sherwood et al., 2010
+    Tcol{4}=[1 0 0];
     Tlimlen=length(Tlim);
     
     [tot_emissions_sorted,I]=sort([so.tot_emissions]);
@@ -112,13 +173,13 @@ if plot_cumulative_emissions_and_warming_pdfs
     p_100=prctile([so.net_warming],1:100);
     
     for t=1:Tlimlen
-        disp([num2str(t) ' threshold T percentile:' num2str(find(p_100>Tlim(t),1,'first'))])
+        disp([num2str(t) ' threshold T percentile:' num2str(find(p_100<Tlim(t),1,'last'))])
         disp([num2str(t) 'threshold max safe emissions:' num2str(emissions{t}(end))]);
     end
     
     xlabel('Net warming (^\circC)')
     ax=axis;
-    ax(1)=1;ax(2)=13.;
+    ax(1)=0.5;ax(2)=13.;
     axis(ax)
     q=prctile([so.net_warming],plevels);
     
@@ -435,4 +496,11 @@ if plot_consumption_emission_validation
     
     print('-depsc','figs/consumption_emission_validation')
     
+end
+
+if plot_diagnostic_output
+    hold on
+    for en=1:ensemble_size
+        plot(so(en).time,so(en).pop)
+    end
 end

@@ -1,8 +1,9 @@
 function [so] = emissions_economy(args)
 
-global ffd0
+global ffef0
 
 global tm1 ff_discovery_tot
+global ctax0rel ctaxmaxrel
 tm1=0;
 ff_discovery_tot=0;
 
@@ -21,7 +22,8 @@ global ffeftre; n_unpacked_params=n_unpacked_params+1;ffeftre=args(n_unpacked_pa
 global ffeffin; n_unpacked_params=n_unpacked_params+1;ffeffin=args(n_unpacked_params) ;so.LHSparams.ffeffin=ffeffin;
 global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params)  ;so.LHSparams.Pr_re0=Pr_re0;
 global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);so.LHSparams.Pr_remin=Pr_remin;
-global c_tax;   n_unpacked_params=n_unpacked_params+1;c_tax=args(n_unpacked_params)   ;so.LHSparams.c_tax=c_tax;
+global ctaxmax;   n_unpacked_params=n_unpacked_params+1;ctaxmax=args(n_unpacked_params)   ;so.LHSparams.ctaxmax=ctaxmax;
+global ctaxTre;   n_unpacked_params=n_unpacked_params+1;ctaxTre=args(n_unpacked_params)   ;so.LHSparams.ctaxTre=ctaxTre;
 global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params)    ;so.LHSparams.CTre=CTre;
 global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params)  ;so.LHSparams.popmax=popmax;
 global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params)  ;so.LHSparams.popinc=popinc;
@@ -39,14 +41,21 @@ pcdmax=pcdmax.*bill;
 V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
 
-
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
-V0 = V0 ./ ffd0 ;
-Vmax = Vmax ./ ffd0 ;
+V0 = V0 ./ ffef0 ;
+Vmax = Vmax ./ ffef0 ;
+
+%Prior to conversion of initial fossil fuel cost to $/J from $/barrel (below), calculate
+%initial and maximum relative carbon tax values.
+Pr_ff0_per_TC=Pr_ff0/bbl_2_gC.*1.e6;
+ctax0rel=ctax0./Pr_ff0_per_TC;
+ctaxmaxrel=ctaxmax./Pr_ff0_per_TC;
+
 %Convert initial cost of fossil fuels from $/bbl to $/J
+%bbl: gC/barrel of oil
 Pr_ff0 = Pr_ff0 ./ bbl_2_gC ; % ($/gC)
-Pr_ff0 = Pr_ff0 .* ffd0 ;  % ($/J)
+Pr_ff0 = Pr_ff0 .* oilEfactor;   % ($/J)
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
 Pr_re0 = Pr_re0 ./ mwh_2_J ;
@@ -124,13 +133,14 @@ end
 
 diagnostics.burn_rate=burn_rate;
 diagnostics.ff_emission_factor=fossil_fuel_emission_factor(t);
-diagnostics.ff_pr=ff_price(V);
+diagnostics.ff_pr=ff_price(V,t);
 diagnostics.re_pr=re_price(t);
 diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
 diagnostics.tot_en_demand=total_energy_demand(t);
 diagnostics.pop=population( t );
 diagnostics.per_cap_dem=per_cap_demand( t );
 diagnostics.discovery_rate=discovery_rate;
+diagnostics.carbon_tax=carbon_tax( t );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -146,7 +156,7 @@ global fffb fffcexp ff_frac0
 
 b = fffb;
 c = 1.*10^fffcexp;
-ff_pr=ff_price(V);
+ff_pr=ff_price(V,t);
 re_pr=re_price(t);
 scalefac=1; %Arbitrary scaling factor, to give curve realistic shape
 x=(ff_pr-re_pr)./ff_pr.*scalefac;
@@ -175,13 +185,23 @@ pcd = min( pcd , pcdmax) ;      %limit to maximum per capita demand
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [Pr_ff] = ff_price( V )
+function [Pr_ff] = ff_price( V,t )
 
-global V0 Pr_ff0 c_tax
+global V0 Pr_ff0
 
-Pr_ff =  (V0./ V) .* Pr_ff0 .* c_tax  ; %  price change inverse to remaining reserve, V, and multiplied by carbon tax/subsidy.
+Pr_ff =  (V0./ V) .* Pr_ff0 .* carbon_tax ( t )  ; %  price change inverse to remaining reserve, V, and multiplied by carbon tax/subsidy.
 
 Pr_ff = max(0.,Pr_ff);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [ctax] = carbon_tax( t )
+
+global ctax0rel ctaxmaxrel ctaxTre
+
+ctax = ctax0rel + ctaxTre .* t;
+
+ctax = 1 + min(ctaxmaxrel,ctax);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -197,14 +217,14 @@ Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
 
 function [efac] = fossil_fuel_emission_factor( t )
 
-global ffd0 ffeftre ffeffin
+global ffef0 ffeftre ffeffin
 
 %trend initial emission factor (g/J) to final factor, hold constant once there
-if ffd0 > ffeffin 
-  efac = ffd0 - ffeftre .* t ;
+if ffef0 > ffeffin 
+  efac = ffef0 - ffeftre .* t ;
   efac = max(efac,ffeffin);
 else
-  efac = ffd0 + ffeftre .* t ; 
+  efac = ffef0 + ffeftre .* t ; 
   efac = min(efac,ffeffin);
 end
 
@@ -231,7 +251,7 @@ Dff = max(0.,Dff);
 function [value,isterminal,direction] = events(t,V)
 
 %first event: energy prices match
-value(1) =  ff_price(V) - re_price(t); %equate price of fossil fuel to price of renewable
+value(1) =  ff_price(V,t) - re_price(t); %equate price of fossil fuel to price of renewable
 isterminal(1) = 0; %stop integration if 1
 direction(1) = 1; %only stop if crossing is hit in upward direction
 

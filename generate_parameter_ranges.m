@@ -1,4 +1,4 @@
-global ffd0 Dff0
+global ffef0 Dff0 ctax0
 
 n=0;
 nSource=1;
@@ -28,14 +28,14 @@ v(n) = mean([lb(n) ub(n)]);
 %%%%%%%%%% 
 n=n+1 ;  
 ParameterName{n}='Initial fossil fuel cost'; 
-ParameterUnits{n}='\$/bbl oil';
+ParameterUnits{n}='\$/brl oil';
 ParameterLatexSymbol{n}='$Pr_{ff_0}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iBP_review_2014=nSource;
 Reference{nSource}='BP_statistical_review_2014';nSource=nSource+1;
 v(n) = 90.;
-lb(n)= 80.;
+lb(n)= 60.;
 ub(n)= 110.;
 
 %%%%%%%%%% 
@@ -58,10 +58,10 @@ ParameterUnits{n}='g C/J';
 ParameterLatexSymbol{n}='$E_{ff_f}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
-[Dff0,~,~,ffd0] = calculate_historical_reserve_growth_rate();
+[Dff0,~,~,ffef0] = calculate_historical_reserve_growth_rate();
 lb(n)= gasEfactor;
 ub(n)= coalEfactor; %g/J C, for coal
-v(n)=ffd0;
+v(n)=ffef0;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -89,14 +89,27 @@ ub(n)= 0.5;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Relative carbon tax ($>$1=tax, $<$1=subsidy)'; 
-ParameterUnits{n}='\%';
+ParameterName{n}='Maximum carbon tax'; 
+ParameterUnits{n}='\$/T C';
+ParameterLatexSymbol{n}='$S_{ff}$';
+ParameterOutputFormat{n}='';
+ParameterSource{n}=nSource;
+iRogelj=nSource;
+Reference{nSource}='Rogelj_et_al_2013';nSource=nSource+1;
+v(n) = 1.;  
+lb(n)= -4.; %%SHOULD SET THIS TO CTAX0
+ub(n)= 300.;
+
+%%%%%%%%%% 
+n=n+1 ; 
+ParameterName{n}='Relative carbon tax trend'; 
+ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 1.;  
-lb(n)= 0.8;
-ub(n)= 1.2;
+lb(n)= 0.01;
+ub(n)= 0.1;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -183,7 +196,7 @@ ub(n)=-4;
 
 %%%%%%%%%% 
 n=n+1; 
-ParameterName{n}='Ratio of cumulative emissions to net warming'; 
+ParameterName{n}='Transient climate response to emissions'; 
 ParameterUnits{n}='$^\circ$C/Gt C';
 ParameterLatexSymbol{n}='$TCRE$';
 ParameterOutputFormat{n}='';

@@ -3,14 +3,14 @@ global t0; t0 = 0. ;
 global tf; tf = 5000 ; 
 
 %Constants
-thou=1.e3;
-mill=1.e6;
-bill=1.e9;
-tril=1.e12;
+global thou; thou=1.e3;
+global mill; mill=1.e6;
+global bill; bill=1.e9;
+global tril; tril=1.e12;
 
 %Conversion constants
 
-global CO2_2_C;  CO2_2_C=               0.2727; %molar ratio (12/44)
+global CO2_2_C;  CO2_2_C=               12./44.; %molar ratio
 global bbl_2_gC; bbl_2_gC=              0.43.*mill*CO2_2_C;  %gC/barrel source: http://www.epa.gov/cleanenergy/energy-resources/refs.html
 cf2cm=35.3145;
 global scm_2_gC; scm_2_gC=              54.4.*cf2cm.*CO2_2_C; %implicit /1000*1000 (/thousand cubic feet -> /cubic feet; then kg -> g; source: http://www.eia.gov/environment/emissions/co2_vol_mass.cfm
@@ -35,7 +35,4 @@ global oilEfactor;oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.j
 global gasEfactor;gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 
 global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
-%global noncombustedoil;noncombustedoil=0.05; %as a percent of total production, http://www.eia.gov/tools/faqs/faq.cfm?id=41&t=6
-
-
-
+global ctax0; ctax0=-4; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner

@@ -1,4 +1,4 @@
-function [mean_discovery,min_discovery,max_discovery,average_energy_density]=calculate_historical_reserve_growth_rate()
+function [mean_discovery,min_discovery,max_discovery,average_emission_factor]=calculate_historical_reserve_growth_rate()
 
 %This function returns:
 %
@@ -8,8 +8,8 @@ function [mean_discovery,min_discovery,max_discovery,average_energy_density]=cal
 %min_discovery: mean historical rate of discovery, minus standard deviation
 %max_discovery: mean historical rate of discovery, plus standard deviation
 %
-%average_energy_density: average energy density of fossil fuel supply, in
-%units of %g/J C
+%average_emission_factor: average emission factor of fossil fuel supply, in
+%units of %g C/J
 
 set_global_constants
 
@@ -46,7 +46,7 @@ foil_production = oil_production/total_production;
 fgas_production = gas_production/total_production;
 fcoal_production= coal_production/total_production;
 
-average_energy_density=coalEfactor.*fcoal_production + oilEfactor.*foil_production + gasEfactor.*fgas_production;
+average_emission_factor=coalEfactor.*fcoal_production + oilEfactor.*foil_production + gasEfactor.*fgas_production;
 
 %bar([oil_discovery' gas_discovery' coal_discovery'],'stacked')
 %legend({'oil' 'gas' 'coal'})
