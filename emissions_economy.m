@@ -15,23 +15,23 @@ set_global_constants
 %globalize LHS parameters; count LHS parameters; unpack LHS-varied
 %parameters; assign LHS parameters to ensemble struture for diagnostics
 n_unpacked_params=0;
-global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)      ;so.LHSparams.V0=V0;
-global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params)    ;so.LHSparams.Vmax=Vmax;
-global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params)  ;so.LHSparams.Pr_ff0=Pr_ff0;
-global ffeftre; n_unpacked_params=n_unpacked_params+1;ffeftre=args(n_unpacked_params) ;so.LHSparams.ffeftre=ffeftre;
-global ffeffin; n_unpacked_params=n_unpacked_params+1;ffeffin=args(n_unpacked_params) ;so.LHSparams.ffeffin=ffeffin;
-global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params)  ;so.LHSparams.Pr_re0=Pr_re0;
-global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params);so.LHSparams.Pr_remin=Pr_remin;
-global ctaxmax;   n_unpacked_params=n_unpacked_params+1;ctaxmax=args(n_unpacked_params)   ;so.LHSparams.ctaxmax=ctaxmax;
-global ctaxTre;   n_unpacked_params=n_unpacked_params+1;ctaxTre=args(n_unpacked_params)   ;so.LHSparams.ctaxTre=ctaxTre;
-global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params)    ;so.LHSparams.CTre=CTre;
-global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params)  ;so.LHSparams.popmax=popmax;
-global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params)  ;so.LHSparams.popinc=popinc;
-global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params)  ;so.LHSparams.pcdmax=pcdmax;
-global ipcdinc; n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params) ;so.LHSparams.ipcdinc=ipcdinc;
-global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params)    ;so.LHSparams.fffb=fffb;
-global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params) ;so.LHSparams.fffcexp=fffcexp;
-global icc2dT;  n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params)  ;so.LHSparams.icc2dT=icc2dT;
+global V0;      n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)        ;so.LHSparams(n_unpacked_params)=V0;
+global Vmax;    n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=Vmax;
+global Pr_ff0;  n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=Pr_ff0;
+global ffeftre; n_unpacked_params=n_unpacked_params+1;ffeftre=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ffeftre;
+global ffeffin; n_unpacked_params=n_unpacked_params+1;ffeffin=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ffeffin;
+global Pr_re0;  n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=Pr_re0;
+global Pr_remin;n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params)  ;so.LHSparams(n_unpacked_params)=Pr_remin;
+global ctaxmax;   n_unpacked_params=n_unpacked_params+1;ctaxmax=args(n_unpacked_params) ;so.LHSparams(n_unpacked_params)=ctaxmax;
+global ctaxTre;   n_unpacked_params=n_unpacked_params+1;ctaxTre=args(n_unpacked_params) ;so.LHSparams(n_unpacked_params)=ctaxTre;
+global CTre;    n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=CTre;
+global popmax;  n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=popmax;
+global popinc;  n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=popinc;
+global pcdmax;  n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=pcdmax;
+global ipcdinc; n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ipcdinc;
+global fffb;    n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=fffb;
+global fffcexp; n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=fffcexp;
+global icc2dT;  n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=icc2dT;
 
 %Convert from billion people, to people
 popmax=popmax.*bill;
@@ -63,6 +63,7 @@ CTre = CTre ./ mwh_2_J ;
 
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
+
 options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);

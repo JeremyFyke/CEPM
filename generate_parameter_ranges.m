@@ -108,7 +108,7 @@ ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 1.;  
-lb(n)= 0.01;
+lb(n)= 0.05;
 ub(n)= 0.1;
 
 %%%%%%%%%% 
@@ -169,7 +169,7 @@ ParameterSource{n}=nSource;
 iIEA_data=nSource;
 Reference{nSource}='EIA_data_2014';nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
 v(n) = 0.005 ;
-lb(n)= 0.001 ;
+lb(n)= 0.005 ;
 ub(n)= 0.01 ;
 
 %%%%%%%%%% 
