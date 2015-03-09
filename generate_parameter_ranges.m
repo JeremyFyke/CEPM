@@ -23,6 +23,8 @@ ParameterLatexSymbol{n}='$V_{ff_{max}}$';
 ParameterSource{n}=iRogner_et_al_2012;
 lb(n)=2.535;
 ub(n)=7.665; %From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, and coal resources reduced by 80% according to Rogner arguement on practical availability
+%lb(n)=4.;
+%ub(n)=7.;
 v(n) = mean([lb(n) ub(n)]);
 
 %%%%%%%%%% 
@@ -48,7 +50,7 @@ ParameterSource{n}=nSource;
 iauthor_estimate=nSource;
 Reference{nSource}='Author_estimate';nSource=nSource+1;
 v(n) = 0.5e-7;
-lb(n)= 0.0e-7;
+lb(n)= 0.5e-7;
 ub(n)= 1.e-7;
 
 %%%%%%%%%% 
@@ -74,7 +76,7 @@ iIEA_medium_term_market_report=nSource;
 Reference{nSource}='IEA_medium_term_renewable_market_report_2014';nSource=nSource+1;
 v(n) = 375.;
 lb(n)= 250.;
-ub(n)= 400.;
+ub(n)= 350.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -113,14 +115,14 @@ ub(n)= 0.1;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Rate of renewable cost decline';
-ParameterUnits{n}='\$/MWh/yr';
+ParameterName{n}='E-folding time of renewable cost decline';
+ParameterUnits{n}='Yr';
 ParameterLatexSymbol{n}='$T_{re}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iIEA_medium_term_market_report;%also: 'UofM Energy Institute Technical Paper "Renewable Energy Technology Review"';
-v(n) = -3.;
-lb(n)= -3.2;
-ub(n)= -2.8;
+v(n) = 20;
+lb(n)= 10;
+ub(n)= 30;
 
 %%%%%%%%%% 
 n=n+1; 
@@ -150,14 +152,16 @@ ub(n)= 0.02;
 
 %%%%%%%%%% 
 n=n+1; 
-ParameterName{n}='Maximum per-capita energy consumption'; 
+ParameterName{n}='Maximum per-capita energy consumption'; %Ranges between Euro and NA energy consumption
 ParameterUnits{n}='GJ/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{max}}$';
 ParameterOutputFormat{n}='';
-ParameterSource{n}=iauthor_estimate;
-v(n) = 3.2e11./1.e9 ;
-lb(n)= 2.8e11./1.e9 ;
-ub(n)= 3.6e11./1.e9 ;
+ParameterSource{n}=nSource;
+iIEA_data=nSource;
+Reference{nSource}='EIA_data_2014';nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
+v(n) = 200.e6*1055./1.e9 ;
+lb(n)= 133.e6*1055./1.e9 ;
+ub(n)= 254.e6*1055./1.e9 ;
 
 %%%%%%%%%% 
 n=n+1; 
@@ -166,8 +170,7 @@ ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{inc}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
-iIEA_data=nSource;
-Reference{nSource}='EIA_data_2014';nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
+nSource=iIEA_data;
 v(n) = 0.005 ;
 lb(n)= 0.005 ;
 ub(n)= 0.01 ;

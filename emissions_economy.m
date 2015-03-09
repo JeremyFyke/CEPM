@@ -41,6 +41,12 @@ pcdmax=pcdmax.*bill;
 V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
 
+%%%Ensure parameters aren't outside of weird ranges
+%Ensure Vmax>=V0
+Vmax=max(Vmax,V0);
+%Ensure E-folding time of renewable cost is not negative
+CTre=max(0.,CTre);
+
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
 V0 = V0 ./ ffef0 ;
@@ -59,12 +65,11 @@ Pr_ff0 = Pr_ff0 .* oilEfactor;   % ($/J)
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
 Pr_re0 = Pr_re0 ./ mwh_2_J ;
-CTre = CTre ./ mwh_2_J ;
 
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
 
-options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
+options = odeset('RelTol',1e-4,'AbsTol',1e-4,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
@@ -209,10 +214,8 @@ ctax = 1 + min(ctaxmaxrel,ctax);
 function [Pr_re] = re_price( t )
 
 global Pr_re0 CTre Pr_remin
-
-Pr_re = Pr_re0 + CTre .* t ; 
-
-Pr_re = max(Pr_remin.*Pr_re0,Pr_re);
+Pr_remin_abs = Pr_re0 .* Pr_remin;
+Pr_re = Pr_remin_abs + (Pr_re0-Pr_remin_abs).*exp(-(1./CTre).*t); 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

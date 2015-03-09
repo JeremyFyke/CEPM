@@ -1,5 +1,5 @@
-relative_parameter_sensitivities_for_final_cumulative_carbon=1
-relative_parameter_sensitivities_at_2100=0
+relative_parameter_sensitivities_for_final_cumulative_carbon=0
+relative_parameter_sensitivities_at_2100=2
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
@@ -120,8 +120,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     net_warming=[so.net_warming];
     net_warming=net_warming(I);
     
-    for t=3:Tlimlen
-        t
+    for t=1:Tlimlen
         net_warming_thresh_pass=net_warming>Tlim(t);
         is=find(net_warming_thresh_pass==1,1,'first')+1;
         ie=find(net_warming_thresh_pass==0,1,'last');
@@ -144,7 +143,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     ax(4)=ax(4)+3.*dv;
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
     ax(2)=7.;
-    for t=3:Tlimlen;
+    for t=1:Tlimlen;
         emissions{t}(end)
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
         xsolid=[emissions{t}(end) ax(2) ax(2) emissions{t}(end)];
@@ -173,7 +172,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     
     p_100=prctile([so.net_warming],1:100);
     
-    for t=3:Tlimlen
+    for t=1:Tlimlen
         disp([num2str(t) ' threshold T percentile:' num2str(find(p_100<Tlim(t),1,'last'))])
         disp([num2str(t) 'threshold max safe emissions:' num2str(emissions{t}(end))]);
     end
@@ -194,7 +193,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     disp(['Min warming=' num2str(min([so.net_warming]))]);
     disp(['Max warming=' num2str(max([so.net_warming]))]);
     
-    for t=3:length(Tlim);
+    for t=1:length(Tlim);
         line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
     end
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
@@ -502,6 +501,6 @@ end
 if plot_diagnostic_output
     hold on
     for en=1:ensemble_size
-        plot(so(en).time,so(en).pop)
+        plot(so(en).time,so(en).re_pr)
     end
 end

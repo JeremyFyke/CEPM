@@ -13,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 1000 ;
+ensemble_size = 10000 ;
 
 %generate parameter arrays
 generate_parameter_ranges;
@@ -38,17 +38,19 @@ for n=1:ensemble_size
         so(n) = model_output;
     catch
         for n=1:size(model_parameters,2)
+            disp('')
             if model_output.LHSparams(n) < lb(n) || model_output.LHSparams(n) > ub(n)
                 
-                decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
             else
-                decorator='_______________________________'       
+                decorator='_______________________________';     
             end
             disp(decorator)
             disp(['LHS parameter=' num2str(model_output.LHSparams(n))])
+            disp(['LHS parameter name=' ParameterName{n}])            
             disp(['Minimum input value=' num2str(lb(n))])
             disp(['Maximum input value=' num2str(ub(n))])
-            disp(decorator)
+            disp(['Parameter number=',num2str(n)])
         end
         error('Error in emissions economy output.')
     end
