@@ -46,6 +46,7 @@ Vmax=Vmax.*g_2_Tt;
 Vmax=max(Vmax,V0);
 %Ensure E-folding time of renewable cost is not negative
 CTre=max(0.,CTre);
+ctaxTre=max(0.,ctaxTre);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
@@ -164,8 +165,7 @@ b = fffb;
 c = 1.*10^fffcexp;
 ff_pr=ff_price(V,t);
 re_pr=re_price(t);
-scalefac=1; %Arbitrary scaling factor, to give curve realistic shape
-x=(ff_pr-re_pr)./ff_pr.*scalefac;
+x=(ff_pr-re_pr)./ff_pr;
 
 fff = ff_frac0 ./ (1 + b.*c.^(-x)); %sigmoid function
 

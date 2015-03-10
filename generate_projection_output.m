@@ -1,6 +1,6 @@
 relative_parameter_sensitivities_for_final_cumulative_carbon=0
-relative_parameter_sensitivities_at_2100=2
-plot_cumulative_emissions_and_warming_pdfs=0
+relative_parameter_sensitivities_at_2100=0
+plot_cumulative_emissions_and_warming_pdfs=1
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_probabalistic_cumulative_emissions_paintbrush=0
@@ -217,10 +217,10 @@ end
 if plot_final_percent_reserves_depleted
     for i=1:ensemble_size
         clear t
-        t=find(so(i).burn_rate==so(i).burn_rate_max)
+        t=find(so(i).burn_rate==so(i).burn_rate_max);
         cum_emissions_at_max_burn_rate(i)=so(i).cum_emissions(t);
-        initial_volume(i)=so(i).LHSparams.V0;
-        max_volume(i)=so(i).LHSparams.Vmax;
+        initial_volume(i)=so(i).LHSparams(1);
+        max_volume(i)=so(i).LHSparams(2);
         tot_emissions(i)=so(i).tot_emissions;
     end
     peak_ff=cum_emissions_at_max_burn_rate./tot_emissions;
@@ -381,9 +381,11 @@ if plot_mean_ending_cum_emissions
     IsMinRenewablesReached=zeros(1,ensemble_size);
     for en=1:ensemble_size
       FinalRePr(en)=so(en).re_pr(end);
-      MinRePr(en)=so(en).LHSparams.Pr_remin .* so(en).LHSparams.Pr_re0./mwh_2_J;
+      FP=FinalRePr(en)
+      MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./mwh_2_J;
+      MP=MinRePr(en)
     end
-    IsMinRenewablesReached(FinalRePr==MinRePr)=100.;
+    IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
     for yr=1:tf
       i=find(EndYear==yr+present_year);
       nCeasedEmissions(yr)=numel(i);
@@ -419,7 +421,7 @@ if plot_consumption_emission_validation
     obs_time=data(1,1:end-1);
     p=polyfit(obs_time,obs_consumption,1);
     obs_consumption_fit=polyval(p,obs_time);
-    nval=30;
+    nval=20;
     
     TotEnDemand=zeros(ensemble_size,nval);
     for en=1:ensemble_size
@@ -461,7 +463,6 @@ if plot_consumption_emission_validation
     obs_time=data(end-30:end,1);
     p=polyfit(obs_time,obs_emissions,1);
     obs_emissions_fit=polyval(p,obs_time);
-    nval=30;
     
     TotEmissions=zeros(ensemble_size,nval);
     for en=1:ensemble_size

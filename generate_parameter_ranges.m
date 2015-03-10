@@ -81,7 +81,7 @@ ub(n)= 350.;
 %%%%%%%%%% 
 n=n+1 ; 
 ParameterName{n}='Minimum renewable unit cost'; 
-ParameterUnits{n}='\% of initial cost';
+ParameterUnits{n}='Fraction of initial cost';
 ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
@@ -99,8 +99,8 @@ ParameterSource{n}=nSource;
 iRogelj=nSource;
 Reference{nSource}='Rogelj_et_al_2013';nSource=nSource+1;
 v(n) = 1.;  
-lb(n)= -4.; %%SHOULD SET THIS TO CTAX0
-ub(n)= 300.;
+lb(n)= ctax0; %%SHOULD SET THIS TO CTAX0
+ub(n)= 300.; %Equivalent to ~$1000/T CO2
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -110,7 +110,7 @@ ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 1.;  
-lb(n)= 0.05;
+lb(n)= 0.01;
 ub(n)= 0.1;
 
 %%%%%%%%%% 
@@ -139,7 +139,7 @@ ub(n)=12.3;
 
 %%%%%%%%%% 
 n=n+1; 
-ParameterName{n}='Population increase'; 
+ParameterName{n}='Population increase rate'; 
 ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$P_{inc}$';
 ParameterOutputFormat{n}='';
