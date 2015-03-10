@@ -67,7 +67,7 @@ v(n)=ffef0;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Initial renewable unit cost'; 
+ParameterName{n}='Initial non-fossil energy unit cost'; 
 ParameterUnits{n}='\$/MWh';
 ParameterLatexSymbol{n}='$Pr_{nff_0}$ ';
 ParameterOutputFormat{n}='';
@@ -80,7 +80,7 @@ ub(n)= 350.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Minimum renewable unit cost'; 
+ParameterName{n}='Minimum non-fossil energy unit cost'; 
 ParameterUnits{n}='Fraction of initial cost';
 ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
@@ -115,7 +115,7 @@ ub(n)= 0.1;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='E-folding time of renewable cost decline';
+ParameterName{n}='E-folding time of non-fossil energy cost decline';
 ParameterUnits{n}='Yr';
 ParameterLatexSymbol{n}='$T_{re}$';
 ParameterOutputFormat{n}='';
@@ -177,7 +177,7 @@ ub(n)= 0.01 ;
 
 %%%%%%%%%% 
 n=n+1; 
-ParameterName{n}='Fossil fuel to renewables transfer delay';
+ParameterName{n}='Fossil to non-fossil energy transfer delay';
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$B$';
 ParameterOutputFormat{n}='';
@@ -188,7 +188,7 @@ ub(n)=1.5;
 
 %%%%%%%%%% 
 n=n+1; 
-ParameterName{n}='Fossil fuel to renewables transfer fade strength'; 
+ParameterName{n}='Fossil to non-fossil energy transfer fade strength'; 
 ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$C$';
 ParameterOutputFormat{n}='';
