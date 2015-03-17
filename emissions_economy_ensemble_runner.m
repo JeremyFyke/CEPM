@@ -13,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 50000 ;
+ensemble_size = 10000 ;
 
 %generate parameter arrays
 generate_parameter_ranges;
@@ -47,7 +47,9 @@ for n=1:size(model_parameters,2)
     xn(:,n) = (tmp-min(tmp)) ./ (max(tmp)-min(tmp));
 end
 
-%run ensemble
+%Run ensemble
+%output_initialization
+
 for n=1:ensemble_size
     
     warning('')
