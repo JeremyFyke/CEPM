@@ -42,8 +42,8 @@ V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
 
 %%%Ensure parameters aren't outside of weird ranges
-%Ensure Vmax>=V0
-Vmax=max(Vmax,V0);
+%Ensure Vmax is greater than 110% of initial reserves
+Vmax=max(Vmax,V0*1.1);
 %Ensure E-folding time of renewable cost is not negative
 CTre=max(0.,CTre);
 ctaxTre=max(0.,ctaxTre);
@@ -70,7 +70,7 @@ Pr_re0 = Pr_re0 ./ mwh_2_J ;
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
 
-options = odeset('RelTol',1e-4,'AbsTol',1e-4,'Events',@events);
+options = odeset('RelTol',1e-3,'AbsTol',1e-3,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 

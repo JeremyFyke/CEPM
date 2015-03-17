@@ -458,9 +458,9 @@ if plot_consumption_emission_validation
     h=subplot(2,1,2)
     subplot_label(h,-0.1,0.9,'b)',25)
     %Observed global emission rates, 1980-2010.
-    data=load('data/global.1751_2010.ems');
-    obs_emissions=data(end-30:end,2)./1.e6;
-    obs_time=data(end-30:end,1);
+    data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
+    obs_emissions=data(end-30:end-1,2)./1.e6;
+    obs_time=data(end-30:end-1,1);
     p=polyfit(obs_time,obs_emissions,1);
     obs_emissions_fit=polyval(p,obs_time);
     

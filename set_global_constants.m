@@ -21,6 +21,7 @@ global g_2_Tt; g_2_Tt=mill.*tril;
 global quads_2_J; quads_2_J=1.055e18;
 
 USpop2013= 316148990;
+global ff_frac0; ff_frac0=0.80; %Initial fraction of global energy consumption supplied by non-fossil energies 
 global USpercapconsump2013; USpercapconsump2013= 5.99842836e13.*mill./USpop2013;%Joules, source: http://www.iea.org/statistics/statisticssearch/report/?&country=USA&year=2012&product=Indicators, converted using EIA converter
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
@@ -34,5 +35,4 @@ global coalEfactor;coalEfactor =2.58e-5;  %g C/j http://www.ipcc-nggip.iges.or.j
 global oilEfactor;oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 global gasEfactor;gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 
-global ff_frac0; ff_frac0=0.87; %Initial fraction of global energy consumption supplied by renewables http://www.worldenergyoutlook.org/media/weowebsite/2012/WEO2012_Renewables.pdf
 global ctax0; ctax0=-4; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner
