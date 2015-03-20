@@ -48,12 +48,16 @@ for n=1:size(model_parameters,2)
 end
 
 %Run ensemble
-%output_initialization
-
+output_initialization
+tic
 for n=1:ensemble_size
     
     warning('')
-    disp(['Running ensemble number' num2str(n)])
+    if mod(n,50)==0
+      toc
+      tic
+      disp(['Running ensemble number' num2str(n)])
+    end
     model_output = emissions_economy(model_parameters(n,:));
     try
         so(n) = model_output;
@@ -83,3 +87,4 @@ generate_projection_output
 
 %save output for later
 save output
+toc
