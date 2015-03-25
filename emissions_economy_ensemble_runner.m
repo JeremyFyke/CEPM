@@ -13,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 10000 ;
+ensemble_size = 100 ;
 
 %generate parameter arrays
 generate_parameter_ranges;
@@ -49,12 +49,11 @@ end
 
 %Run ensemble
 output_initialization
-tic
+
 for n=1:ensemble_size
     
     warning('')
-    if mod(n,50)==0
-      toc
+    if ( mod(n,50)-1 )==0
       tic
       disp(['Running ensemble number' num2str(n)])
     end
@@ -65,7 +64,7 @@ for n=1:ensemble_size
         for n=1:size(model_parameters,2)
             disp('')
             if model_output.LHSparams(n) < lb(n) || model_output.LHSparams(n) > ub(n)
-                
+
                 decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
             else
                 decorator='_______________________________';     
@@ -86,5 +85,6 @@ close all
 generate_projection_output
 
 %save output for later
-save output
+save output/output
+
 toc
