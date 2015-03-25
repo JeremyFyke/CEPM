@@ -249,12 +249,7 @@ if plot_paintbrushes
     
     hold on
     load_hist_and_RCP_emissions
-    %interpolate RCP emissions to yearly frequency
-    for nRCP=1:4
-        RCPx(nRCP,:)=interp1(RCPyear,RCP(nRCP,:),2013:RCPyear(end));
-    end
-    RCPyearx=2013:RCPyear(end);
-    RCPx=cumsum(RCPx,2);
+    
    
     cum_emis_arr=nan(ensemble_size,tf);
     for en=1:ensemble_size
@@ -275,8 +270,8 @@ if plot_paintbrushes
     pcolor(x,y,hist_arr),shading flat
     plot(x,emis_mean,'b','linewidth',12)
     for nRCP=1:4
-        plot(RCPyearx,squeeze(RCPx(nRCP,:)+emissions_to_date),'r','linewidth',4)
-        text(RCPyearx(end),squeeze(RCPx(nRCP,end)+emissions_to_date),RCPname{nRCP},'fontsize',30,'color','r')
+        plot(RCPyear(nRCP,:),squeeze(cumRCP(nRCP,:)),'r','linewidth',4)
+        text(RCPyear(end),squeeze(cumRCP(nRCP,end)),RCPname{nRCP},'fontsize',30,'color','r')
     end
     axis tight
     ax=axis;
@@ -312,8 +307,6 @@ if plot_paintbrushes
     
     hold on
     
-    load_hist_and_RCP_emissions
-   
     emis_arr=nan(ensemble_size,tf);
     for en=1:ensemble_size
         emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
@@ -356,7 +349,7 @@ plot(obs_time,obs_emissions,'r--','linewidth',4)
 plot(x,emis_mean,'b','linewidth',12)
 
 for nRCP=1:4
-    plot(RCPyear(3:end),squeeze(RCP(nRCP,3:end)),'r','linewidth',4)
+    plot(RCPyear(nRCP,:),squeeze(RCP(nRCP,:)),'r','linewidth',4)
     text(RCPyear(end),squeeze(RCP(nRCP,end)),RCPname{nRCP},'fontsize',30,'color','r')
 end
 
