@@ -1,10 +1,10 @@
 relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=1
+plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
-plot_probabalistic_cumulative_emissions_paintbrush=0
-plot_probabalistic_emissions_paintbrush=0
+plot_paintbrushes=1
+
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
@@ -242,9 +242,11 @@ end
 ensemble_size=length(so);
 nbins=500;
 
-if plot_probabalistic_cumulative_emissions_paintbrush
+if plot_paintbrushes
     
     figure
+    subplot(1,2,2)
+    
     hold on
     load_hist_and_RCP_emissions
     %interpolate RCP emissions to yearly frequency
@@ -302,15 +304,12 @@ if plot_probabalistic_cumulative_emissions_paintbrush
     %hc=colorbar;
     %ylabel(hc,'Ensemble density')
     xlabel('Year')
-    ylabel('Cumulative emissions (Tt C)')
+    ylabel('Cumulative emissions (Tt C) ')
     
-    print('-depsc','figs/probabalistic_cumulative_emissions')
+    %print('-depsc','figs/probabalistic_cumulative_emissions')
     
-end
-
-if plot_probabalistic_emissions_paintbrush
+    subplot(1,2,1)
     
-    figure
     hold on
     
     load_hist_and_RCP_emissions
@@ -351,7 +350,7 @@ if plot_probabalistic_emissions_paintbrush
 %     end
 
 xlabel('Year')
-ylabel('Annual emissions (Tt C/yr)')
+ylabel('Annual emissions (Tt C/yr) ')
 hold on
 plot(obs_time,obs_emissions,'r--','linewidth',4)
 plot(x,emis_mean,'b','linewidth',12)

@@ -18,6 +18,7 @@ global t_coal_2_gC;t_coal_2_gC=1../.907.*2100.8.*thou.*CO2_2_C; %note: conversio
 global kwh_2_J; kwh_2_J=                3.6e6  ; %J/kwh
 global mwh_2_J; mwh_2_J=                3.6e9  ; %J/mwh
 global g_2_Tt; g_2_Tt=mill.*tril;
+global g_per_T; g_per_T = mill;
 global quads_2_J; quads_2_J=1.055e18;
 
 USpop2013= 316148990;
@@ -35,4 +36,4 @@ global coalEfactor;coalEfactor =2.58e-5;  %g C/j http://www.ipcc-nggip.iges.or.j
 global oilEfactor;oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 global gasEfactor;gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 
-global ctax0; ctax0=-4; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner
+global ctax0; ctax0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner

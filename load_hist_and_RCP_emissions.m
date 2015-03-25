@@ -9,6 +9,6 @@ RCP(1,:)=data(4,ts:te)./1000.;
 RCP(2,:)=data(3,ts:te)./1000.;
 RCP(3,:)=data(2,ts:te)./1000.;
 RCP(4,:)=data(5,ts:te)./1000.;
-data=load('data/global.1751_2010.ems');
+data=load('data/global.1751_2010_jer_added_2011_2012.ems');
 obs_emissions=data(end-30:end,2)./1.e6;
 obs_time=data(end-30:end,1);

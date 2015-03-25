@@ -1,9 +1,9 @@
 function [so] = emissions_economy(args)
 
-global ffef0
+global ffef0 
 
 global tm1 ff_discovery_tot
-global ctax0rel ctaxmaxrel
+global ctax0dpJ
 tm1=0;
 ff_discovery_tot=0;
 
@@ -46,6 +46,7 @@ Vmax=Vmax.*g_2_Tt;
 Vmax=max(Vmax,V0*1.1);
 %Ensure E-folding time of renewable cost is not negative
 CTre=max(0.,CTre);
+%Ensure carbon tax trend is always positive or flat.
 ctaxTre=max(0.,ctaxTre);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
@@ -53,16 +54,17 @@ ctaxTre=max(0.,ctaxTre);
 V0 = V0 ./ ffef0 ;
 Vmax = Vmax ./ ffef0 ;
 
-%Prior to conversion of initial fossil fuel cost to $/J from $/barrel (below), calculate
-%initial and maximum relative carbon tax values.
-Pr_ff0_per_TC=Pr_ff0/bbl_2_gC.*1.e6;
-ctax0rel=ctax0./Pr_ff0_per_TC;
-ctaxmaxrel=ctaxmax./Pr_ff0_per_TC;
-
 %Convert initial cost of fossil fuels from $/bbl to $/J
 %bbl: gC/barrel of oil
 Pr_ff0 = Pr_ff0 ./ bbl_2_gC ; % ($/gC)
 Pr_ff0 = Pr_ff0 .* oilEfactor;   % ($/J)
+
+%Convert initial carbon tax, carbon tax trend, and maximum carbon tax from $/T C to
+%$/J
+ctax0dpJ=ctax0./g_per_T.*ffef0;
+ctaxTre=ctaxTre./g_per_T.*ffef0;
+ctaxmax=ctaxmax./g_per_T.*ffef0;
+
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
 Pr_re0 = Pr_re0 ./ mwh_2_J ;
@@ -70,7 +72,7 @@ Pr_re0 = Pr_re0 ./ mwh_2_J ;
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
 
-options = odeset('RelTol',1e-6,'AbsTol',1e-6,'Events',@events);
+options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
@@ -111,7 +113,6 @@ if (~isempty(i))
 end
 
 return
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Private functions follow.
@@ -195,7 +196,7 @@ function [Pr_ff] = ff_price( V,t )
 
 global V0 Pr_ff0
 
-Pr_ff =  (V0./ V) .* Pr_ff0 .* carbon_tax ( t )  ; %  price change inverse to remaining reserve, V, and multiplied by carbon tax/subsidy.
+Pr_ff =  (V0./ V) .* Pr_ff0 + carbon_tax ( t ); %  price change inverse to remaining reserve, V, and multiplied by carbon tax/subsidy.
 
 Pr_ff = max(0.,Pr_ff);
 
@@ -203,11 +204,11 @@ Pr_ff = max(0.,Pr_ff);
 
 function [ctax] = carbon_tax( t )
 
-global ctax0rel ctaxmaxrel ctaxTre
+global ctax0dpJ ctaxmax ctaxTre
 
-ctax = ctax0rel + ctaxTre .* t;
+ctax = ctax0dpJ + ctaxTre .* t ;
 
-ctax = 1 + min(ctaxmaxrel,ctax);
+ctax = max (ctax,ctaxmax);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

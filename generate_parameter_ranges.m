@@ -61,9 +61,9 @@ ParameterLatexSymbol{n}='$E_{ff_f}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/envir215/energynumbers.pdf'
 [Dff0,~,~,ffef0] = calculate_historical_reserve_growth_rate();
-lb(n)= gasEfactor;
-ub(n)= coalEfactor; %g/J C, for coal
-v(n)=ffef0;
+lb(n)= gasEfactor; %g C/J
+ub(n)= coalEfactor; %g C/J
+v(n)=ffef0; %g C/J
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -86,7 +86,7 @@ ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 0.3;
-lb(n)= 0.2;
+lb(n)= 0.3;
 ub(n)= 0.5;
 
 %%%%%%%%%% 
@@ -99,19 +99,19 @@ ParameterSource{n}=nSource;
 iRogelj=nSource;
 Reference{nSource}='Rogelj_et_al_2013';nSource=nSource+1;
 v(n) = 1.;  
-lb(n)= ctax0; %%SHOULD SET THIS TO CTAX0
-ub(n)= 300.; %Equivalent to ~$1000/T CO2
+lb(n)= ctax0; 
+ub(n)= 400.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-ParameterName{n}='Relative carbon tax trend'; 
-ParameterUnits{n}='\%/yr';
+ParameterName{n}='Carbon tax trend'; 
+ParameterUnits{n}='$/yr';
 ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 1.;  
-lb(n)= 0.01;
-ub(n)= 0.1;
+lb(n)= 2.;
+ub(n)= 3.;
 
 %%%%%%%%%% 
 n=n+1 ; 
