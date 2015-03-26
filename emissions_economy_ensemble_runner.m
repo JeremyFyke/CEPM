@@ -13,7 +13,7 @@ if ~exist('figs','dir')
 end
 
 %Set ensemble size
-ensemble_size = 100 ;
+ensemble_size = 20000 ;
 
 %generate parameter arrays
 generate_parameter_ranges;
@@ -53,7 +53,7 @@ output_initialization
 for n=1:ensemble_size
     
     warning('')
-    if ( mod(n,50)-1 )==0
+    if ( mod(n,2)-1 )==0
       tic
       disp(['Running ensemble number' num2str(n)])
     end
@@ -81,10 +81,13 @@ for n=1:ensemble_size
 end
 
 %make pretty pictures
-close all
+
 generate_projection_output
 
 %save output for later
+if ~exist('output','dir')
+   [~,~,~]=mkdir('output');
+end
 save output/output
 
 toc

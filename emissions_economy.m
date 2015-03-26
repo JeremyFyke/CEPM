@@ -72,7 +72,7 @@ Pr_re0 = Pr_re0 ./ mwh_2_J ;
 %%%%%%%%%%% Do the integration %%%%%%%%%%%%%%%%%%%%%%%
 % set some ODE solver options and do the numerical iteration
 
-options = odeset('RelTol',1e-5,'AbsTol',1e-5,'Events',@events);
+options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
 [ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,t0:1:tf,V0,options);
 
@@ -119,7 +119,7 @@ return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [dVdt,diagnostics] = volume( t , V )
-global tm1 ff_discovery_tot
+global tm1 dt ff_discovery_tot
 dt=t-tm1;
 tm1=t;
 

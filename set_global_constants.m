@@ -30,7 +30,7 @@ global Globaltotenergyuse2013; Globaltotenergyuse2013=data(3,end-1).*quads_2_J;
 global P0; P0 = 7.2e9 ;%Gerland et al., 2014
 global Globalpercapconsump2013; Globalpercapconsump2013= Globaltotenergyuse2013./P0;
 global present_year; present_year=2012.;
-global emissions_to_date; emissions_to_date=.515; %historical emissions (Tt C); Source: AR5
+global emissions_to_date; emissions_to_date=.3809; %historical ff emissions (Tt C, year 2012); Source: RCP data
 
 global coalEfactor;coalEfactor =2.58e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 global oilEfactor;oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
