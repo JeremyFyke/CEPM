@@ -3,9 +3,9 @@ relative_parameter_sensitivities_at_2100=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
-plot_paintbrushes=0
+plot_paintbrushes=1
 
-plot_mean_ending_cum_emissions=1
+plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
 
@@ -241,6 +241,13 @@ end
 %common variables follow for paintbrush plots
 ensemble_size=length(so);
 nbins=500;
+tend=2300;
+cRCP=[128. 255. 0.;...
+     255. 255. 0.;...
+     255. 128 0.;...
+     255. 0. 0.]./255.;
+ 
+load_hist_and_RCP_emissions
 
 if plot_paintbrushes
     
@@ -248,9 +255,7 @@ if plot_paintbrushes
     subplot(1,2,2)
     
     hold on
-    load_hist_and_RCP_emissions
     
-   
     cum_emis_arr=nan(ensemble_size,tf);
     for en=1:ensemble_size
         cum_emis_arr(en,1:length(so(en).cum_emissions))=so(en).cum_emissions;
@@ -270,12 +275,12 @@ if plot_paintbrushes
     pcolor(x,y,hist_arr),shading flat
     plot(x,emis_mean,'b','linewidth',12)
     for nRCP=1:4
-        plot(RCPyear(nRCP,:),squeeze(cumRCP(nRCP,:)),'r','linewidth',4)
-        text(RCPyear(end),squeeze(cumRCP(nRCP,end)),RCPname{nRCP},'fontsize',30,'color','r')
+        h(nRCP)=plot(RCPyear(nRCP,:),squeeze(cumRCP(nRCP,:)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
     end
+    legend(h,RCPname,'location','Northwest')
     axis tight
     ax=axis;
-    ax(2)=2300;
+    ax(1)=1980;ax(2)=tend;
     caxis([0 100])
     colormap(copper)
     axis(ax)
@@ -348,14 +353,15 @@ hold on
 plot(obs_time,obs_emissions,'r--','linewidth',4)
 plot(x,emis_mean,'b','linewidth',12)
 
+clear h
 for nRCP=1:4
-    plot(RCPyear(nRCP,:),squeeze(RCP(nRCP,:)),'r','linewidth',4)
-    text(RCPyear(end),squeeze(RCP(nRCP,end)),RCPname{nRCP},'fontsize',30,'color','r')
+    h(nRCP)=plot(RCPyear(nRCP,:),squeeze(RCP(nRCP,:)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3)
 end
+legend(h,RCPname,'location','Northwest')
 
 axis tight
 ax=axis;
-ax(1)=1980;ax(2)=2300;ax(3)=-0.003;
+ax(1)=1980;ax(2)=tend;ax(3)=-0.003;
 axis(ax)
 
 print('-depsc','figs/probabalistic_emissions')

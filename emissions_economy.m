@@ -44,12 +44,12 @@ Vmax=Vmax.*g_2_Tt;
 %%%Ensure parameters aren't outside of weird ranges
 %Ensure Vmax is greater than 110% of initial reserves
 Vmax=max(Vmax,V0*1.1);
-%Ensure E-folding time of renewable cost is not negative
-CTre=max(0.,CTre);
-%Ensure carbon tax trend is always positive or flat.
-ctaxTre=max(0.,ctaxTre);
+%Ensure E-folding time (yr) of renewable cost is not negative
+CTre=max(1.0,CTre);
+%Ensure carbon tax trend ($/yr) is always positive.
+ctaxTre=max(0.1,ctaxTre);
 %Ensure fossil to non-fossil transfer delay is above zero.
-fffb=max(0.1,fffb)
+fffb=max(0.1,fffb);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 

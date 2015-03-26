@@ -1,6 +1,6 @@
 %load RCP emission pathways
 clear RCP*
-RCPname={'RCP2.6' 'RCP4.5' 'RCP6.0' 'RCP8.5'};
+RCPname={'RCP2.6 ' 'RCP4.5 ' 'RCP6.0 ' 'RCP8.5 '};
 RCPfilename={'RCP3PD_EMISSIONS' 'RCP45_EMISSIONS' 'RCP6_EMISSIONS' 'RCP85_EMISSIONS'};
 
 for nRCP=1:length(RCPname);
