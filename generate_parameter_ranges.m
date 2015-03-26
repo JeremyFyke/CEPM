@@ -105,7 +105,7 @@ ub(n)= 400.;
 %%%%%%%%%% 
 n=n+1 ; 
 ParameterName{n}='Carbon tax trend'; 
-ParameterUnits{n}='$/yr';
+ParameterUnits{n}='\$/yr';
 ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
@@ -217,7 +217,10 @@ end
 data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
 columnlabels={'Symbol','Units','Range'};
 
-!rm *.tex
+if exist('./paramtable.tex')  
+    delete *.tex
+end
+
 matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
 fileID = fopen('paramtable_caption.tex','w');
 caption=fprintf(fileID,'\\caption{Table of parameters varied during latin hypercube sampling-based ensemble.  Values determined from following sources:  1: \\cite{%s}; 2: \\cite{%s}; 3: \\cite{%s}; 4: \\cite{%s}; 5: \\cite{%s}; 6: \\cite{%s}; 7: \\cite{%s}; 8: \\cite{%s}.\\label{table:free_parameters}}',Reference{1},Reference{2},Reference{3},Reference{4},Reference{5},Reference{6},Reference{7},Reference{8});

@@ -48,6 +48,8 @@ Vmax=max(Vmax,V0*1.1);
 CTre=max(0.,CTre);
 %Ensure carbon tax trend is always positive or flat.
 ctaxTre=max(0.,ctaxTre);
+%Ensure fossil to non-fossil transfer delay is above zero.
+fffb=max(0.1,fffb)
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
@@ -170,6 +172,9 @@ x=(ff_pr-re_pr)./ff_pr;
 
 fff = ff_frac0 ./ (1 + b.*c.^(-x)); %sigmoid function
 
+if fff > 1.
+    error('fff > 1. in frac_of_energy_from_ff')
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

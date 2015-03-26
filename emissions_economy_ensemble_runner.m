@@ -85,7 +85,8 @@ end
 generate_projection_output
 
 %save output for later
-if ~exist('output','dir')
+if ~exist('./output','dir')
+    'hello'
    [~,~,~]=mkdir('output');
 end
 save output/output
