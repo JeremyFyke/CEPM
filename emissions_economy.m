@@ -41,7 +41,6 @@ pcdmax=pcdmax.*bill;
 V0=V0.*g_2_Tt;
 Vmax=Vmax.*g_2_Tt;
 
-%%%Ensure parameters aren't outside of weird ranges
 %Ensure Vmax is greater than 110% of initial reserves
 Vmax=max(Vmax,V0*1.1);
 %Ensure E-folding time (yr) of renewable cost is not negative
@@ -50,6 +49,8 @@ CTre=max(1.0,CTre);
 ctaxTre=max(0.1,ctaxTre);
 %Ensure fossil to non-fossil transfer delay is above zero.
 fffb=max(0.1,fffb);
+%Ensure maximum per capita consumption is always .ge. than initial
+pcdmax=max(pcdmax,Globalpercapconsump2013);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 

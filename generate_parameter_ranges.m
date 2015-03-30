@@ -183,8 +183,8 @@ ParameterLatexSymbol{n}='$B$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 1.;
-lb(n)=0.5;
-ub(n)=1.5;
+lb(n)=0.2;
+ub(n)=1.;
 
 %%%%%%%%%% 
 n=n+1; 

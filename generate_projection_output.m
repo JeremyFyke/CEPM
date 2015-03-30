@@ -155,7 +155,7 @@ if plot_cumulative_emissions_and_warming_pdfs
         set(hflfade,'FaceVertexCData',[1.0 1.0 1.0 ; Tcol{t} ; Tcol{t}; 1.0 1.0 1.0]);
         set(hflsolid,'EdgeColor','none','FaceColor',Tcol{t});
     end
-   
+    
     axis(ax)
     line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
@@ -163,10 +163,13 @@ if plot_cumulative_emissions_and_warming_pdfs
     xlabel('Net cumulative emissions (Tt C)')
     set(gca,'Ytick',[])
     box on
-    
+    ax=axis
+    ax(1)=1;ax(2)=6;
+    axis(ax)
     disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
 
     subplot(2,1,2)
+    
     hist([so.net_warming],50),shading flat
     set(gca,'ytick',[])
     
@@ -248,6 +251,7 @@ cRCP=[128. 255. 0.;...
      255. 0. 0.]./255.;
  
 load_hist_and_RCP_emissions
+RCPname{5}='historical ';
 
 if plot_paintbrushes
     
@@ -274,14 +278,18 @@ if plot_paintbrushes
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
     plot(x,emis_mean,'b','linewidth',12)
+    he=find(RCPyear(1,:)==2012);
+
+    clear h
     for nRCP=1:4
-        h(nRCP)=plot(RCPyear(nRCP,:),squeeze(cumRCP(nRCP,:)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
+        h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(cumRCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
     end
+    h(5)=plot(RCPyear(1,1:he),cumRCP(1,1:he),'color','k','linestyle','--','linewidth',3);
     legend(h,RCPname,'location','Northwest')
     axis tight
     ax=axis;
-    ax(1)=1980;ax(2)=tend;
-    caxis([0 100])
+    ax(1)=1950;ax(2)=tend;
+    caxis([0 200])
     colormap(copper)
     axis(ax)
 
@@ -329,7 +337,7 @@ if plot_paintbrushes
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
     colormap(copper)
-    caxis([0 100])
+    caxis([0 200])
 
 %     hist_arrm=hist_arr(:);
 %     [yearm,emism]=meshgrid(1:tf,bin_centers);
@@ -350,18 +358,19 @@ if plot_paintbrushes
 xlabel('Year')
 ylabel('Annual emissions (Tt C/yr) ')
 hold on
-plot(obs_time,obs_emissions,'r--','linewidth',4)
+%plot(obs_time,obs_emissions,'r--','linewidth',4)
 plot(x,emis_mean,'b','linewidth',12)
 
-clear h
+
 for nRCP=1:4
-    h(nRCP)=plot(RCPyear(nRCP,:),squeeze(RCP(nRCP,:)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3)
+    h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(RCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
 end
+h(5)=plot(RCPyear(1,1:he),RCP(1,1:he),'color','k','linestyle','--','linewidth',3);
 legend(h,RCPname,'location','Northwest')
 
 axis tight
 ax=axis;
-ax(1)=1980;ax(2)=tend;ax(3)=-0.003;
+ax(1)=1950;ax(2)=tend;ax(3)=-0.003;
 axis(ax)
 
 print('-depsc','figs/probabalistic_emissions')
