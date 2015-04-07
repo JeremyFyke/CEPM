@@ -21,10 +21,11 @@ ParameterName{n}='Maximum fossil fuel resources';
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_{max}}$';
 ParameterSource{n}=iRogner_et_al_2012;
-lb(n)=2.535;
-ub(n)=7.665; %From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, and coal resources reduced by 80% according to Rogner arguement on practical availability
-%lb(n)=4.;
-%ub(n)=7.;
+lb(n)=2.535+.2;
+ub(n)=7.665+.2; 
+%From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, and coal
+%resources reduced by 80% according to Rogner arguement on practical availability.
+%Then, 0.2 teratonnes added on to account for a 1985 start.
 v(n) = mean([lb(n) ub(n)]);
 
 %%%%%%%%%% 
@@ -37,8 +38,8 @@ ParameterSource{n}=nSource;
 iBP_review_2014=nSource;
 Reference{nSource}='BP_statistical_review_2014';nSource=nSource+1;
 v(n) = 90.;
-lb(n)= 60.;
-ub(n)= 110.;
+lb(n)= 50.;
+ub(n)= 100.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -50,7 +51,7 @@ ParameterSource{n}=nSource;
 iauthor_estimate=nSource;
 Reference{nSource}='Author_estimate';nSource=nSource+1;
 v(n) = 0.5e-7;
-lb(n)= 0.5e-7;
+lb(n)= 0.6e-7;
 ub(n)= 1.e-7;
 
 %%%%%%%%%% 
@@ -75,8 +76,8 @@ ParameterSource{n}=nSource;
 iIEA_medium_term_market_report=nSource;
 Reference{nSource}='IEA_medium_term_renewable_market_report_2014';nSource=nSource+1;
 v(n) = 375.;
-lb(n)= 250.;
-ub(n)= 350.;
+lb(n)= 300.;
+ub(n)= 500.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -86,8 +87,8 @@ ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
 v(n) = 0.3;
-lb(n)= 0.3;
-ub(n)= 0.5;
+lb(n)= 0.1;
+ub(n)= 0.3;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -97,10 +98,10 @@ ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iRogelj=nSource;
-Reference{nSource}='Rogelj_et_al_2013';nSource=nSource+1;
+Reference{nSource}='Lontzek_et_al_2015';nSource=nSource+1;
 v(n) = 1.;  
 lb(n)= ctax0; 
-ub(n)= 400.;
+ub(n)= 650.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -108,10 +109,10 @@ ParameterName{n}='Carbon tax trend';
 ParameterUnits{n}='\$/yr';
 ParameterLatexSymbol{n}='$S_{ff}$';
 ParameterOutputFormat{n}='';
-ParameterSource{n}=iauthor_estimate;
+ParameterSource{n}='Lontzek_et_al_2015';
 v(n) = 1.;  
-lb(n)= 2.;
-ub(n)= 3.;
+lb(n)= .5;
+ub(n)= 4.;
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -122,7 +123,7 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=iIEA_medium_term_market_report;%also: 'UofM Energy Institute Technical Paper "Renewable Energy Technology Review"';
 v(n) = 20;
 lb(n)= 10;
-ub(n)= 30;
+ub(n)= 20;
 
 %%%%%%%%%% 
 n=n+1; 
@@ -147,8 +148,8 @@ ParameterSource{n}=nSource;
 iworld_bank=nSource;
 Reference{nSource}='World_bank_data_2014';nSource=nSource+1;%'https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&ctype=l&strail=false&bcs=d&nselm=h&met_y=sp_pop_grow&scale_y=lin&ind_y=false&rdim=region&ifdim=region&tdim=true&hl=en&dl=en&ind=false';
 v(n) = 0.015;
-lb(n)= 0.01;
-ub(n)= 0.02;
+lb(n)= 0.015;
+ub(n)= 0.023;
 
 %%%%%%%%%% 
 n=n+1; 
@@ -172,8 +173,8 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 nSource=iIEA_data;
 v(n) = 0.005 ;
-lb(n)= 0.005 ;
-ub(n)= 0.01 ;
+lb(n)= 0.006 ;
+ub(n)= 0.015 ;
 
 %%%%%%%%%% 
 n=n+1; 

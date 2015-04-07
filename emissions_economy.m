@@ -50,7 +50,7 @@ ctaxTre=max(0.1,ctaxTre);
 %Ensure fossil to non-fossil transfer delay is above zero.
 fffb=max(0.1,fffb);
 %Ensure maximum per capita consumption is always .ge. than initial
-pcdmax=max(pcdmax,Globalpercapconsump2013);
+pcdmax=max(pcdmax,GlobalpercapconsumpInit);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
@@ -191,9 +191,9 @@ pop = P0*popmax*e./(popmax+P0*(e-1));
 
 function [pcd] = per_cap_demand( t )
 
-global ipcdinc pcdmax Globalpercapconsump2013
+global ipcdinc pcdmax GlobalpercapconsumpInit
 
-pcd = Globalpercapconsump2013 .* exp( t .* (ipcdinc));  % exponential per capita demand growth
+pcd = GlobalpercapconsumpInit .* exp( t .* (ipcdinc));  % exponential per capita demand growth
 pcd = min( pcd , pcdmax) ;      %limit to maximum per capita demand
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -214,7 +214,7 @@ global ctax0dpJ ctaxmax ctaxTre
 
 ctax = ctax0dpJ + ctaxTre .* t ;
 
-ctax = max (ctax,ctaxmax);
+ctax = min (ctax,ctaxmax);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

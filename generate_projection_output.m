@@ -1,12 +1,12 @@
 relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=0
+plot_cumulative_emissions_and_warming_pdfs=1
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=1
 
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=0
+plot_consumption_emission_validation=1
 plot_diagnostic_output=0
 
 t_cross_over=nan(ensemble_size,1);
@@ -126,8 +126,8 @@ if plot_cumulative_emissions_and_warming_pdfs
         ie=find(net_warming_thresh_pass==0,1,'last');
         sum_exceeded=cumsum(net_warming_thresh_pass(is:ie));
         emissions{t}=tot_emissions_sorted(is:ie-1);
-        frac_exceeded{t}=sum_exceeded./sum_exceeded(end);
-        frac_exceeded{t}(end)=[];
+        %frac_exceeded{t}=sum_exceeded./sum_exceeded(end);
+        %frac_exceeded{t}(end)=[];
     end
     plevels=[5 50 95];
      
@@ -244,7 +244,7 @@ end
 %common variables follow for paintbrush plots
 ensemble_size=length(so);
 nbins=500;
-tend=2300;
+tend=2500;
 cRCP=[128. 255. 0.;...
      255. 255. 0.;...
      255. 128 0.;...
@@ -261,25 +261,28 @@ if plot_paintbrushes
     hold on
     
     cum_emis_arr=nan(ensemble_size,tf);
+    cum_emis_arr_avg=nan(ensemble_size,tf);
     for en=1:ensemble_size
-        cum_emis_arr(en,1:length(so(en).cum_emissions))=so(en).cum_emissions;
+        en_len=length(so(en).cum_emissions);
+        cum_emis_arr(en,1:en_len)=so(en).cum_emissions;
+        cum_emis_arr_avg(en,1:en_len)=so(en).cum_emissions;
+        cum_emis_arr_avg(en,en_len+1:tf)=so(en).cum_emissions(en_len);
     end
-    
     bin_centers=linspace(0,nanmax(cum_emis_arr(:)),nbins);
     hist_arr=nan(nbins,tf);
     for yr=1:tf
         e=cum_emis_arr(:,yr);
         hist_arr(:,yr)=hist(e,bin_centers);
-        emis_mean(yr)=median(e(~isnan(e)));
     end
+    emis_mean=mean(cum_emis_arr_avg,1);
     hist_arr(hist_arr==0)=nan;
     
     x=(1:tf)+present_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
-    plot(x,emis_mean,'b','linewidth',12)
+    %plot(x,emis_mean,'b','linewidth',12)
     he=find(RCPyear(1,:)==2012);
-
+    
     clear h
     for nRCP=1:4
         h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(cumRCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
@@ -314,8 +317,6 @@ if plot_paintbrushes
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C) ')
     
-    %print('-depsc','figs/probabalistic_cumulative_emissions')
-    
     subplot(1,2,1)
     
     hold on
@@ -330,7 +331,7 @@ if plot_paintbrushes
     for yr=1:tf
         e=emis_arr(:,yr);
         hist_arr(:,yr)=hist(e,bin_centers);
-        emis_mean(yr)=median(e(~isnan(e)));
+        emis_mean(yr)=mean(e(~isnan(e)));
     end
     hist_arr(hist_arr==0)=nan;
     x=(1:tf)+present_year;
@@ -358,7 +359,6 @@ if plot_paintbrushes
 xlabel('Year')
 ylabel('Annual emissions (Tt C/yr) ')
 hold on
-%plot(obs_time,obs_emissions,'r--','linewidth',4)
 plot(x,emis_mean,'b','linewidth',12)
 
 
@@ -420,15 +420,17 @@ end
 
 if plot_consumption_emission_validation
     
+    figure
+    
     h=subplot(2,1,1)
     subplot_label(h,-0.1,0.9,'a)',25)
     %Observed global consumption rates, 1980-2012.
     data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
     obs_consumption=data(3,1:end-1).*quads_2_J./1.e18; %To EJ
     obs_time=data(1,1:end-1);
-    p=polyfit(obs_time,obs_consumption,1);
+    p=polyfit(obs_time,obs_consumption,2);
     obs_consumption_fit=polyval(p,obs_time);
-    nval=20;
+    nval=27;
     
     TotEnDemand=zeros(ensemble_size,nval);
     for en=1:ensemble_size
@@ -439,25 +441,23 @@ if plot_consumption_emission_validation
     TEDStd=std(TotEnDemand,1);
     TEDMin=TEDMean-TEDStd;
     TEDMax=TEDMean+TEDStd;
-    %TEDMin=min(TotEnDemand,[],1);
-    %TEDMax=max(TotEnDemand,[],1);
     
     disp(['historical consumption trend=' num2str(p(1))])
-    p=polyfit(mod_time,TEDMean',1);
+    p=polyfit(mod_time,TEDMean',2);
     disp(['simulated mean consumption trend=' num2str(p(1))]) 
-    p=polyfit(mod_time,TEDMin',1);
+    p=polyfit(mod_time,TEDMin',2);
     disp(['simulated min consumption trend=' num2str(p(1))])     
-    p=polyfit(mod_time,TEDMax',1);
+    p=polyfit(mod_time,TEDMax',2);
     disp(['simulated max consumption trend=' num2str(p(1))]) 
     
     hold on
     h(1)=plot(obs_time,obs_consumption,'b--','linewidth',2);
-    h(2)=plot(obs_time,obs_consumption_fit,'b','linewidth',2);    
-    h(3)=errorbar(mod_time,TEDMean,TEDMean-TEDMin,TEDMax-TEDMean,'r','linewidth',2);
-    legend(h,{'Observed consumption' 'Observed consumption linear fit' 'Simulated consumption'},'Location','Northwest');
+    h(2)=plot(obs_time,obs_consumption_fit,'b','linewidth',2);
+    h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
+    h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
+    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2);
+    legend(h,{'Observed consumption' 'Observed consumption quadratic fit' 'Simulated consumption mean'  'Simulated +/- 1-sigma consumption'},'Location','Northwest');
     axis tight
-    %ax=axis;ax(3)=0;axis(ax)
-    %title('Global energy demand')
     xlabel('Year')
     ylabel('Exajoules (EJ)')
     
@@ -468,7 +468,7 @@ if plot_consumption_emission_validation
     data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
     obs_emissions=data(end-30:end-1,2)./1.e6;
     obs_time=data(end-30:end-1,1);
-    p=polyfit(obs_time,obs_emissions,1);
+    p=polyfit(obs_time,obs_emissions,2);
     obs_emissions_fit=polyval(p,obs_time);
     
     TotEmissions=zeros(ensemble_size,nval);
@@ -480,8 +480,6 @@ if plot_consumption_emission_validation
     TEDStd=std(TotEmissions,1);
     TEDMin=TEDMean-TEDStd;
     TEDMax=TEDMean+TEDStd;
-    %TEDMin=min(TotEmissions,[],1);
-    %TEDMax=max(TotEmissions,[],1);
     
     disp(['historical emission trend=' num2str(p(1))])
     p=polyfit(mod_time,TEDMean',1);
@@ -490,15 +488,17 @@ if plot_consumption_emission_validation
     disp(['simulated min emission trend=' num2str(p(1))])     
     p=polyfit(mod_time,TEDMax',1);
     disp(['simulated max emission trend=' num2str(p(1))]) 
-    
+   
     hold on
     h(1)=plot(obs_time,obs_emissions,'b--','linewidth',2);
     h(2)=plot(obs_time,obs_emissions_fit,'b','linewidth',2);    
-    h(3)=errorbar(mod_time,TEDMean,TEDMean-TEDMin,TEDMax-TEDMean,'r','linewidth',2);
-    legend(h,{'Observed emissions' 'Observed emissions linear fit' 'Simulated emissions'},'Location','Northwest');
+    h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
+    h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
+    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2); 
+    
+    legend(h,{'Observed emissions' 'Observed emissions quadratic fit' 'Simulated mean emissions' 'Simulated +/- 1-sigma emissions'},'Location','Northwest');
     axis tight
-    %ax=axis;ax(3)=0;axis(ax)
-    %title('Global energy demand')
+   
     xlabel('Year')
     ylabel('Tt C') 
     
@@ -506,9 +506,16 @@ if plot_consumption_emission_validation
     
 end
 
+%so.
+
 if plot_diagnostic_output
     hold on
-    for en=1:ensemble_size
-        plot(so(en).time,so(en).re_pr)
+    for en=1:100
+        plot(so(en).time,so(en).ff_pr,'r','linewidth',1)
     end
+    for en=1:100
+        plot(so(en).time,so(en).re_pr,'g','linewidth',1)
+    end    
+    
+    
 end
