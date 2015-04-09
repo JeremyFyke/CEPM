@@ -16,9 +16,16 @@ t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
 close all
 
-if relative_parameter_sensitivities_for_final_cumulative_carbon  
+if relative_parameter_sensitivities_for_final_cumulative_carbon
     figure
-    X=[ones(ensemble_size,1) xn];
+    
+    
+    for n=1:size(model_parameters,2)
+        tmp=model_parameters(:,n);
+        normalized_model_parameters(:,n) = (tmp-min(tmp)) ./ (max(tmp)-min(tmp));
+    end
+    
+    X=[ones(ensemble_size,1) normalized_model_parameters];
     y=[so.net_warming]';
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
@@ -43,9 +50,9 @@ end
 if relative_parameter_sensitivities_at_2100 
 
     figure
-    X=[ones(ensemble_size,1) xn];
+    X=[ones(ensemble_size,1) normalized_model_parameters];
     tmax=200;
-    a=zeros(tmax,size(xn,2));
+    a=zeros(tmax,size(normalized_model_parameters,2));
     for t=1:tmax
         t
         n=0;

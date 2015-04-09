@@ -1,5 +1,7 @@
 global ffef0 Dff0 ctax0
 
+disp('Generating parameter sets...')
+
 n=0;
 nSource=1;
 %%%%%%%%%%
@@ -10,10 +12,9 @@ ParameterLatexSymbol{n}='$V_{ff_O}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iRogner_et_al_2012=nSource;
-Reference{nSource}='Collins_et_al_2013';nSource=nSource+1;
+Reference{nSource}='Rogner_et_al_2012';nSource=nSource+1;
 lb(n)=1.002;
 ub(n)=1.94;
-v(n) = mean([lb(n) ub(n)]);
 
 %%%%%%%%%%
 n=n+1 ; 
@@ -21,12 +22,13 @@ ParameterName{n}='Maximum fossil fuel resources';
 ParameterUnits{n}='Tt C';
 ParameterLatexSymbol{n}='$V_{ff_{max}}$';
 ParameterSource{n}=iRogner_et_al_2012;
-lb(n)=2.535+.2;
-ub(n)=7.665+.2; 
+lb(n)=2.535;
+ub(n)=7.665; 
+%lb(n)=2.535+.2;
+%ub(n)=7.665+.2; 
 %From Rogner, tho these values are quoted from IPCC AR5 WG3 Ch7, and coal
 %resources reduced by 80% according to Rogner arguement on practical availability.
-%Then, 0.2 teratonnes added on to account for a 1985 start.
-v(n) = mean([lb(n) ub(n)]);
+%Add 0.2 teratonnes if accounting for a 1985 start.
 
 %%%%%%%%%% 
 n=n+1 ;  
@@ -37,7 +39,6 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iBP_review_2014=nSource;
 Reference{nSource}='BP_statistical_review_2014';nSource=nSource+1;
-v(n) = 90.;
 lb(n)= 50.;
 ub(n)= 100.;
 
@@ -50,7 +51,6 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iauthor_estimate=nSource;
 Reference{nSource}='Author_estimate';nSource=nSource+1;
-v(n) = 0.5e-7;
 lb(n)= 0.6e-7;
 ub(n)= 1.e-7;
 
@@ -64,7 +64,6 @@ ParameterSource{n}=iauthor_estimate;%'http://www.ocean.washington.edu/courses/en
 [Dff0,~,~,ffef0] = calculate_historical_reserve_growth_rate();
 lb(n)= gasEfactor; %g C/J
 ub(n)= coalEfactor; %g C/J
-v(n)=ffef0; %g C/J
 
 %%%%%%%%%% 
 n=n+1 ; 
@@ -75,7 +74,6 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iIEA_medium_term_market_report=nSource;
 Reference{nSource}='IEA_medium_term_renewable_market_report_2014';nSource=nSource+1;
-v(n) = 375.;
 lb(n)= 300.;
 ub(n)= 500.;
 
@@ -86,7 +84,6 @@ ParameterUnits{n}='Fraction of initial cost';
 ParameterLatexSymbol{n}='$Pr_{nff_{min}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
-v(n) = 0.3;
 lb(n)= 0.1;
 ub(n)= 0.3;
 
@@ -94,23 +91,21 @@ ub(n)= 0.3;
 n=n+1 ; 
 ParameterName{n}='Maximum carbon tax'; 
 ParameterUnits{n}='\$/T C';
-ParameterLatexSymbol{n}='$S_{ff}$';
+ParameterLatexSymbol{n}='$T_{S_{ff}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
-iRogelj=nSource;
+iLontzek=nSource;
 Reference{nSource}='Lontzek_et_al_2015';nSource=nSource+1;
-v(n) = 1.;  
 lb(n)= ctax0; 
 ub(n)= 650.;
 
 %%%%%%%%%% 
 n=n+1 ; 
 ParameterName{n}='Carbon tax trend'; 
-ParameterUnits{n}='\$/yr';
-ParameterLatexSymbol{n}='$S_{ff}$';
+ParameterUnits{n}='\$/T C/yr';
+ParameterLatexSymbol{n}='$S_{ff_{max}}$';
 ParameterOutputFormat{n}='';
-ParameterSource{n}='Lontzek_et_al_2015';
-v(n) = 1.;  
+ParameterSource{n}=iLontzek;
 lb(n)= .5;
 ub(n)= 4.;
 
@@ -121,7 +116,6 @@ ParameterUnits{n}='Yr';
 ParameterLatexSymbol{n}='$T_{re}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iIEA_medium_term_market_report;%also: 'UofM Energy Institute Technical Paper "Renewable Energy Technology Review"';
-v(n) = 20;
 lb(n)= 10;
 ub(n)= 20;
 
@@ -134,7 +128,6 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iGerland_et_al_2014=nSource;
 Reference{nSource}='Gerland_et_al_2014';nSource=nSource+1;
-v(n) = 10.9;
 lb(n)= 9.6;
 ub(n)=12.3;
 
@@ -147,7 +140,6 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iworld_bank=nSource;
 Reference{nSource}='World_bank_data_2014';nSource=nSource+1;%'https://www.google.com/publicdata/explore?ds=d5bncppjof8f9_&ctype=l&strail=false&bcs=d&nselm=h&met_y=sp_pop_grow&scale_y=lin&ind_y=false&rdim=region&ifdim=region&tdim=true&hl=en&dl=en&ind=false';
-v(n) = 0.015;
 lb(n)= 0.015;
 ub(n)= 0.023;
 
@@ -159,8 +151,7 @@ ParameterLatexSymbol{n}='$De_{{pc}_{max}}$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iIEA_data=nSource;
-Reference{nSource}='EIA_data_2014';nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
-v(n) = 200.e6*1055./1.e9 ;
+Reference{nSource}='EIA_online';nSource=nSource+1;%'http://www.eia.gov/cfapps/ipdbproject/iedindex3.cfm?tid=44&pid=45&aid=2&cid=ww,&syid=1980&eyid=2011&unit=MBTUPP';
 lb(n)= 133.e6*1055./1.e9 ;
 ub(n)= 254.e6*1055./1.e9 ;
 
@@ -170,9 +161,7 @@ ParameterName{n}='Per-capita energy consumption increase';
 ParameterUnits{n}='\%/yr';
 ParameterLatexSymbol{n}='$De_{{pc}_{inc}}$';
 ParameterOutputFormat{n}='';
-ParameterSource{n}=nSource;
-nSource=iIEA_data;
-v(n) = 0.005 ;
+ParameterSource{n}=iIEA_data;
 lb(n)= 0.006 ;
 ub(n)= 0.015 ;
 
@@ -183,7 +172,6 @@ ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$B$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
-v(n) = 1.;
 lb(n)=0.2;
 ub(n)=1.;
 
@@ -194,7 +182,6 @@ ParameterUnits{n}='Unitless';
 ParameterLatexSymbol{n}='$C$';
 ParameterOutputFormat{n}='';
 ParameterSource{n}=iauthor_estimate;
-v(n) = -5.; 
 lb(n)=-6;
 ub(n)=-4;
 
@@ -207,21 +194,38 @@ ParameterOutputFormat{n}='';
 ParameterSource{n}=nSource;
 iCollins_et_al_2013=nSource;
 Reference{nSource}='Collins_et_al_2013';nSource=nSource+1;
-v(n) = 1.5; 
 lb(n)=0.8;
 ub(n)=2.5;
 
-%Convert data to Latex table
-for nn=1:n
-   ParamRange{nn}=strcat(num2str(lb(nn)),'-',num2str(ub(nn)),'$^',num2str(ParameterSource{nn}),'$');  %#ok<SAGROW>
-end
-data=[ParameterLatexSymbol',ParameterUnits',ParamRange'];
-columnlabels={'Symbol','Units','Range'};
+%% 
 
-if exist('./paramtable.tex')  
-    delete *.tex
+%First: define a vector of median values, for each parameter
+mu=mean([ub' lb'],2);
+
+%Next: extract standard deviation from the spread between the upper and lower
+%bounds, assuming these bounds represent +/- 2-sigma (i.e. ~95%).
+sigma=((ub'-lb')./4);
+
+%Next: calculate covariance, as the squared of sigma
+covariance=sigma.^2;
+
+%Finally: generate model parameter sets, with each parameter varied
+%according to an LHS sampling of parameter distributions.
+model_parameters=lhsnorm(mu,diag(covariance),ensemble_size);
+
+generate_latex_parameter_table
+
+%Create pdf plots of all parameter distributions
+for n=1:size(model_parameters,2)
+    figure
+    set(gcf,'Visible','Off')
+    hist(squeeze(model_parameters(:,n)),100)
+    title(ParameterName{n})
+    xlabel(strcat(' lb=',num2str(lb(n)),...
+                  ' ub=',num2str(ub(n)),...
+                  ' mu=',num2str(mu(n)),...
+                  ' sigma=',num2str(sigma(n))))
+    print('-depsc2',strcat('figs/',ParameterName{n},'_distribution'))
 end
 
-matrix2latex(data, 'paramtable.tex','rowLabels',ParameterName,'columnLabels',columnlabels,'alignment','c','size','tiny')
-fileID = fopen('paramtable_caption.tex','w');
-caption=fprintf(fileID,'\\caption{Table of parameters varied during latin hypercube sampling-based ensemble.  Values determined from following sources:  1: \\cite{%s}; 2: \\cite{%s}; 3: \\cite{%s}; 4: \\cite{%s}; 5: \\cite{%s}; 6: \\cite{%s}; 7: \\cite{%s}; 8: \\cite{%s}.\\label{table:free_parameters}}',Reference{1},Reference{2},Reference{3},Reference{4},Reference{5},Reference{6},Reference{7},Reference{8});
+disp('Parameter ranges plotted to file.')

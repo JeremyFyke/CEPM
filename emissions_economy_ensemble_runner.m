@@ -5,50 +5,21 @@
 close all
 clear all
 
+ensemble_size = 20000 ;
+
 set_global_constants
 
-%make output directory, if it doesn't exist.
+%make figures and output directories, if they doesn't exist.
 if ~exist('figs','dir')
     [~,~,~] = mkdir('figs');
 end
-
-%Set ensemble size
-ensemble_size = 20000 ;
-
-%generate parameter arrays
-generate_parameter_ranges;
-disp('Generating Latin Hypercube...')
-
-%Define a vector of median values, for each parameter
-mu=mean([ub' lb'],2);
-%Extract standard deviation from the spread between the upper and lower
-%bounds, assuming these bounds represent +/- 2-sigma (i.e. ~95%).
-%Then, square standard deviation to obtain covariance.
-
-sigma=((ub'-lb')./4).^2;
-
-model_parameters=lhsnorm(mu,diag(sigma),ensemble_size);
-
-% for n=1:size(model_parameters,2)
-%     figure
-%     x=linspace(lb(n),ub(n),100);
-%     norm=normpdf(x,mu(n),sigma(n));
-%     plot(x,norm)
-%     title(ParameterName{n})
-%     xlabel(strcat(' lb=',num2str(lb(n)),...
-%                   ' ub=',num2str(ub(n)),...
-%                   ' mu=',num2str(mu(n)),...
-%                   ' sigma=',num2str(sigma(n))))
-% end
-
-
-for n=1:size(model_parameters,2)
-    tmp=model_parameters(:,n);
-    xn(:,n) = (tmp-min(tmp)) ./ (max(tmp)-min(tmp));
+if ~exist('./output','dir')
+   [~,~,~]=mkdir('output');
 end
 
-%Run ensemble
-output_initialization
+generate_parameter_ranges;
+
+initialize_output_structure;
 
 for n=1:ensemble_size
     
@@ -85,10 +56,7 @@ end
 generate_projection_output
 
 %save output for later
-if ~exist('./output','dir')
-    'hello'
-   [~,~,~]=mkdir('output');
-end
+
 save output/output
 
 toc
