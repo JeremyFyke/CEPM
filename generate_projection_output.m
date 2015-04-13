@@ -1,12 +1,12 @@
 relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=1
+plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=1
 
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
+plot_consumption_emission_validation=0
 plot_diagnostic_output=0
 
 t_cross_over=nan(ensemble_size,1);
@@ -149,7 +149,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     dv=(ax(4)-ax(3))*.05;
     ax(4)=ax(4)+3.*dv;
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
-    ax(2)=7.;
+
     for t=1:Tlimlen;
         emissions{t}(end)
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
@@ -171,13 +171,13 @@ if plot_cumulative_emissions_and_warming_pdfs
     set(gca,'Ytick',[])
     box on
     ax=axis
-    ax(1)=1;ax(2)=6;
+    ax(1)=0;ax(2)=7;
     axis(ax)
     disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
 
     subplot(2,1,2)
     
-    hist([so.net_warming],50),shading flat
+    hist([so.net_warming],70),shading flat
     set(gca,'ytick',[])
     
     p_100=prctile([so.net_warming],1:100);
@@ -189,7 +189,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     
     xlabel('Net warming (^\circC)')
     ax=axis;
-    ax(1)=0.5;ax(2)=13.;
+    ax(1)=0.;ax(2)=13.;
     axis(ax)
     q=prctile([so.net_warming],plevels);
     
@@ -429,14 +429,15 @@ if plot_consumption_emission_validation
     
     figure
     
-    h=subplot(2,1,1)
+    h=subplot(2,1,1);
     subplot_label(h,-0.1,0.9,'a)',25)
     %Observed global consumption rates, 1980-2012.
     data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
     obs_consumption=data(3,1:end-1).*quads_2_J./1.e18; %To EJ
     obs_time=data(1,1:end-1);
-    p=polyfit(obs_time,obs_consumption,2);
-    obs_consumption_fit=polyval(p,obs_time);
+    iyear=find(obs_time==1985);
+    p=polyfit(obs_time(iyear:end),obs_consumption(iyear:end),1);
+    obs_consumption_fit=polyval(p,obs_time(iyear:end));
     nval=27;
     
     TotEnDemand=zeros(ensemble_size,nval);
@@ -458,25 +459,28 @@ if plot_consumption_emission_validation
     disp(['simulated max consumption trend=' num2str(p(1))]) 
     
     hold on
-    h(1)=plot(obs_time,obs_consumption,'b--','linewidth',2);
-    h(2)=plot(obs_time,obs_consumption_fit,'b','linewidth',2);
+    h(1)=plot(obs_time(iyear:end),obs_consumption(iyear:end),'b--','linewidth',2);
+    h(2)=plot(obs_time(iyear:end),obs_consumption_fit,'b','linewidth',2);
     h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
     h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
     h(4)=plot(mod_time,TEDMax,'r--','linewidth',2);
-    legend(h,{'Observed consumption' 'Observed consumption quadratic fit' 'Simulated consumption mean'  'Simulated +/- 1-sigma consumption'},'Location','Northwest');
+    legend(h,{'Observed consumption' 'Observed consumption trend' 'Simulated consumption mean'  'Simulated +/- 1-sigma consumption'},'Location','Northwest');
     axis tight
+    ax=axis;
+    ax(1)=1985;
+    axis(ax);
     xlabel('Year')
     ylabel('Exajoules (EJ)')
     
     %%%
-    h=subplot(2,1,2)
+    h=subplot(2,1,2);
     subplot_label(h,-0.1,0.9,'b)',25)
     %Observed global emission rates, 1980-2010.
     data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
     obs_emissions=data(end-30:end-1,2)./1.e6;
     obs_time=data(end-30:end-1,1);
-    p=polyfit(obs_time,obs_emissions,2);
-    obs_emissions_fit=polyval(p,obs_time);
+    p=polyfit(obs_time(iyear:end),obs_emissions(iyear:end),1);
+    obs_emissions_fit=polyval(p,obs_time(iyear:end));
     
     TotEmissions=zeros(ensemble_size,nval);
     for en=1:ensemble_size
@@ -497,15 +501,17 @@ if plot_consumption_emission_validation
     disp(['simulated max emission trend=' num2str(p(1))]) 
    
     hold on
-    h(1)=plot(obs_time,obs_emissions,'b--','linewidth',2);
-    h(2)=plot(obs_time,obs_emissions_fit,'b','linewidth',2);    
+    h(1)=plot(obs_time(iyear:end),obs_emissions(iyear:end),'b--','linewidth',2);
+    h(2)=plot(obs_time(iyear:end),obs_emissions_fit,'b','linewidth',2);    
     h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
     h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
     h(4)=plot(mod_time,TEDMax,'r--','linewidth',2); 
     
-    legend(h,{'Observed emissions' 'Observed emissions quadratic fit' 'Simulated mean emissions' 'Simulated +/- 1-sigma emissions'},'Location','Northwest');
+    legend(h,{'Observed emissions' 'Observed emissions trend' 'Simulated mean emissions' 'Simulated +/- 1-sigma emissions'},'Location','Northwest');
     axis tight
-   
+    ax=axis;
+    ax(1)=1985;
+    axis(ax);
     xlabel('Year')
     ylabel('Tt C') 
     

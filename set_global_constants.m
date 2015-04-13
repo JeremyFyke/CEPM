@@ -22,12 +22,13 @@ global g_per_T; g_per_T = mill;
 global quads_2_J; quads_2_J=1.055e18;
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
+
 %1985 values
-%global present_year; present_year=1985.;
-%global ff_frac0; ff_frac0=0.77; %Initial fraction of global energy consumption supplied by fossil energies 
-%global Globaltotenergyuseinit; Globaltotenergyuseinit=data(3,end-12-15).*quads_2_J;
-%global P0; P0 = 4.86e9;%World Bank
-%global emissions_to_date; emissions_to_date=.19; %historical ff emissions (Tt C, year 2012); Source: RCP data
+% global present_year; present_year=1985.;
+% global ff_frac0; ff_frac0=0.77; %Initial fraction of global energy consumption supplied by fossil energies 
+% global Globaltotenergyuseinit; Globaltotenergyuseinit=data(3,end-12-15).*quads_2_J;
+% global P0; P0 = 4.86e9;%World Bank
+% global emissions_to_date; emissions_to_date=.19; %historical ff emissions (Tt C, year 2012); Source: RCP data
 
 %2012 values
 global present_year; present_year=2012.;

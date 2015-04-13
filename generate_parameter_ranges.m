@@ -220,11 +220,10 @@ for n=1:size(model_parameters,2)
     figure
     set(gcf,'Visible','Off')
     hist(squeeze(model_parameters(:,n)),100)
-    title(ParameterName{n})
-    xlabel(strcat(' lb=',num2str(lb(n)),...
-                  ' ub=',num2str(ub(n)),...
-                  ' mu=',num2str(mu(n)),...
-                  ' sigma=',num2str(sigma(n))))
+    axis tight
+    title(sprintf('%s (%s)',ParameterName{n},ParameterUnits{n}),'interpreter','latex')
+    xlabel(strcat('Mean=',num2str(mu(n)),...
+                  ' Standard deviation=',num2str(sigma(n))))
     print('-depsc2',strcat('figs/',ParameterName{n},'_distribution'))
 end
 
