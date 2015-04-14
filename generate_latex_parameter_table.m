@@ -1,8 +1,8 @@
 %% Convert input parameter data to Latex table
 
 %Round for clean presentation
-mu_rounded=spa_sf(mu,3);
-sigma_rounded=spa_sf(sigma,3);
+mu_rounded=spa_sf(mu,2);
+sigma_rounded=spa_sf(sigma,2);
 for nn=1:n
    ParamRange{nn}=strcat(num2str(mu_rounded(nn)),'/',num2str(sigma_rounded(nn)),'$^',num2str(ParameterSource{nn}),'$');
 end
@@ -31,7 +31,7 @@ for ref=1:length(Reference)
     end
 end
 
-Refstring = sprintf('Uncertain parameters, and parameter mean/standard deviation values, as varied in the course of ensemble simulations.  Sources are as follows: %s',Refstring);
+Refstring = sprintf('Uncertain parameters, and parameter mean/standard deviation values, varied in the course of the ensemble of simulations.  Sources for parameter ranges are as follows: %s',Refstring);
 [~]=fprintf(fileID,'%s\\label{table:free_parameters}',Refstring);
 
 clear mu_rounded sigma_rounded ParamRange data columnlabels fileID caption

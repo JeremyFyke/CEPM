@@ -5,7 +5,7 @@
 close all
 clear all
 
-ensemble_size = 40000 ;
+ensemble_size = 20000 ;
 
 set_global_constants
 

@@ -4,7 +4,6 @@ plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=1
-
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
@@ -13,6 +12,7 @@ t_cross_over=nan(ensemble_size,1);
 t_total_depletion=nan(ensemble_size,1);
 t_fossil_fuel_emissions_stop=nan(ensemble_size,1);
 
+timeaxislimit=2500;
 
 close all
 
@@ -139,7 +139,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     plevels=[5 50 95];
      
     figure
-    subplot(2,1,1)
+    hfig=subplot(2,1,1)
     hold on
     hist([so.tot_emissions],50),shading flat
 
@@ -174,8 +174,15 @@ if plot_cumulative_emissions_and_warming_pdfs
     ax(1)=0;ax(2)=7;
     axis(ax)
     disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
-
-    subplot(2,1,2)
+    subplot_label(hfig,-0.1,0.9,'(a)',20)
+%     
+%      h=axes handle
+%  x=normalized distance from left
+%  y=normalized distance from bottom
+%  l=text
+%  s=text size
+    
+    hfig=subplot(2,1,2)
     
     hist([so.net_warming],70),shading flat
     set(gca,'ytick',[])
@@ -206,6 +213,9 @@ if plot_cumulative_emissions_and_warming_pdfs
     for t=1:length(Tlim);
         line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
     end
+    
+    subplot_label(hfig,-0.1,0.9,'(b)',20)
+    
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
 end
 
@@ -230,7 +240,7 @@ if plot_final_percent_reserves_depleted
         t=find(so(i).burn_rate==so(i).burn_rate_max);
         cum_emissions_at_max_burn_rate(i)=so(i).cum_emissions(t);
         initial_volume(i)=so(i).LHSparams(1);
-        max_volume(i)=so(i).LHSparams(2);
+        max_volume(i)=so(i).LHSparams(2)+so(i).LHSparams(1);
         tot_emissions(i)=so(i).tot_emissions;
     end
     peak_ff=cum_emissions_at_max_burn_rate./tot_emissions;
@@ -240,18 +250,22 @@ if plot_final_percent_reserves_depleted
     shading flat
     title(['5/50/95 percentiles of peak_ff=',num2str(p)])
     subplot(2,1,2)
+    clear percent_depleted
     percent_depleted=tot_emissions./max_volume;
     p=prctile(percent_depleted,[5 50 95]);
     hist(percent_depleted,40)
     shading flat
     title(['5/50/95 percentiles of ratio of total future emissions to max ff volume=',num2str(p)])
-
+    
+    i=find(percent_depleted>1.);
+    for n=1:length(i);
+    disp([num2str(tot_emissions(i(n))) '   ' num2str(max_volume(i(n))) '   ' num2str(percent_depleted(i(n)))])
+    end
 end
 
 %common variables follow for paintbrush plots
 ensemble_size=length(so);
 nbins=500;
-tend=2500;
 cRCP=[128. 255. 0.;...
      255. 255. 0.;...
      255. 128 0.;...
@@ -263,7 +277,7 @@ RCPname{5}='historical ';
 if plot_paintbrushes
     
     figure
-    subplot(1,2,2)
+    hfig=subplot(1,2,2)
     
     hold on
     
@@ -298,7 +312,7 @@ if plot_paintbrushes
     legend(h,RCPname,'location','Northwest')
     axis tight
     ax=axis;
-    ax(1)=1950;ax(2)=tend;
+    ax(1)=1950;ax(2)=timeaxislimit;
     caxis([0 200])
     colormap(copper)
     axis(ax)
@@ -324,7 +338,9 @@ if plot_paintbrushes
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C) ')
     
-    subplot(1,2,1)
+    subplot_label(hfig,-0.2,0.9,'(b)',20)
+    
+    hfig=subplot(1,2,1)
     
     hold on
     
@@ -377,8 +393,10 @@ legend(h,RCPname,'location','Northwest')
 
 axis tight
 ax=axis;
-ax(1)=1950;ax(2)=tend;ax(3)=-0.003;
+ax(1)=1950;ax(2)=timeaxislimit;ax(3)=-0.003;
 axis(ax)
+
+subplot_label(hfig,-0.2,0.9,'(a)',20)
 
 print('-depsc','figs/probabalistic_emissions')
 
@@ -412,9 +430,9 @@ if plot_mean_ending_cum_emissions
     scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
     ie=find(~isnan(MeanTotCumEmissions) & nCeasedEmissions>1);
     p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
-    plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
+    %plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
-    ax=axis;ax(2)=2300;ax(4)=5.3;axis(ax)
+    ax=axis;ax(2)=timeaxislimit;ax(4)=5.3;axis(ax)
     colormap('jet')
     hc=colorbar
     ylabel(hc,'% of simulations reaching minimum renewable price')
