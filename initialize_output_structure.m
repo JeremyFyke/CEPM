@@ -1,4 +1,6 @@
-so(ensemble_size)=struct();
+function [so] = initialize_output_structure(c)
+
+so(c.ensemble_size)=struct();
 
 so(1).LHSparams=[];
 so(1).time=[];

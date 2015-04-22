@@ -5,10 +5,6 @@
 close all
 clear all
 
-ensemble_size = 20000 ;
-
-set_global_constants
-
 %make figures and output directories, if they doesn't exist.
 if ~exist('figs','dir')
     [~,~,~] = mkdir('figs');
@@ -17,46 +13,42 @@ if ~exist('./output','dir')
    [~,~,~]=mkdir('output');
 end
 
-generate_parameter_ranges;
+c=set_global_constants();
+[model_parameters,c,p]=generate_parameter_ranges(c);
+so =initialize_output_structure(c);
 
-initialize_output_structure;
-
-for n=1:ensemble_size
-    
+for n=1:c.ensemble_size 
     warning('')
     if ( mod(n,2)-1 )==0
       tic
       disp(['Running ensemble number' num2str(n)])
     end
-    model_output = emissions_economy(model_parameters(n,:));
+    model_output = emissions_economy(c,model_parameters(n,:));
     try
         so(n) = model_output;
     catch
-        for n=1:size(model_parameters,2)
+        for nn=1:size(model_parameters,2)
             disp('')
-            if model_output.LHSparams(n) < lb(n) || model_output.LHSparams(n) > ub(n)
+            if model_output.LHSparams(nn) < lb(nn) || model_output.LHSparams(n) > ub(nn)
 
                 decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
             else
                 decorator='_______________________________';     
             end
             disp(decorator)
-            disp(['LHS parameter=' num2str(model_output.LHSparams(n))])
-            disp(['LHS parameter name=' ParameterName{n}])            
-            disp(['Minimum input value=' num2str(lb(n))])
-            disp(['Maximum input value=' num2str(ub(n))])
-            disp(['Parameter number=',num2str(n)])
+            disp(['LHS parameter=' num2str(model_output.LHSparams(nn))])
+            disp(['LHS parameter name=' ParameterName{nn}])            
+            disp(['Minimum input value=' num2str(lb(nn))])
+            disp(['Maximum input value=' num2str(ub(nn))])
+            disp(['Parameter number=',num2str(nn)])
         end
         error('Error in emissions economy output.')
     end
 end
 
 %make pretty pictures
-
 generate_projection_output
 
 %save output for later
-
 save output/output
 
-toc
