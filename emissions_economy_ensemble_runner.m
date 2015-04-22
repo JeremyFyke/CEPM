@@ -18,9 +18,8 @@ c=set_global_constants();
 so =initialize_output_structure(c);
 
 for n=1:c.ensemble_size 
-    warning('')
-    if ( mod(n,2)-1 )==0
-      tic
+    lastwarn('')
+    if ( mod(n,10)-1 )==0
       disp(['Running ensemble number' num2str(n)])
     end
     model_output = emissions_economy(c,model_parameters(n,:));
@@ -29,7 +28,7 @@ for n=1:c.ensemble_size
     catch
         for nn=1:size(model_parameters,2)
             disp('')
-            if model_output.LHSparams(nn) < lb(nn) || model_output.LHSparams(n) > ub(nn)
+            if model_output.LHSparams(nn) < p(nn).lb || model_output.LHSparams(nn) > p(nn).ub
 
                 decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
             else
@@ -37,11 +36,12 @@ for n=1:c.ensemble_size
             end
             disp(decorator)
             disp(['LHS parameter=' num2str(model_output.LHSparams(nn))])
-            disp(['LHS parameter name=' ParameterName{nn}])            
-            disp(['Minimum input value=' num2str(lb(nn))])
-            disp(['Maximum input value=' num2str(ub(nn))])
+            disp(['LHS parameter name=' p(nn).ParameterName])            
+            disp(['Minimum input value=' num2str(p(nn).lb)])
+            disp(['Maximum input value=' num2str(p(nn).ub)])
             disp(['Parameter number=',num2str(nn)])
         end
+        
         error('Error in emissions economy output.')
     end
 end

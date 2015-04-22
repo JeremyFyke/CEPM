@@ -1,11 +1,11 @@
-relative_parameter_sensitivities_for_final_cumulative_carbon=0
+relative_parameter_sensitivities_for_final_cumulative_carbon=1
 relative_parameter_sensitivities_at_2100=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=0
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
+plot_consumption_emission_validation=0
 plot_diagnostic_output=0
 
 t_cross_over=nan(c.ensemble_size,1);

@@ -5,8 +5,7 @@ ff_discovery_tot=0;
 
 % Can Homo economicus save us from environmental apocolypse?
 
-%globalize LHS parameters; count LHS parameters; unpack LHS-varied
-%parameters; assign LHS parameters to ensemble struture for diagnostics
+%Unpack LHS-varied parameters; assign LHS parameters to ensemble struture for diagnostics
 n_unpacked_params=0;
 n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)        ;so.LHSparams(n_unpacked_params)=V0;
 n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=Vmax;
@@ -24,7 +23,7 @@ n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params)    ;so.LHSp
 n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ipcdinc;
 n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=fffb;
 n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=fffcexp;
-n_unpacked_params=n_unpacked_params+1;icc2dT=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=icc2dT;
+n_unpacked_params=n_unpacked_params+1;TCRE=args(n_unpacked_params)      ;
 
 %Convert from billion people, to people
 popmax=popmax.*c.bill;
@@ -45,7 +44,7 @@ fffb=max(0.1,fffb);
 %Ensure maximum per capita consumption is always .ge. than initial
 pcdmax=max(pcdmax,c.GlobalpercapconsumpInit);
 %Ensure TCRE is greater than 0
-icc2dT=max(icc2dT,0.);
+TCRE=max(TCRE,0.);
 
 %Convert inital and maximum volume of fossil fuels to potential energy (J)
 
@@ -71,7 +70,7 @@ Pr_re0 = Pr_re0 ./ c.mwh_2_J ;
 % set some ODE solver options and do the numerical iteration
 
 options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
-[ so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
+[so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
     ode45(@volume,c.t0:1:c.tf,V0,options);
 
 %%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
@@ -90,12 +89,17 @@ so.cum_emissions=cumsum(so.burn_rate) + c.emissions_to_date;
 so.event_times=so.event_times + c.present_year;
 so.tot_emissions=so.cum_emissions(end);
 
-%if so.tot_emissions> c.CE_TCRE_saturation_point
-%    dT_dampening=(so.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor;
-%    so.icc2dTeffective=icc2dT.*dT_dampening;
-%end
+%Scale TCRE if above the CE_TCRE saturation point (Leduc et al., 2015)
+so.TCRE_damper=0.;
+so.TCRE_orig=TCRE;
+if so.tot_emissions>c.CE_TCRE_saturation_point
+   T_excess=so.tot_emissions-c.CE_TCRE_saturation_point;
+   so.TCRE_damper=(T_excess).*c.TCRE_dampening_factor;
+   TCRE=TCRE.*(1.-so.TCRE_damper);
+end
+so.LHSparams(n_unpacked_params)=TCRE;
 
-so.net_warming=so.tot_emissions.*icc2dT;
+so.net_warming=so.tot_emissions.*TCRE;
 
 so.consumption_init=so.tot_en_demand(1);
 so.dconsumptiondt_init=so.tot_en_demand(2)-so.tot_en_demand(1);
