@@ -200,7 +200,7 @@ model_parameters=lhsnorm(mu,diag(covariance),c.ensemble_size);
 mu_rounded=spa_sf(mu,2);
 sigma_rounded=spa_sf(sigma,2);
 for nn=1:n
-   p(nn).ParamRangeString=strcat(num2str(mu_rounded(nn)),'/',num2str(sigma_rounded(nn)),'$^',num2str(p(n).ParameterSource),'$');
+   p(nn).ParamRangeString=strcat(num2str(mu_rounded(nn)),'/',num2str(sigma_rounded(nn)),'$^',num2str(p(nn).ParameterSource),'$');
 end
 
 data=[{p.ParameterLatexSymbol}',{p.ParameterUnits}',{p.ParamRangeString}'];

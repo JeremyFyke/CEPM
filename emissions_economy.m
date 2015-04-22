@@ -275,6 +275,8 @@ end
         direction(3) = 0; %stop if crossing is hit in either direction
     end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 end
 
 

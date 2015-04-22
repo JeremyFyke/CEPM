@@ -1,6 +1,6 @@
-relative_parameter_sensitivities_for_final_cumulative_carbon=1
+relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=0
+plot_cumulative_emissions_and_warming_pdfs=1
 plot_diversity_of_trajectories=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=0
@@ -23,13 +23,15 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
         tmp=model_parameters(:,n);
         normalized_model_parameters(:,n) = (tmp-min(tmp)) ./ (max(tmp)-min(tmp));
     end
-    
+
     X=[ones(c.ensemble_size,1) normalized_model_parameters];
     y=[so.net_warming]';
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
     [a,I]=sort(abs(a));
-    ParameterNameSorted={p(I).ParameterName};
+
+    ParameterNameSorted={p(I).ParameterName}
+    
     a(7)=sum(a(1:7));
     a(1:6)=[];
     ParameterNameSorted=ParameterNameSorted(7:end);
@@ -39,6 +41,8 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     
     h=pie(a,explode,ParameterNameSorted)
     set(h(2:2:end),'FontSize',20);
+    
+    %colormap(copper)
     
     print('-depsc','figs/param_sense.eps')
     
@@ -141,7 +145,8 @@ if plot_cumulative_emissions_and_warming_pdfs
     hfig=subplot(2,1,1)
     hold on
     hist([so.tot_emissions],50),shading flat
-
+    set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
+    
     q=prctile([so.tot_emissions],plevels);
     ax=axis;
     
@@ -180,11 +185,12 @@ if plot_cumulative_emissions_and_warming_pdfs
 %  y=normalized distance from bottom
 %  l=text
 %  s=text size
-    
-    hfig=subplot(2,1,2)
-    
-    hist([so.net_warming],70),shading flat
-    set(gca,'ytick',[])
+
+hfig=subplot(2,1,2)
+
+hist([so.net_warming],70),shading flat
+set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
+set(gca,'ytick',[])
     
     p_100=prctile([so.net_warming],1:100);
     
@@ -275,6 +281,27 @@ RCPname{5}='historical ';
 
 if plot_paintbrushes
     
+    EndYear=floor([so.t_fossil_fuel_emissions_stop]);
+    TotEmissions=[so.tot_emissions];
+    NetWarming=[so.net_warming];
+    nCeasedEmissions=zeros(1,c.tf);
+    IsMinRenewablesReached=zeros(1,c.ensemble_size);
+    for en=1:c.ensemble_size
+      FinalRePr(en)=so(en).re_pr(end);
+      FP=FinalRePr(en)
+      MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
+      MP=MinRePr(en)
+    end
+    IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
+    for yr=1:c.tf
+      i=find(EndYear==yr+c.present_year);
+      nCeasedEmissions(yr)=numel(i);
+      MeanTotCumEmissions(yr)=mean(TotEmissions(i));
+      MeanNetWarming(yr)=mean(NetWarming(i));
+      MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
+    end
+    year=(1:c.tf)+c.present_year;
+
     figure
     hfig=subplot(1,2,2)
     
@@ -300,7 +327,10 @@ if plot_paintbrushes
     x=(1:c.tf)+c.present_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
-    %plot(x,emis_mean,'b','linewidth',12)
+
+    
+        scatter(year,MeanTotCumEmissions,nCeasedEmissions.*15,'.b')
+    
     he=find(RCPyear(1,:)==2012);
     
     clear h
@@ -315,7 +345,6 @@ if plot_paintbrushes
     caxis([0 200])
     colormap(copper)
     axis(ax)
-
     
     %hist_arrm=hist_arr(:);
     %[yearm,cum_emism]=meshgrid(1:c.tf,bin_centers);
@@ -381,7 +410,7 @@ if plot_paintbrushes
 xlabel('Year')
 ylabel('Annual emissions (Tt C/yr) ')
 hold on
-plot(x,emis_mean,'b','linewidth',12)
+plot(x,emis_mean,'b','linewidth',6)
 
 
 for nRCP=1:4
@@ -426,15 +455,16 @@ if plot_mean_ending_cum_emissions
     end
     year=(1:c.tf)+c.present_year;
     hold on
-    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
+    %scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
+    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*20,'.k')    
     ie=find(~isnan(MeanTotCumEmissions) & nCeasedEmissions>1);
-    p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
+    %p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
     %plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
     ax=axis;ax(2)=timeaxislimit;ax(4)=5.3;axis(ax)
-    colormap('jet')
-    hc=colorbar
-    ylabel(hc,'% of simulations reaching minimum renewable price')
+    %colormap('jet')
+    %hc=colorbar
+    %ylabel(hc,'% of simulations reaching minimum renewable price')
     xlabel('Year')
     ylabel('Year-mean cumulative emissions (Tt C)')
   
