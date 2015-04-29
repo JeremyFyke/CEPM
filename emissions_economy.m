@@ -33,8 +33,8 @@ pcdmax=pcdmax.*c.bill;
 V0=V0.*c.g_2_Tt;
 Vmax=Vmax.*c.g_2_Tt;
 
-%Ensure Vmax is greater than 110% of initial reserves
-Vmax=max(Vmax,V0*1.1);
+%Ensure Vmax is greater than 120% of initial reserves
+Vmax=max(Vmax,V0*1.2);
 %Ensure E-folding time (yr) of renewable cost is not negative
 CTre=max(1.0,CTre);
 %Ensure carbon tax trend ($/yr) is always positive.

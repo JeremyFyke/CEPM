@@ -1,12 +1,12 @@
 relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=1
-plot_diversity_of_trajectories=0
+plot_cumulative_emissions_and_warming_pdfs=0
 plot_final_percent_reserves_depleted=0
 plot_paintbrushes=0
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=0
+plot_consumption_emission_validation=1
 plot_diagnostic_output=0
+plot_diversity_of_trajectories=0
 
 t_cross_over=nan(c.ensemble_size,1);
 t_total_depletion=nan(c.ensemble_size,1);
@@ -23,13 +23,13 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
         tmp=model_parameters(:,n);
         normalized_model_parameters(:,n) = (tmp-min(tmp)) ./ (max(tmp)-min(tmp));
     end
-
+    
     X=[ones(c.ensemble_size,1) normalized_model_parameters];
     y=[so.net_warming]';
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
     [a,I]=sort(abs(a));
-
+    
     ParameterNameSorted={p(I).ParameterName}
     
     a(7)=sum(a(1:7));
@@ -50,8 +50,8 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     h=pie(a)
 end
 
-if relative_parameter_sensitivities_at_2100 
-
+if relative_parameter_sensitivities_at_2100
+    
     figure
     X=[ones(c.ensemble_size,1) normalized_model_parameters];
     tmax=200;
@@ -88,8 +88,6 @@ if relative_parameter_sensitivities_at_2100
     axis(ax)
     legend(lab,'Eastoutside')
     
-    error()
-    
     [a,I]=sort(abs(a));
     ParameterNameSorted=ParameterName(I);
     a(7)=sum(a(1:7));
@@ -112,14 +110,14 @@ if plot_cumulative_emissions_and_warming_pdfs
     
     tot_emissions=[so.tot_emissions];
     disp(['Min cumulative emissions=' num2str(min(tot_emissions))]);
-    disp(['Max cumulative emissions=' num2str(max(tot_emissions))]);    
+    disp(['Max cumulative emissions=' num2str(max(tot_emissions))]);
     disp(['Cumulative emissions skew=',num2str(skewness(tot_emissions))])
- 
+    
     %determine some climate limits
     Tlim(1)=1.6;%Greenland, Robinson et al., 2012
     Tcol{1}=[1 1 0];
     Tlim(2)=2.0;%2C threshold, cite...
-    Tcol{2}=[1 0.66 0];    
+    Tcol{2}=[1 0.66 0];
     Tlim(3)=4.5;%Veg C saturation, Friend et al., 2013
     Tcol{3}=[1 0.33 0];
     Tlim(4)=7.5;%Mammal mortality, Sherwood et al., 2010
@@ -140,20 +138,20 @@ if plot_cumulative_emissions_and_warming_pdfs
         %frac_exceeded{t}(end)=[];
     end
     plevels=[5 50 95];
-     
+    nbins=100;
     figure
-    hfig=subplot(2,1,1)
+    hfig=subplot(2,1,1);
     hold on
-    hist([so.tot_emissions],50),shading flat
+    hist([so.tot_emissions],linspace(0,8,nbins)),shading flat
     set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
     
-    q=prctile([so.tot_emissions],plevels);
+    qemissions=prctile([so.tot_emissions],plevels);
     ax=axis;
     
     dv=(ax(4)-ax(3))*.05;
     ax(4)=ax(4)+3.*dv;
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
-
+    
     for t=1:Tlimlen;
         emissions{t}(end)
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
@@ -168,75 +166,79 @@ if plot_cumulative_emissions_and_warming_pdfs
     end
     
     axis(ax)
-    line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
-    line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
-    line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([qemissions(1) qemissions(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([qemissions(2) qemissions(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
+    line([qemissions(3) qemissions(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     xlabel('Net cumulative emissions (Tt C)')
-    set(gca,'Ytick',[])
+    ylabel('# simulations')
+
     box on
     ax=axis
     ax(1)=0;ax(2)=7;
     axis(ax)
-    disp(['emissions 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
+    
     subplot_label(hfig,-0.1,0.9,'(a)',20)
-%     
-%      h=axes handle
-%  x=normalized distance from left
-%  y=normalized distance from bottom
-%  l=text
-%  s=text size
-
-hfig=subplot(2,1,2)
-
-hist([so.net_warming],70),shading flat
-set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
-set(gca,'ytick',[])
+    %
+    %      h=axes handle
+    %  x=normalized distance from left
+    %  y=normalized distance from bottom
+    %  l=text
+    %  s=text size
     
-    p_100=prctile([so.net_warming],1:100);
+    hfig=subplot(2,1,2);
     
-    for t=1:Tlimlen
-        disp([num2str(t) ' threshold T percentile:' num2str(find(p_100<Tlim(t),1,'last'))])
-        disp([num2str(t) 'threshold max safe emissions:' num2str(emissions{t}(end))]);
-    end
-    
+    hist([so.net_warming],linspace(0,15,nbins)),shading flat
+    set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
+        
     xlabel('Net warming (^\circC)')
+    ylabel('# simulations')
     ax=axis;
     ax(1)=0.;ax(2)=13.;
     axis(ax)
-    q=prctile([so.net_warming],plevels);
+    qtemperature=prctile([so.net_warming],plevels);
     
-    line([q(1) q(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
-    line([q(2) q(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)    
-    line([q(3) q(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([qtemperature(1) qtemperature(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
+    line([qtemperature(2) qtemperature(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
+    line([qtemperature(3) qtemperature(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     
     box on
-    
-    disp(['warming 5/50/95 percentiles:',num2str(q(1)),'/',num2str(q(2)),'/',num2str(q(3))])
-    disp(['Min warming=' num2str(min([so.net_warming]))]);
-    disp(['Max warming=' num2str(max([so.net_warming]))]);
     
     for t=1:length(Tlim);
         line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
     end
     
     subplot_label(hfig,-0.1,0.9,'(b)',20)
+
     
     print('-depsc','figs/cumulative_carbon_warming_pdfs')
+    
+    % SOME DISPLAY OUTPUT, AND OUTPUT WRITTEN TO .TEX FILE
+    disp(['emissions 5/50/95 percentiles:',num2str(qemissions(1)),'/',num2str(qemissions(2)),'/',num2str(qemissions(3))])
+
+    
+    disp(['warming 5/50/95 percentiles:',num2str(qtemperature(1)),'/',num2str(qtemperature(2)),'/',num2str(qtemperature(3))])
+
+    
+    p_100=prctile([so.net_warming],1:100);
+    for t=1:Tlimlen
+        disp([num2str(t) ' threshold T percentile:' num2str(find(p_100<Tlim(t),1,'last'))])
+        disp([num2str(t) 'threshold max safe emissions:' num2str(emissions{t}(end))]);
+    end
+    
 end
 
 if plot_diversity_of_trajectories
     q=prctile([so.tot_emissions],[49 51]);
-    i=find([so.tot_emissions]>q(1) & [so.tot_emissions]<q(2));
+    i49_51_percentiles=find([so.tot_emissions]>q(1) & [so.tot_emissions]<q(2));
     hold on
-    for en=i
+    for en=i49_51_percentiles
         plot(so(en).time+c.present_year,so(en).burn_rate,'k','linewidth',1)
     end
     title('49th-51th percentile simulations')
     xlabel('Year')
     ylabel('Emissions (Tt C/yr)')
-    max_burn_rate_49_51=[so(i).burn_rate_max];
-    disp(['Maximum peak emissions within 49-51 percentile band=' num2str(max([so(i).burn_rate_max])) ])
-    disp(['Minimum peak emissions within 49-51 percentile band=' num2str(min([so(i).burn_rate_max])) ])
+    disp(['Maximum peak emissions within 49-51 percentile band=' num2str(max([so(i49_51_percentiles).burn_rate_max])) ])
+    disp(['Minimum peak emissions within 49-51 percentile band=' num2str(min([so(i49_51_percentiles).burn_rate_max])) ])
 end
 
 if plot_final_percent_reserves_depleted
@@ -249,33 +251,33 @@ if plot_final_percent_reserves_depleted
         tot_emissions(i)=so(i).tot_emissions;
     end
     peak_ff=cum_emissions_at_max_burn_rate./tot_emissions;
-    p=prctile(peak_ff,[5 50 95]);
+    p_peak_ff=prctile(peak_ff,[5 50 95]);
     subplot(2,1,1)
     hist(peak_ff,40)
     shading flat
-    title(['5/50/95 percentiles of peak_ff=',num2str(p)])
+    title(['5/50/95 percentiles of peak_ff=',num2str(p_peak_ff)])
     subplot(2,1,2)
     clear percent_depleted
     percent_depleted=tot_emissions./max_volume;
-    p=prctile(percent_depleted,[5 50 95]);
+    p_depleted_at_run_end=prctile(percent_depleted,[5 50 95]);
     hist(percent_depleted,40)
     shading flat
-    title(['5/50/95 percentiles of ratio of total future emissions to max ff volume=',num2str(p)])
+    title(['5/50/95 percentiles of ratio of total future emissions to max ff volume=',num2str(p_depleted_at_run_end)])
     
     i=find(percent_depleted>1.);
     for n=1:length(i);
-    disp([num2str(tot_emissions(i(n))) '   ' num2str(max_volume(i(n))) '   ' num2str(percent_depleted(i(n)))])
+        disp([num2str(tot_emissions(i(n))) '   ' num2str(max_volume(i(n))) '   ' num2str(percent_depleted(i(n)))])
     end
 end
 
 %common variables follow for paintbrush plots
 c.ensemble_size=length(so);
-nbins=500;
+nbins=2500;
 cRCP=[128. 255. 0.;...
-     255. 255. 0.;...
-     255. 128 0.;...
-     255. 0. 0.]./255.;
- 
+    255. 255. 0.;...
+    255. 128 0.;...
+    255. 0. 0.]./255.;
+
 load_hist_and_RCP_emissions
 RCPname{5}='historical ';
 
@@ -287,23 +289,80 @@ if plot_paintbrushes
     nCeasedEmissions=zeros(1,c.tf);
     IsMinRenewablesReached=zeros(1,c.ensemble_size);
     for en=1:c.ensemble_size
-      FinalRePr(en)=so(en).re_pr(end);
-      FP=FinalRePr(en)
-      MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
-      MP=MinRePr(en)
+        FinalRePr(en)=so(en).re_pr(end);
+        MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
     end
     IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
     for yr=1:c.tf
-      i=find(EndYear==yr+c.present_year);
-      nCeasedEmissions(yr)=numel(i);
-      MeanTotCumEmissions(yr)=mean(TotEmissions(i));
-      MeanNetWarming(yr)=mean(NetWarming(i));
-      MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
+        i=find(EndYear==yr+c.present_year);
+        nCeasedEmissions(yr)=numel(i);
+        MeanTotCumEmissions(yr)=mean(TotEmissions(i));
+        MeanNetWarming(yr)=mean(NetWarming(i));
+        MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
     end
     year=(1:c.tf)+c.present_year;
-
+    he=find(RCPyear(1,:)==2012);
     figure
-    hfig=subplot(1,2,2)
+    
+    hfig=subplot(1,2,1);
+    
+    hold on
+    
+    emis_arr=nan(c.ensemble_size,c.tf);
+    for en=1:c.ensemble_size
+        emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
+    end
+    
+    bin_centers=linspace(0,nanmax(emis_arr(:)),nbins);
+    hist_arr=nan(nbins,c.tf);
+    for yr=1:c.tf
+        e=emis_arr(:,yr);
+        hist_arr(:,yr)=hist(e,bin_centers);
+        emis_mean(yr)=median(e(~isnan(e)));
+    end
+    hist_arr(hist_arr==0)=nan;
+    x=(1:c.tf)+c.present_year;
+    y=bin_centers;
+    pcolor(x,y,hist_arr),shading flat
+    colormap(copper)
+    caxis([0 200])
+    
+    %     hist_arrm=hist_arr(:);
+    %     [yearm,emism]=meshgrid(1:c.tf,bin_centers);
+    %     yearm=yearm(:); yearm(isnan(hist_arrm))=[];
+    %     emism=emism(:); emism(isnan(hist_arrm))=[];
+    %     hist_arrm(isnan(hist_arrm))=[];
+    %
+    %     NS=createns([yearm emism]);
+    %     hold on
+    %     for en=1:c.ensemble_size
+    %         IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
+    %         cline([so(en).time] + c.present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
+    %         if en==1
+    %             caxis([1 5])
+    %         end
+    %     end
+    
+    xlabel('Year')
+    ylabel('Annual emissions (Tt C/yr) ')
+    hold on
+    plot(x,emis_mean,'b','linewidth',6)
+    
+    clear h
+    for nRCP=1:4
+        h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(RCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
+    end
+    h(5)=plot(RCPyear(1,1:he),RCP(1,1:he),'color','k','linestyle','--','linewidth',3);
+    legend(h,RCPname,'location','Northeast')
+    
+    axis tight
+    ax=axis;
+    ax(1)=1950;ax(2)=timeaxislimit;ax(3)=-0.003;
+    axis(ax)
+    
+    subplot_label(hfig,-0.2,0.9,'(a)',20)
+    
+    hfig=subplot(1,2,2);
     
     hold on
     
@@ -327,12 +386,9 @@ if plot_paintbrushes
     x=(1:c.tf)+c.present_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
+    
+    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,'.b')
 
-    
-        scatter(year,MeanTotCumEmissions,nCeasedEmissions.*15,'.b')
-    
-    he=find(RCPyear(1,:)==2012);
-    
     clear h
     for nRCP=1:4
         h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(cumRCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
@@ -349,7 +405,7 @@ if plot_paintbrushes
     %hist_arrm=hist_arr(:);
     %[yearm,cum_emism]=meshgrid(1:c.tf,bin_centers);
     %yearm=yearm(:); yearm(isnan(hist_arrm))=[];
-    %cum_emism=cum_emism(:); cum_emism(isnan(hist_arrm))=[];    
+    %cum_emism=cum_emism(:); cum_emism(isnan(hist_arrm))=[];
     %hist_arrm(isnan(hist_arrm))=[];
     %NS=createns([yearm cum_emism]);
     %hold on
@@ -368,70 +424,13 @@ if plot_paintbrushes
     
     subplot_label(hfig,-0.2,0.9,'(b)',20)
     
-    hfig=subplot(1,2,1)
     
-    hold on
+    print('-depsc','figs/probabalistic_emissions')
     
-    emis_arr=nan(c.ensemble_size,c.tf);
-    for en=1:c.ensemble_size
-        emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
-    end
-    
-    bin_centers=linspace(0,nanmax(emis_arr(:)),nbins);
-    hist_arr=nan(nbins,c.tf);
-    for yr=1:c.tf
-        e=emis_arr(:,yr);
-        hist_arr(:,yr)=hist(e,bin_centers);
-        emis_mean(yr)=mean(e(~isnan(e)));
-    end
-    hist_arr(hist_arr==0)=nan;
-    x=(1:c.tf)+c.present_year;
-    y=bin_centers;
-    pcolor(x,y,hist_arr),shading flat
-    colormap(copper)
-    caxis([0 200])
-
-%     hist_arrm=hist_arr(:);
-%     [yearm,emism]=meshgrid(1:c.tf,bin_centers);
-%     yearm=yearm(:); yearm(isnan(hist_arrm))=[];
-%     emism=emism(:); emism(isnan(hist_arrm))=[];    
-%     hist_arrm(isnan(hist_arrm))=[];
-%     
-%     NS=createns([yearm emism]);
-%     hold on
-%     for en=1:c.ensemble_size
-%         IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
-%         cline([so(en).time] + c.present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
-%         if en==1
-%             caxis([1 5])
-%         end
-%     end
-
-xlabel('Year')
-ylabel('Annual emissions (Tt C/yr) ')
-hold on
-plot(x,emis_mean,'b','linewidth',6)
-
-
-for nRCP=1:4
-    h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(RCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
-end
-h(5)=plot(RCPyear(1,1:he),RCP(1,1:he),'color','k','linestyle','--','linewidth',3);
-legend(h,RCPname,'location','Northwest')
-
-axis tight
-ax=axis;
-ax(1)=1950;ax(2)=timeaxislimit;ax(3)=-0.003;
-axis(ax)
-
-subplot_label(hfig,-0.2,0.9,'(a)',20)
-
-print('-depsc','figs/probabalistic_emissions')
-
 end
 
 if plot_mean_ending_cum_emissions
-    
+    h
     figure
     
     EndYear=floor([so.t_fossil_fuel_emissions_stop]);
@@ -440,25 +439,23 @@ if plot_mean_ending_cum_emissions
     nCeasedEmissions=zeros(1,c.tf);
     IsMinRenewablesReached=zeros(1,c.ensemble_size);
     for en=1:c.ensemble_size
-      FinalRePr(en)=so(en).re_pr(end);
-      FP=FinalRePr(en)
-      MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
-      MP=MinRePr(en)
+        FinalRePr(en)=so(en).re_pr(end);
+        MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
     end
     IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
     for yr=1:c.tf
-      i=find(EndYear==yr+c.present_year);
-      nCeasedEmissions(yr)=numel(i);
-      MeanTotCumEmissions(yr)=mean(TotEmissions(i));
-      MeanNetWarming(yr)=mean(NetWarming(i));
-      MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
+        i=find(EndYear==yr+c.present_year);
+        nCeasedEmissions(yr)=numel(i);
+        MeanTotCumEmissions(yr)=mean(TotEmissions(i));
+        MeanNetWarming(yr)=mean(NetWarming(i));
+        MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
     end
     year=(1:c.tf)+c.present_year;
     hold on
     %scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
-    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*20,'.k')    
+    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*20,'.k')
     ie=find(~isnan(MeanTotCumEmissions) & nCeasedEmissions>1);
-    %p=polyfit(year(ie),MeanTotCumEmissions(ie),4);
+    %py=polyfit(year(ie),MeanTotCumEmissions(ie),4);
     %plot(year(ie(1):ie(end)),polyval(p,year(ie(1):ie(end))),'k','linewidth',2)
     axis tight
     ax=axis;ax(2)=timeaxislimit;ax(4)=5.3;axis(ax)
@@ -467,7 +464,7 @@ if plot_mean_ending_cum_emissions
     %ylabel(hc,'% of simulations reaching minimum renewable price')
     xlabel('Year')
     ylabel('Year-mean cumulative emissions (Tt C)')
-  
+    
     print('-depsc','figs/mean_ending_cum_emissions')
     
 end
@@ -483,27 +480,36 @@ if plot_consumption_emission_validation
     obs_consumption=data(3,1:end-1).*c.quads_2_J./1.e18; %To EJ
     obs_time=data(1,1:end-1);
     iyear=find(obs_time==1985);
-    py=polyfit(obs_time(iyear:end),obs_consumption(iyear:end),1);
-    obs_consumption_fit=polyval(py,obs_time(iyear:end));
+    observed_consumption_pf=polyfit(obs_time(iyear:end),obs_consumption(iyear:end),1);
+    observedconsumptionpf=spa_sf(observed_consumption_pf(1),2);
+    obs_consumption_fit=polyval(observed_consumption_pf,obs_time(iyear:end));
     nval=27;
     
-    TotEnDemand=zeros(c.ensemble_size,nval);
-    for en=1:c.ensemble_size
-        TotEnDemand(en,:)=so(en).tot_en_demand(1:nval)./1.e18; %To EJ
+    %Weed out runs that finish before present day (outliers)
+    i=find( ([so.t_fossil_fuel_emissions_stop]-c.present_year)>=nval );
+    TotEnDemand=zeros(length(i),nval);
+    TotEmissions=zeros(length(i),nval);
+    for en=1:length(i)
+        TotEnDemand(en,:)=so(i(en)).tot_en_demand(1:nval)./1.e18; %To EJ
+        TotEmissions(en,:)=so(i(en)).burn_rate(1:nval);
     end
+    
     mod_time=so(en).time(1:nval)+c.present_year;
     TEDMean=mean(TotEnDemand,1);
     TEDStd=std(TotEnDemand,1);
     TEDMin=TEDMean-TEDStd;
     TEDMax=TEDMean+TEDStd;
     
-    disp(['historical consumption trend=' num2str(py(1))])
-    py=polyfit(mod_time,TEDMean',2);
-    disp(['simulated mean consumption trend=' num2str(py(1))]) 
-    py=polyfit(mod_time,TEDMin',2);
-    disp(['simulated min consumption trend=' num2str(py(1))])     
-    py=polyfit(mod_time,TEDMax',2);
-    disp(['simulated max consumption trend=' num2str(py(1))]) 
+    disp(['historical consumption trend=' num2str(observed_consumption_pf(1))])
+    simulatedconsumptionpfmean=spa_sf(polyfit(mod_time,TEDMean',1), 2);
+    simulatedconsumptionpfmean=simulatedconsumptionpfmean(1);
+    disp(['simulated mean consumption trend=' num2str(simulatedconsumptionpfmean)])
+    simulatedconsumptionpfmin=spa_sf(polyfit(mod_time,TEDMin',1), 2);
+    simulatedconsumptionpfmin=simulatedconsumptionpfmin(1);
+    disp(['simulated min consumption trend=' num2str(simulatedconsumptionpfmin)])
+    simulatedconsumptionpfmax=spa_sf(polyfit(mod_time,TEDMax',1), 2);
+    simulatedconsumptionpfmax=simulatedconsumptionpfmax(1);    
+    disp(['simulated max consumption trend=' num2str(simulatedconsumptionpfmax)])
     
     hold on
     h(1)=plot(obs_time(iyear:end),obs_consumption(iyear:end),'b--','linewidth',2);
@@ -526,33 +532,33 @@ if plot_consumption_emission_validation
     data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
     obs_emissions=data(end-30:end-1,2)./1.e6;
     obs_time=data(end-30:end-1,1);
-    p=polyfit(obs_time(iyear:end),obs_emissions(iyear:end),1);
-    obs_emissions_fit=polyval(p,obs_time(iyear:end));
-    
-    TotEmissions=zeros(c.ensemble_size,nval);
-    for en=1:c.ensemble_size
-        TotEmissions(en,:)=so(en).burn_rate(1:nval);
-    end
+
     mod_time=so(en).time(1:nval)+c.present_year;
     TEDMean=mean(TotEmissions,1);
     TEDStd=std(TotEmissions,1);
     TEDMin=TEDMean-TEDStd;
     TEDMax=TEDMean+TEDStd;
     
-    disp(['historical emission trend=' num2str(p(1))])
-    p=polyfit(mod_time,TEDMean',1);
-    disp(['simulated mean emission trend=' num2str(p(1))]) 
-    p=polyfit(mod_time,TEDMin',1);
-    disp(['simulated min emission trend=' num2str(p(1))])     
-    p=polyfit(mod_time,TEDMax',1);
-    disp(['simulated max emission trend=' num2str(p(1))]) 
-   
+    observed_emissions_pf=polyfit(obs_time(iyear:end),obs_emissions(iyear:end),1);
+    observedemissionspf=spa_sf(observed_emissions_pf(1).*c.thou,2);
+    obs_emissions_fit=polyval(observed_emissions_pf,obs_time(iyear:end));
+    disp(['historical emission trend=' num2str(observed_emissions_pf(1))])
+    simulatedemissionspfmean=spa_sf(polyfit(mod_time,TEDMean',1),2);
+    simulatedemissionspfmean=simulatedemissionspfmean(1).*c.thou;
+    disp(['simulated mean emission trend=' num2str(simulatedemissionspfmean)])
+    simulatedemissionspfmin=spa_sf(polyfit(mod_time,TEDMin',1),2);
+    simulatedemissionspfmin=simulatedemissionspfmin(1).*c.thou;
+    disp(['simulated min emission trend=' num2str(simulatedemissionspfmin)])
+    simulatedemissionspfmax=spa_sf(polyfit(mod_time,TEDMax',1),2);
+    simulatedemissionspfmax=simulatedemissionspfmax(1).*c.thou;
+    disp(['simulated max emission trend=' num2str(simulatedemissionspfmax)])
+    
     hold on
     h(1)=plot(obs_time(iyear:end),obs_emissions(iyear:end),'b--','linewidth',2);
-    h(2)=plot(obs_time(iyear:end),obs_emissions_fit,'b','linewidth',2);    
+    h(2)=plot(obs_time(iyear:end),obs_emissions_fit,'b','linewidth',2);
     h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
     h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
-    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2); 
+    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2);
     
     legend(h,{'Observed emissions' 'Observed emissions trend' 'Simulated mean emissions' 'Simulated +/- 1-sigma emissions'},'Location','Northwest');
     axis tight
@@ -560,10 +566,23 @@ if plot_consumption_emission_validation
     ax(1)=1985;
     axis(ax);
     xlabel('Year')
-    ylabel('Tt C') 
+    ylabel('Tt C')
     
     print('-depsc','figs/consumption_emission_validation')
     
+    if c.present_year==1985
+    latexcmd('modelhistoricaloutput',...
+        observedconsumptionpf,...
+        simulatedconsumptionpfmean,...
+        simulatedconsumptionpfmin,...
+        simulatedconsumptionpfmax,...
+        observedemissionspf,...
+        simulatedemissionspfmean,...
+        simulatedemissionspfmin,...
+        simulatedemissionspfmax)
+    else
+        error('Not printing validation output to .tex file, because this does not look like a validation run that starts in 1985')
+    end
 end
 
 %so.
@@ -575,5 +594,44 @@ if plot_diagnostic_output
     end
     for en=1:100
         plot(so(en).time,so(en).re_pr,'g','linewidth',1)
-    end    
+    end
+end
+
+%% Output parameters to .tex file
+if c.present_year==2012
+    if plot_final_percent_reserves_depleted==0 || ...
+            plot_cumulative_emissions_and_warming_pdfs==0 || ...
+            plot_diversity_of_trajectories==0
+        
+        error('Need one or more plotting options turned on to generate .tex output.')
+        
+    else
+        
+        emissionfifth  =spa_sf(qemissions(1),2);
+        emissionfiftyth    =spa_sf(qemissions(2),2);
+        emissionninetyfifth=spa_sf(qemissions(3),2);
+        
+        temperaturefifth      =spa_sf(qtemperature(1),2);
+        temperaturefiftyth    =spa_sf(qtemperature(2),2);
+        temperatureninetyfifth=spa_sf(qtemperature(3),2);
+        
+        firstthresholdT=find(p_100<Tlim(1),1,'last');
+        secondthresholdT=find(p_100<Tlim(2),1,'last');
+        thirdthresholdT=find(p_100<Tlim(3),1,'last');
+        fourththresholdT=find(p_100<Tlim(4),1,'last');
+        
+        minburnrate=spa_sf(min([so(i49_51_percentiles).burn_rate_max]).*c.thou , 2 );
+        maxburnrate=spa_sf(max([so(i49_51_percentiles).burn_rate_max]).*c.thou , 2 );
+        
+        pdepletedatrunend=spa_sf(p_depleted_at_run_end(2).*100.,2);
+        
+    end
+    
+    latexcmd('modeloutput',emissionfifth,emissionfiftyth,emissionninetyfifth,...
+        temperaturefifth,temperaturefiftyth,temperatureninetyfifth,...
+        firstthresholdT,secondthresholdT,thirdthresholdT,fourththresholdT,...
+        minburnrate,maxburnrate,...
+        pdepletedatrunend)
+else
+      warning('Initial model year is not 2012 - not printing .tex projection output.')
 end

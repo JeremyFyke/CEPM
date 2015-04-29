@@ -98,8 +98,8 @@ p(n).ParameterName='Carbon tax trend';
 p(n).ParameterUnits='\$/T C/yr';
 p(n).ParameterLatexSymbol='$T_{S_{ff}}$';
 p(n).ParameterSource=iLontzek;
-p(n).lb= .5;
-p(n).ub= 4.;
+p(n).lb= 5.;
+p(n).ub= 10.;
 
 %%%%%%%%%% 
 n=n+1 ; 

@@ -50,5 +50,5 @@ end
 generate_projection_output
 
 %save output for later
-save output/output
+save('output/output','-v7.3')
 
