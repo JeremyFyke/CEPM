@@ -2,9 +2,9 @@ relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_final_percent_reserves_depleted=0
-plot_paintbrushes=0
+plot_paintbrushes=1
 plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=1
+plot_consumption_emission_validation=0
 plot_diagnostic_output=0
 plot_diversity_of_trajectories=0
 
@@ -139,6 +139,22 @@ if plot_cumulative_emissions_and_warming_pdfs
     end
     plevels=[5 50 95];
     nbins=100;
+    
+    bin_array=linspace(0,8,nbins);
+    
+    for param=1:1
+        hhist=hist([so.tot_emissions],bin_array),shading flat;
+        [n,x]=hist([so.tot_emissions],bin_array);
+        dbind2=mean(diff(bin_array))./2;
+        for bin=1:nbins
+         %identify all simulations that fall within bin range
+         i=find([so.tot_emissions]>bin_array(bin)-dbin & [so.tot_emissions]>bin_array(bin)+dbin);
+         
+        end
+        
+    end
+    error()
+    
     figure
     hfig=subplot(2,1,1);
     hold on
@@ -153,7 +169,6 @@ if plot_cumulative_emissions_and_warming_pdfs
     ax(4)=ax(4)+3.*dv; %expand upper axis boundary to fit threshold fade bars
     
     for t=1:Tlimlen;
-        emissions{t}(end)
         xfade=[emissions{t}(1) emissions{t}(end) emissions{t}(end) emissions{t}(1)];
         xsolid=[emissions{t}(end) ax(2) ax(2) emissions{t}(end)];
         tm1=t-1;
@@ -523,7 +538,7 @@ if plot_consumption_emission_validation
     ax(1)=1985;
     axis(ax);
     xlabel('Year')
-    ylabel('Exajoules (EJ)')
+    ylabel('EJ per year')
     
     %%%
     h=subplot(2,1,2);
@@ -566,7 +581,7 @@ if plot_consumption_emission_validation
     ax(1)=1985;
     axis(ax);
     xlabel('Year')
-    ylabel('Tt C')
+    ylabel('Tt C per year')
     
     print('-depsc','figs/consumption_emission_validation')
     
