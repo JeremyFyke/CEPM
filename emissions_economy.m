@@ -6,24 +6,24 @@ ff_discovery_tot=0;
 % Can Homo economicus save us from environmental apocolypse?
 
 %Unpack LHS-varied parameters; assign LHS parameters to ensemble struture for diagnostics
-n_unpacked_params=0;
-n_unpacked_params=n_unpacked_params+1;V0=args(n_unpacked_params)        ;so.LHSparams(n_unpacked_params)=V0;
-n_unpacked_params=n_unpacked_params+1;Vmax=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=Vmax;
-n_unpacked_params=n_unpacked_params+1;Pr_ff0=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=Pr_ff0;
-n_unpacked_params=n_unpacked_params+1;ffeftre=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ffeftre;
-n_unpacked_params=n_unpacked_params+1;ffeffin=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ffeffin;
-n_unpacked_params=n_unpacked_params+1;Pr_re0=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=Pr_re0;
-n_unpacked_params=n_unpacked_params+1;Pr_remin=args(n_unpacked_params)  ;so.LHSparams(n_unpacked_params)=Pr_remin;
-n_unpacked_params=n_unpacked_params+1;ctaxmax=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ctaxmax;
-n_unpacked_params=n_unpacked_params+1;ctaxTre=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ctaxTre;
-n_unpacked_params=n_unpacked_params+1;CTre=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=CTre;
-n_unpacked_params=n_unpacked_params+1;popmax=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=popmax;
-n_unpacked_params=n_unpacked_params+1;popinc=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=popinc;
-n_unpacked_params=n_unpacked_params+1;pcdmax=args(n_unpacked_params)    ;so.LHSparams(n_unpacked_params)=pcdmax;
-n_unpacked_params=n_unpacked_params+1;ipcdinc=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=ipcdinc;
-n_unpacked_params=n_unpacked_params+1;fffb=args(n_unpacked_params)      ;so.LHSparams(n_unpacked_params)=fffb;
-n_unpacked_params=n_unpacked_params+1;fffcexp=args(n_unpacked_params)   ;so.LHSparams(n_unpacked_params)=fffcexp;
-n_unpacked_params=n_unpacked_params+1;TCRE=args(n_unpacked_params)      ;
+n=0;
+n=n+1;V0=args(n)        ;so.LHSparams(n)=V0;
+n=n+1;Vmax=args(n)      ;so.LHSparams(n)=Vmax;
+n=n+1;Pr_ff0=args(n)    ;so.LHSparams(n)=Pr_ff0;
+n=n+1;ffeftre=args(n)   ;so.LHSparams(n)=ffeftre;
+n=n+1;ffeffin=args(n)   ;so.LHSparams(n)=ffeffin;
+n=n+1;Pr_re0=args(n)    ;so.LHSparams(n)=Pr_re0;
+n=n+1;Pr_remin=args(n)  ;so.LHSparams(n)=Pr_remin;
+n=n+1;ctaxmax=args(n)   ;so.LHSparams(n)=ctaxmax;
+n=n+1;ctaxTre=args(n)   ;so.LHSparams(n)=ctaxTre;
+n=n+1;CTre=args(n)      ;so.LHSparams(n)=CTre;
+n=n+1;popmax=args(n)    ;so.LHSparams(n)=popmax;
+n=n+1;popinc=args(n)    ;so.LHSparams(n)=popinc;
+n=n+1;pcdmax=args(n)    ;so.LHSparams(n)=pcdmax;
+n=n+1;ipcdinc=args(n)   ;so.LHSparams(n)=ipcdinc;
+n=n+1;fffb=args(n)      ;so.LHSparams(n)=fffb;
+n=n+1;fffcexp=args(n)   ;so.LHSparams(n)=fffcexp;
+n=n+1;TCRE=args(n)      ;
 
 %Convert from billion people, to people
 popmax=popmax.*c.bill;
@@ -93,11 +93,10 @@ so.tot_emissions=so.cum_emissions(end);
 so.TCRE_damper=0.;
 so.TCRE_orig=TCRE;
 if so.tot_emissions>c.CE_TCRE_saturation_point
-   T_excess=so.tot_emissions-c.CE_TCRE_saturation_point;
-   so.TCRE_damper=(T_excess).*c.TCRE_dampening_factor;
+   so.TCRE_damper=(so.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor; %TCRE_dampening_factor in units: (Tc C^-1)  
    TCRE=TCRE.*(1.-so.TCRE_damper);
 end
-so.LHSparams(n_unpacked_params)=TCRE;
+so.LHSparams(n)=TCRE;
 
 so.net_warming=so.tot_emissions.*TCRE;
 

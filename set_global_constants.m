@@ -51,5 +51,5 @@ c.gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guid
 
 c.ctax0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner
 
-c.CE_TCRE_saturation_point=3.;
-c.TCRE_dampening_factor=0.05;
+c.CE_TCRE_saturation_point=3.; %(Tc C): Emissions above which TCRE gets lower
+c.TCRE_dampening_factor=0.05;  %

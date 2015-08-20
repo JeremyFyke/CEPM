@@ -84,7 +84,7 @@ p(n).ub= 0.3;
 %%%%%%%%%% 
 n=n+1 ; 
 p(n).ParameterName='Maximum carbon tax'; 
-p(n).ParameterUnits='\$/T C';
+p(n).ParameterUnits='\$/tonne C';
 p(n).ParameterLatexSymbol='$S_{ff_{max}}$';
 p(n).ParameterSource=nSource;
 iLontzek=nSource;
@@ -95,7 +95,7 @@ p(n).ub= 650.;
 %%%%%%%%%% 
 n=n+1 ; 
 p(n).ParameterName='Carbon tax trend'; 
-p(n).ParameterUnits='\$/T C/yr';
+p(n).ParameterUnits='\$/tonne C/yr';
 p(n).ParameterLatexSymbol='$T_{S_{ff}}$';
 p(n).ParameterSource=iLontzek;
 p(n).lb= 5.;
