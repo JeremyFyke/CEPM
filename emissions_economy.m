@@ -14,8 +14,8 @@ n=n+1;ffeftre=args(n)   ;so.LHSparams(n)=ffeftre;
 n=n+1;ffeffin=args(n)   ;so.LHSparams(n)=ffeffin;
 n=n+1;Pr_re0=args(n)    ;so.LHSparams(n)=Pr_re0;
 n=n+1;Pr_remin=args(n)  ;so.LHSparams(n)=Pr_remin;
-n=n+1;ctaxmax=args(n)   ;so.LHSparams(n)=ctaxmax;
-n=n+1;ctaxTre=args(n)   ;so.LHSparams(n)=ctaxTre;
+n=n+1;cpricefinal=args(n)   ;so.LHSparams(n)=cpricefinal;
+n=n+1;cpriceTre=args(n)   ;so.LHSparams(n)=cpriceTre;
 n=n+1;CTre=args(n)      ;so.LHSparams(n)=CTre;
 n=n+1;popmax=args(n)    ;so.LHSparams(n)=popmax;
 n=n+1;popinc=args(n)    ;so.LHSparams(n)=popinc;
@@ -37,8 +37,8 @@ Vmax=Vmax.*c.g_2_Tt;
 Vmax=max(Vmax,V0*1.2);
 %Ensure E-folding time (yr) of renewable cost is not negative
 CTre=max(1.0,CTre);
-%Ensure carbon tax trend ($/yr) is always positive.
-ctaxTre=max(0.1,ctaxTre);
+%Ensure carbon tax trend ($/yr) is not negative.
+cpriceTre=max(0.0,cpriceTre);
 %Ensure fossil to non-fossil transfer delay is above zero.
 fffb=max(0.1,fffb);
 %Ensure maximum per capita consumption is always .ge. than initial
@@ -58,9 +58,9 @@ Pr_ff0 = Pr_ff0 .* c.oilEfactor;   % ($/J)
 
 %Convert initial carbon tax, carbon tax trend, and maximum carbon tax from $/T C to
 %$/J
-ctax0dpJ=c.ctax0./c.g_per_T.*c.ffef0;
-ctaxTre=ctaxTre./c.g_per_T.*c.ffef0;
-ctaxmax=ctaxmax./c.g_per_T.*c.ffef0;
+cprice0dpJ=c.cprice0./c.g_per_T.*c.ffef0;
+cpriceTre=cpriceTre./c.g_per_T.*c.ffef0;
+cpricefinal=cpricefinal./c.g_per_T.*c.ffef0;
 
 %Convert initial cost (and tech improvement) of renewable fuels from
 %$/MWh(/yr) to $/J(/yr)
@@ -209,9 +209,22 @@ end
 
     function [ctax] = carbon_tax( t )
         
-        ctax = ctax0dpJ + ctaxTre .* t ;
-        
-        ctax = min (ctax,ctaxmax);
+        %If final carbon price is GREATER (i.e. LESS-subsidized fossil fuels)
+        %than the initial, then make cprice trend negative.  Also include equality
+        %case here.
+        if cpricefinal >= cprice0dpJ
+
+            ctax = cprice0dpJ + cpriceTre .* t ; %increase ctax up towards cpricefinal
+            ctax = min (ctax,cpricefinal); %upper-cap ctax to cpricefinal
+
+        %Otherwise, if final carbon price is LESS (i.e. MORE-subsidized fossil fuels)
+        %than the initial, then make cprice trend positive.
+        else
+            
+            ctax = cprice0dpJ - cpriceTre .* t ; %decrease ctax up towards cpricefinal
+            ctax = max (ctax,cpricefinal); %lower-cap ctax to cpricefinal   
+           
+        end
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

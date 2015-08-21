@@ -89,7 +89,7 @@ p(n).ParameterLatexSymbol='$S_{ff_{max}}$';
 p(n).ParameterSource=nSource;
 iLontzek=nSource;
 Reference{nSource}='Lontzek_et_al_2015';nSource=nSource+1;
-p(n).lb= c.ctax0; 
+p(n).lb= c.cprice0; 
 p(n).ub= 650.;
 
 %%%%%%%%%% 
