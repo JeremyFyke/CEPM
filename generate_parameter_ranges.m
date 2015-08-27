@@ -101,7 +101,7 @@ p(n).ub= 0.3;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Maximum carbon tax'; 
+p(n).ParameterName='Maximum carbon price'; 
 p(n).ParameterUnits='\$/tonne C';
 p(n).ParameterLatexSymbol='$S_{ff_{max}}$';
 p(n).ParameterSource=nSource;
@@ -112,7 +112,7 @@ p(n).ub= 650.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Carbon tax trend'; 
+p(n).ParameterName='Carbon tax price'; 
 p(n).ParameterUnits='\$/tonne C/yr';
 p(n).ParameterLatexSymbol='$T_{S_{ff}}$';
 p(n).ParameterSource=iLontzek;
@@ -225,7 +225,7 @@ data=[{p.ParameterLatexSymbol}',{p.ParameterUnits}',{p.ParamRangeString}'];
 columnlabels={'Symbol','Units','Mean/$\sigma$'};
 
 if exist('./paramtable.tex')  
-    delete *.tex
+    delete ./paramtable.tex
 end
 
 %Generate latex table

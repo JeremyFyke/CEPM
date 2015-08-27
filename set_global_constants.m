@@ -18,7 +18,7 @@
 
 function [c] = set_global_constants()
 
-c.ensemble_size=1000;
+c.ensemble_size=100000;
 
 %Set run-time.
 c.t0 = 0. ;               
@@ -45,15 +45,15 @@ c.quads_2_J=1.055e18;
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');%http://www.eia.gov/cfapps/ipdbproject/IEDIndex3.cfm?tid=44&pid=44&aid=2
 
-syear=2012;
-if syear==1985
-    c.present_year=1985.;
+c.start_year=2012;
+
+if c.start_year==1980
+    c.n_validation_years=2012-c.start_year
     c.ff_frac0=0.77; %Initial fraction of global energy consumption supplied by fossil energies %HOW WAS THIS CALCULATED?
-    c.Globaltotenergyuseinit=data(3,end-12-15).*c.quads_2_J;
+    c.Globaltotenergyuseinit=data(3,end-c.n_validation_years).*c.quads_2_J;
     c.P0 = 4.86e9;%World Bank
     c.emissions_to_date=.19; %historical ff emissions (Tt C, year 2012); Source: RCP data
-elseif syear==2012
-    c.present_year=2012.;
+elseif c.start_year==2012
     c.ff_frac0=0.80; %Initial fraction of global energy consumption supplied by fossil energies
     c.Globaltotenergyuseinit=data(3,end-1).*c.quads_2_J;
     c.P0 = 7.2e9 ;%World Bank
@@ -71,3 +71,5 @@ c.cprice0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot 
 
 c.CE_TCRE_saturation_point=3.; %(Tc C): Emissions above which TCRE gets lower
 c.TCRE_dampening_factor=0.05;  %
+
+c.simulation_timestamp=datestr(now,30);

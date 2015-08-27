@@ -104,7 +104,7 @@ so.discovery_rate=so.discovery_rate.*so.ff_emission_factor/c.g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + c.emissions_to_date;
-so.event_times=so.event_times + c.present_year;
+so.event_times=so.event_times + c.start_year;
 so.tot_emissions=so.cum_emissions(end);
 
 %Scale TCRE if above the CE_TCRE saturation point (Leduc et al., 2015)

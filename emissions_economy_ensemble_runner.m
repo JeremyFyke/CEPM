@@ -67,5 +67,8 @@ end
 generate_projection_output
 
 %save output for later
-save('output/output','-v7.3')
-
+if c.start_year<2000.
+    save('output/historical_validation_output','-v7.3')
+else
+    save('output/future_projection_output','-v7.3')
+end

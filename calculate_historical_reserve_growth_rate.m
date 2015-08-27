@@ -53,6 +53,10 @@ coal_discovery=(dcoal_reserves+coal_production).*c.t_coal_2_gC;
 total_discovery=(oil_discovery+gas_discovery+coal_discovery);
 total_discovery=total_discovery./c.g_2_Tt;
 mean_discovery=mean(total_discovery);
+
+linear_discovery_rate=polyfit(1:length(total_discovery),total_discovery,1);
+disp(['Mean rate of fossil fuel discovery (%/yr)=',num2str(linear_discovery_rate./mean_discovery*100.)])
+
 std_disc=std(total_discovery);
 min_discovery=mean_discovery-std_disc;
 max_discovery=mean_discovery+std_disc;

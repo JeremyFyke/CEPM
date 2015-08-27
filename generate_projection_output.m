@@ -16,15 +16,15 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
-relative_parameter_sensitivities_for_final_cumulative_carbon=0
+relative_parameter_sensitivities_for_final_cumulative_carbon=1
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=0
-plot_final_percent_reserves_depleted=0
+plot_cumulative_emissions_and_warming_pdfs=1
+plot_final_percent_reserves_depleted=1
 plot_paintbrushes=1
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
-plot_diversity_of_trajectories=0
+plot_diversity_of_trajectories=1
 
 t_cross_over=nan(c.ensemble_size,1);
 t_total_depletion=nan(c.ensemble_size,1);
@@ -163,7 +163,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     for param=1:1
         hhist=hist([so.tot_emissions],bin_array),shading flat;
         [n,x]=hist([so.tot_emissions],bin_array);
-        dbind2=mean(diff(bin_array))./2;
+        dbin=mean(diff(bin_array))./2;
         for bin=1:nbins
          %identify all simulations that fall within bin range
          i=find([so.tot_emissions]>bin_array(bin)-dbin & [so.tot_emissions]>bin_array(bin)+dbin);
@@ -171,7 +171,6 @@ if plot_cumulative_emissions_and_warming_pdfs
         end
         
     end
-    error()
     
     figure
     hfig=subplot(2,1,1);
@@ -265,7 +264,7 @@ if plot_diversity_of_trajectories
     i49_51_percentiles=find([so.tot_emissions]>q(1) & [so.tot_emissions]<q(2));
     hold on
     for en=i49_51_percentiles
-        plot(so(en).time+c.present_year,so(en).burn_rate,'k','linewidth',1)
+        plot(so(en).time+c.start_year,so(en).burn_rate,'k','linewidth',1)
     end
     title('49th-51th percentile simulations')
     xlabel('Year')
@@ -316,6 +315,8 @@ RCPname{5}='historical ';
 
 if plot_paintbrushes
     
+    close all
+    
     EndYear=floor([so.t_fossil_fuel_emissions_stop]);
     TotEmissions=[so.tot_emissions];
     NetWarming=[so.net_warming];
@@ -327,13 +328,13 @@ if plot_paintbrushes
     end
     IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
     for yr=1:c.tf
-        i=find(EndYear==yr+c.present_year);
+        i=find(EndYear==yr+c.start_year);
         nCeasedEmissions(yr)=numel(i);
         MeanTotCumEmissions(yr)=mean(TotEmissions(i));
         MeanNetWarming(yr)=mean(NetWarming(i));
         MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
     end
-    year=(1:c.tf)+c.present_year;
+    year=(1:c.tf)+c.start_year;
     he=find(RCPyear(1,:)==2012);
     figure
     
@@ -354,7 +355,7 @@ if plot_paintbrushes
         emis_mean(yr)=median(e(~isnan(e)));
     end
     hist_arr(hist_arr==0)=nan;
-    x=(1:c.tf)+c.present_year;
+    x=(1:c.tf)+c.start_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
     colormap(copper)
@@ -370,7 +371,7 @@ if plot_paintbrushes
     %     hold on
     %     for en=1:c.ensemble_size
     %         IDX=knnsearch(NS,[so(en).time so(en).burn_rate]);
-    %         cline([so(en).time] + c.present_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
+    %         cline([so(en).time] + c.start_year, [so(en).burn_rate] , zeros(1,length([so(en).burn_rate])) , hist_arrm(IDX) , 'jet');
     %         if en==1
     %             caxis([1 5])
     %         end
@@ -416,7 +417,7 @@ if plot_paintbrushes
     emis_mean=mean(cum_emis_arr_avg,1);
     hist_arr(hist_arr==0)=nan;
     
-    x=(1:c.tf)+c.present_year;
+    x=(1:c.tf)+c.start_year;
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
     
@@ -444,7 +445,7 @@ if plot_paintbrushes
     %hold on
     %for en=1:c.ensemble_size
     %    IDX=knnsearch(NS,[so(en).time so(en).cum_emissions]);
-    %    cline([so(en).time] + c.present_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
+    %    cline([so(en).time] + c.start_year, [so(en).cum_emissions] , zeros(1,length([so(en).cum_emissions])) , hist_arrm(IDX) , 'jet');
     %    if en==1
     %      caxis([1 5])
     %    end
@@ -463,7 +464,7 @@ if plot_paintbrushes
 end
 
 if plot_mean_ending_cum_emissions
-    h
+
     figure
     
     EndYear=floor([so.t_fossil_fuel_emissions_stop]);
@@ -477,13 +478,13 @@ if plot_mean_ending_cum_emissions
     end
     IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
     for yr=1:c.tf
-        i=find(EndYear==yr+c.present_year);
+        i=find(EndYear==yr+c.start_year);
         nCeasedEmissions(yr)=numel(i);
         MeanTotCumEmissions(yr)=mean(TotEmissions(i));
         MeanNetWarming(yr)=mean(NetWarming(i));
         MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
     end
-    year=(1:c.tf)+c.present_year;
+    year=(1:c.tf)+c.start_year;
     hold on
     %scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,MeanIsRenewablesReached,'filled')
     scatter(year,MeanTotCumEmissions,nCeasedEmissions.*20,'.k')
@@ -504,56 +505,64 @@ end
 
 if plot_consumption_emission_validation
     
+    if c.start_year > 2000.
+        error('Looks like you are trying to print validation plot for a non-hindcast run..?')
+    end
+    
     figure
     
     h=subplot(2,1,1);
     subplot_label(h,-0.1,0.9,'a)',25)
-    %Observed global consumption rates, 1980-2012.
+    %Observed global consumption rates.
     data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
     obs_consumption=data(3,1:end-1).*c.quads_2_J./1.e18; %To EJ
     obs_time=data(1,1:end-1);
-    iyear=find(obs_time==1985);
+    iyear=find(obs_time==1980);
     observed_consumption_pf=polyfit(obs_time(iyear:end),obs_consumption(iyear:end),1);
     observedconsumptionpf=spa_sf(observed_consumption_pf(1),2);
     obs_consumption_fit=polyval(observed_consumption_pf,obs_time(iyear:end));
-    nval=27;
+    nval=length(obs_consumption);
     
     %Weed out runs that finish before present day (outliers)
-    i=find( ([so.t_fossil_fuel_emissions_stop]-c.present_year)>=nval );
+    i=find( ([so.t_fossil_fuel_emissions_stop]-c.start_year)>=nval );
     TotEnDemand=zeros(length(i),nval);
     TotEmissions=zeros(length(i),nval);
+    FossilPricing=zeros(length(i),nval);
+    FossilDiscovery=zeros(length(i),nval);
     for en=1:length(i)
         TotEnDemand(en,:)=so(i(en)).tot_en_demand(1:nval)./1.e18; %To EJ
         TotEmissions(en,:)=so(i(en)).burn_rate(1:nval);
+        FossilPricing(en,:)=so(i(en)).ff_pr(1:nval);
+        FossilDiscovery(en,:)=so(i(en)).discovery_rate(1:nval);
     end
     
-    mod_time=so(en).time(1:nval)+c.present_year;
-    TEDMean=mean(TotEnDemand,1);
-    TEDStd=std(TotEnDemand,1);
-    TEDMin=TEDMean-TEDStd;
-    TEDMax=TEDMean+TEDStd;
+    mod_time=so(en).time(1:nval)+c.start_year;
+    MeanTotalEnergyDemand=mean(TotEnDemand,1);
+    StdTotalEnergyDemand=std(TotEnDemand,1);
+    minTotalEnergyDemand=MeanTotalEnergyDemand-StdTotalEnergyDemand;
+    maxTotalEnergyDemand=MeanTotalEnergyDemand+StdTotalEnergyDemand;
     
     disp(['historical consumption trend=' num2str(observed_consumption_pf(1))])
-    simulatedconsumptionpfmean=spa_sf(polyfit(mod_time,TEDMean',1), 2);
+    simulatedconsumptionpfmean=spa_sf(polyfit(mod_time,MeanTotalEnergyDemand',1), 2);
     simulatedconsumptionpfmean=simulatedconsumptionpfmean(1);
     disp(['simulated mean consumption trend=' num2str(simulatedconsumptionpfmean)])
-    simulatedconsumptionpfmin=spa_sf(polyfit(mod_time,TEDMin',1), 2);
+    simulatedconsumptionpfmin=spa_sf(polyfit(mod_time,minTotalEnergyDemand',1), 2);
     simulatedconsumptionpfmin=simulatedconsumptionpfmin(1);
     disp(['simulated min consumption trend=' num2str(simulatedconsumptionpfmin)])
-    simulatedconsumptionpfmax=spa_sf(polyfit(mod_time,TEDMax',1), 2);
+    simulatedconsumptionpfmax=spa_sf(polyfit(mod_time,maxTotalEnergyDemand',1), 2);
     simulatedconsumptionpfmax=simulatedconsumptionpfmax(1);    
     disp(['simulated max consumption trend=' num2str(simulatedconsumptionpfmax)])
-    
+
     hold on
     h(1)=plot(obs_time(iyear:end),obs_consumption(iyear:end),'b--','linewidth',2);
     h(2)=plot(obs_time(iyear:end),obs_consumption_fit,'b','linewidth',2);
-    h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
-    h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
-    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2);
+    h(3)=plot(mod_time,MeanTotalEnergyDemand,'r','linewidth',2);
+    h(4)=plot(mod_time,minTotalEnergyDemand,'r--','linewidth',2);
+    h(4)=plot(mod_time,maxTotalEnergyDemand,'r--','linewidth',2);
     legend(h,{'Observed consumption' 'Observed consumption trend' 'Simulated consumption mean'  'Simulated +/- 1-sigma consumption'},'Location','Northwest');
     axis tight
     ax=axis;
-    ax(1)=1985;
+    ax(1)=c.start_year;
     axis(ax);
     xlabel('Year')
     ylabel('EJ per year')
@@ -563,48 +572,58 @@ if plot_consumption_emission_validation
     subplot_label(h,-0.1,0.9,'b)',25)
     %Observed global emission rates, 1980-2010.
     data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
-    obs_emissions=data(end-30:end-1,2)./1.e6;
-    obs_time=data(end-30:end-1,1);
+    obs_emissions=data(end-nval:end-1,2)./1.e6;
+    obs_time=data(end-nval:end-1,1);
 
-    mod_time=so(en).time(1:nval)+c.present_year;
-    TEDMean=mean(TotEmissions,1);
-    TEDStd=std(TotEmissions,1);
-    TEDMin=TEDMean-TEDStd;
-    TEDMax=TEDMean+TEDStd;
+    mod_time=so(en).time(1:nval)+c.start_year;
+    MeanTotalEmissions=mean(TotEmissions,1);
+    StdTotalEmissions=std(TotEmissions,1);
+    minTotalEmissions=MeanTotalEmissions-StdTotalEmissions;
+    maxTotalEmissions=MeanTotalEmissions+StdTotalEmissions;
     
     observed_emissions_pf=polyfit(obs_time(iyear:end),obs_emissions(iyear:end),1);
     observedemissionspf=spa_sf(observed_emissions_pf(1).*c.thou,2);
     obs_emissions_fit=polyval(observed_emissions_pf,obs_time(iyear:end));
     disp(['historical emission trend=' num2str(observed_emissions_pf(1))])
-    simulatedemissionspfmean=spa_sf(polyfit(mod_time,TEDMean',1),2);
+    simulatedemissionspfmean=spa_sf(polyfit(mod_time,MeanTotalEmissions',1),2);
     simulatedemissionspfmean=simulatedemissionspfmean(1).*c.thou;
     disp(['simulated mean emission trend=' num2str(simulatedemissionspfmean)])
-    simulatedemissionspfmin=spa_sf(polyfit(mod_time,TEDMin',1),2);
+    simulatedemissionspfmin=spa_sf(polyfit(mod_time,minTotalEmissions',1),2);
     simulatedemissionspfmin=simulatedemissionspfmin(1).*c.thou;
     disp(['simulated min emission trend=' num2str(simulatedemissionspfmin)])
-    simulatedemissionspfmax=spa_sf(polyfit(mod_time,TEDMax',1),2);
+    simulatedemissionspfmax=spa_sf(polyfit(mod_time,maxTotalEmissions',1),2);
     simulatedemissionspfmax=simulatedemissionspfmax(1).*c.thou;
     disp(['simulated max emission trend=' num2str(simulatedemissionspfmax)])
     
     hold on
-    h(1)=plot(obs_time(iyear:end),obs_emissions(iyear:end),'b--','linewidth',2);
-    h(2)=plot(obs_time(iyear:end),obs_emissions_fit,'b','linewidth',2);
-    h(3)=plot(mod_time,TEDMean,'r','linewidth',2);
-    h(4)=plot(mod_time,TEDMin,'r--','linewidth',2);
-    h(4)=plot(mod_time,TEDMax,'r--','linewidth',2);
+    h(1)=plot(obs_time(iyear:end),obs_emissions(iyear:end).*1000.,'b--','linewidth',2);
+    h(2)=plot(obs_time(iyear:end),obs_emissions_fit.*1000.,'b','linewidth',2);
+    h(3)=plot(mod_time,MeanTotalEmissions.*1000.,'r','linewidth',2);
+    h(4)=plot(mod_time,minTotalEmissions.*1000.,'r--','linewidth',2);
+    h(4)=plot(mod_time,maxTotalEmissions.*1000.,'r--','linewidth',2);
     
     legend(h,{'Observed emissions' 'Observed emissions trend' 'Simulated mean emissions' 'Simulated +/- 1-sigma emissions'},'Location','Northwest');
     axis tight
     ax=axis;
-    ax(1)=1985;
+    ax(1)=1980;
     axis(ax);
     xlabel('Year')
-    ylabel('Tt C per year')
+    ylabel('Gt C per year')
     
     print('-depsc','figs/consumption_emission_validation')
     
-    if c.present_year==1985
-    latexcmd('modelhistoricaloutput',...
+    %Fossil price trends
+    MeanFossilPrice=mean(FossilPricing,1);
+    simulatedfossilpricespfmean=spa_sf(polyfit(mod_time,MeanFossilPrice',1),1);
+    disp(['mean historical increase in fossil fuel pricing (%/yr)=',num2str(simulatedfossilpricespfmean(1)./mean(MeanFossilPrice).*100)])
+    
+    %Fossil discovery trends
+    MeanFossilDiscovery=mean(FossilDiscovery,1);
+    simulatedfossildiscoverypfmean=spa_sf(polyfit(mod_time,MeanFossilDiscovery',1),1);
+    disp(['mean historical increase in fossil fuel discovery (%/yr)=',num2str(simulatedfossildiscoverypfmean(1)./mean(MeanFossilDiscovery).*100)])    
+    
+    if c.start_year<2000.
+    latexcmd('output/modelhistoricaloutput',...
         observedconsumptionpf,...
         simulatedconsumptionpfmean,...
         simulatedconsumptionpfmin,...
@@ -614,7 +633,7 @@ if plot_consumption_emission_validation
         simulatedemissionspfmin,...
         simulatedemissionspfmax)
     else
-        error('Not printing validation output to .tex file, because this does not look like a validation run that starts in 1985')
+        error('Not printing validation output to .tex file, because this does not look like a validation hindcast due to late start date')
     end
 end
 
@@ -623,15 +642,12 @@ end
 if plot_diagnostic_output
     hold on
     for en=1:100
-        plot(so(en).time,so(en).ff_pr,'r','linewidth',1)
-    end
-    for en=1:100
-        plot(so(en).time,so(en).re_pr,'g','linewidth',1)
+        plot(so(en).time,so(en).discovery_rate,'r','linewidth',1)
     end
 end
 
 %% Output parameters to .tex file
-if c.present_year==2012
+if c.start_year==2012
     if plot_final_percent_reserves_depleted==0 || ...
             plot_cumulative_emissions_and_warming_pdfs==0 || ...
             plot_diversity_of_trajectories==0
@@ -660,7 +676,7 @@ if c.present_year==2012
         
     end
     
-    latexcmd('modeloutput',emissionfifth,emissionfiftyth,emissionninetyfifth,...
+    latexcmd('output/modeloutput',emissionfifth,emissionfiftyth,emissionninetyfifth,...
         temperaturefifth,temperaturefiftyth,temperatureninetyfifth,...
         firstthresholdT,secondthresholdT,thirdthresholdT,fourththresholdT,...
         minburnrate,maxburnrate,...
