@@ -18,13 +18,13 @@
 
 relative_parameter_sensitivities_for_final_cumulative_carbon=1
 relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=1
-plot_final_percent_reserves_depleted=1
-plot_paintbrushes=1
+plot_cumulative_emissions_and_warming_pdfs=0
+plot_final_percent_reserves_depleted=0
+plot_paintbrushes=0
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
-plot_diversity_of_trajectories=1
+plot_diversity_of_trajectories=0
 
 t_cross_over=nan(c.ensemble_size,1);
 t_total_depletion=nan(c.ensemble_size,1);
@@ -201,7 +201,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     line([qemissions(1) qemissions(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([qemissions(2) qemissions(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
     line([qemissions(3) qemissions(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
-    xlabel('Net cumulative emissions (Tt C)')
+    xlabel('Cumulative emissions (Tt C)')
     ylabel('# simulations')
 
     box on
@@ -222,7 +222,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     hist([so.net_warming],linspace(0,15,nbins)),shading flat
     set(findobj(gca,'Type','patch'),'FaceColor',[0 0 1]);
         
-    xlabel('Net warming (^\circC)')
+    xlabel('Emissions-induced warming (^\circC)')
     ylabel('# simulations')
     ax=axis;
     ax(1)=0.;ax(2)=13.;
@@ -378,7 +378,7 @@ if plot_paintbrushes
     %     end
     
     xlabel('Year')
-    ylabel('Annual emissions (Tt C/yr) ')
+    ylabel('Annual emissions (Tt C per yr) ')
     hold on
     plot(x,emis_mean,'b','linewidth',6)
     
@@ -414,7 +414,7 @@ if plot_paintbrushes
         e=cum_emis_arr(:,yr);
         hist_arr(:,yr)=hist(e,bin_centers);
     end
-    emis_mean=mean(cum_emis_arr_avg,1);
+    
     hist_arr(hist_arr==0)=nan;
     
     x=(1:c.tf)+c.start_year;

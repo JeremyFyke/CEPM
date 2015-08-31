@@ -300,7 +300,7 @@ end
         direction(2) = 1; %stop if crossing is hit in either direction
         
         %third event: <XXX% of energy fraction supplied by fossil fuels
-        value(3) = frac_of_energy_from_ff(t,V)<0.05;
+        value(3) = frac_of_energy_from_ff(t,V)<c.energy_fraction;
         isterminal(3) = 1; %stop integration if 1
         direction(3) = 0; %stop if crossing is hit in either direction
     end

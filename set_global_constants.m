@@ -72,4 +72,6 @@ c.cprice0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot 
 c.CE_TCRE_saturation_point=3.; %(Tc C): Emissions above which TCRE gets lower
 c.TCRE_dampening_factor=0.05;  %
 
+c.energy_fraction=0.05
+
 c.simulation_timestamp=datestr(now,30);
