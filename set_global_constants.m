@@ -22,7 +22,7 @@ c.ensemble_size=100000;
 
 %Set run-time.
 c.t0 = 0. ;               
-c.tf = 5000 ; 
+c.tf = 4000 ; 
 
 %Constants
 c.thou=1.e3;
@@ -48,7 +48,7 @@ data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');%htt
 c.start_year=2012;
 
 if c.start_year==1980
-    c.n_validation_years=2012-c.start_year
+    c.n_validation_years=2012-c.start_year;
     c.ff_frac0=0.77; %Initial fraction of global energy consumption supplied by fossil energies %HOW WAS THIS CALCULATED?
     c.Globaltotenergyuseinit=data(3,end-c.n_validation_years).*c.quads_2_J;
     c.P0 = 4.86e9;%World Bank
@@ -72,6 +72,10 @@ c.cprice0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot 
 c.CE_TCRE_saturation_point=3.; %(Tc C): Emissions above which TCRE gets lower
 c.TCRE_dampening_factor=0.05;  %
 
-c.energy_fraction=0.05
+c.energy_fraction=0.05;
+
+c.events.energy_prices_match=1;
+c.events.trivial_ff_energy_fraction=2;
+c.events.total_ff_depletion=3;
 
 c.simulation_timestamp=datestr(now,30);

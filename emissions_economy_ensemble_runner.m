@@ -26,7 +26,7 @@ clear all
 if ~exist('figs','dir')
     [~,~,~] = mkdir('figs');
 end
-if ~exist('./output','dir')
+if ~exist('output','dir')
    [~,~,~]=mkdir('output');
 end
 
@@ -43,20 +43,25 @@ for n=1:c.ensemble_size
     try
         so(n) = model_output;
     catch
+        
+        %Compare model_output structure with expected structure
+        
         for nn=1:size(model_parameters,2)
             disp('')
             if model_output.LHSparams(nn) < p(nn).lb || model_output.LHSparams(nn) > p(nn).ub
 
                 decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
+                initspace='    ';
             else
-                decorator='_______________________________';     
+                decorator='_______________________________';   
+                initspace='';
             end
             disp(decorator)
-            disp(['LHS parameter=' num2str(model_output.LHSparams(nn))])
-            disp(['LHS parameter name=' p(nn).ParameterName])            
-            disp(['Minimum input value=' num2str(p(nn).lb)])
-            disp(['Maximum input value=' num2str(p(nn).ub)])
-            disp(['Parameter number=',num2str(nn)])
+            disp([initspace 'LHS parameter=' num2str(model_output.LHSparams(nn))])
+            disp([initspace 'LHS parameter name=' p(nn).ParameterName])            
+            disp([initspace 'Minimum input value=' num2str(p(nn).lb)])
+            disp([initspace 'Maximum input value=' num2str(p(nn).ub)])
+            disp([initspace 'Parameter number=',num2str(nn)])
         end
         
         error('Error in emissions economy output.')

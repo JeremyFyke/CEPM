@@ -191,7 +191,7 @@ p(n).ub=-4;
 %%%%%%%%%% 
 n=n+1; 
 p(n).ParameterName='Transient climate response to emissions'; 
-p(n).ParameterUnits='$^\circ$C/Gt C';
+p(n).ParameterUnits='$^\circ$C/Tt C';
 p(n).ParameterLatexSymbol='$TCRE$';
 p(n).ParameterSource=nSource;
 iCollins_et_al_2013=nSource;

@@ -1,18 +1,18 @@
 %     Cumulative Emissions Projection Model (CEPM).
 %     Copyright (C) 2015 Jeremy Fyke
-%   
+%
 %     This file is part of CEPM.
-% 
+%
 %     CEPM is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
 %     the Free Software Foundation, either version 3 of the License, or
 %     (at your option) any later version.
-% 
+%
 %     CEPM is distributed in the hope that it will be useful,
 %     but WITHOUT ANY WARRANTY; without even the implied warranty of
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
-% 
+%
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -94,6 +94,19 @@ options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
 %%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
 %Post-calculate fossil fuel reserve evolution and diagnostics by re-calling
 %volume, with time and ff_volume VECTORS.
+
+EventTime=so.event_times(so.which_event==c.events.trivial_ff_energy_fraction);
+EventTime=EventTime(1);
+if ~isempty(EventTime)
+    disp(['length(so.time)=' num2str(length(so.time))])
+    EventTime
+    iEventTime=find(so.time>EventTime,1,'first');
+else
+    warning('Error: trivial fossil energy fraction not reached.')
+    iEventTime=length(so.time);
+    disp('iEventTime=',num2str(iEventTime))
+end
+
 [so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
 %concatenate diagnostics generated within 'volume' routine to output structure...
 so=catstruct(so,diagnostics);
@@ -104,15 +117,15 @@ so.discovery_rate=so.discovery_rate.*so.ff_emission_factor/c.g_2_Tt;
 
 so.burn_rate_max=max(so.burn_rate);
 so.cum_emissions=cumsum(so.burn_rate) + c.emissions_to_date;
+so.tot_emissions=so.cum_emissions(iEventTime);
+%scale event time to real years
 so.event_times=so.event_times + c.start_year;
-so.tot_emissions=so.cum_emissions(end);
-
 %Scale TCRE if above the CE_TCRE saturation point (Leduc et al., 2015)
 so.TCRE_damper=0.;
 so.TCRE_orig=TCRE;
 if so.tot_emissions>c.CE_TCRE_saturation_point
-   so.TCRE_damper=(so.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor; %TCRE_dampening_factor in units: (Tc C^-1)  
-   TCRE=TCRE.*(1.-so.TCRE_damper);
+    so.TCRE_damper=(so.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor; %TCRE_dampening_factor in units: (Tc C^-1)
+    TCRE=TCRE.*(1.-so.TCRE_damper);
 end
 so.LHSparams(n)=TCRE;
 
@@ -122,19 +135,25 @@ so.consumption_init=so.tot_en_demand(1);
 so.dconsumptiondt_init=so.tot_en_demand(2)-so.tot_en_demand(1);
 so.burn_rate_init=so.burn_rate(1);
 so.ff_fraction_init=so.ff_fraction(1);
-so.ff_fractional_reservoir_depletion=so.ff_volume(end)./V0;
+so.ff_fractional_reservoir_depletion=so.ff_volume(iEventTime)./V0;
 
-i=find(so.which_event==1);
+i=find(so.which_event==c.events.energy_prices_match);
 if (~isempty(i))
     so.t_cross_over=so.event_times(i);
+else
+    so.t_cross_over=[];
 end
-i=find(so.which_event==2);
-if (~isempty(i))
-    so.t_total_depletion=so.event_times(i);
-end
-i=find(so.which_event==3);
+i=find(so.which_event==c.events.trivial_ff_energy_fraction);
 if (~isempty(i))
     so.t_fossil_fuel_emissions_stop=so.event_times(i);
+else
+    so.t_fossil_fuel_emissions_stop=[];
+end
+i=find(so.which_event==c.events.total_ff_depletion);
+if (~isempty(i))
+    so.t_total_depletion=so.event_times(i);
+else
+    so.t_total_depletion=[];
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -231,17 +250,17 @@ end
         %than the initial, then make cprice trend negative.  Also include equality
         %case here.
         if cpricefinal >= cprice0dpJ
-
+            
             ctax = cprice0dpJ + cpriceTre .* t ; %increase ctax up towards cpricefinal
             ctax = min (ctax,cpricefinal); %upper-cap ctax to cpricefinal
-
-        %Otherwise, if final carbon price is LESS (i.e. MORE-subsidized fossil fuels)
-        %than the initial, then make cprice trend positive.
+            
+            %Otherwise, if final carbon price is LESS (i.e. MORE-subsidized fossil fuels)
+            %than the initial, then make cprice trend positive.
         else
             
             ctax = cprice0dpJ - cpriceTre .* t ; %decrease ctax up towards cpricefinal
-            ctax = max (ctax,cpricefinal); %lower-cap ctax to cpricefinal   
-           
+            ctax = max (ctax,cpricefinal); %lower-cap ctax to cpricefinal
+            
         end
     end
 
@@ -289,20 +308,21 @@ end
 
     function [value,isterminal,direction] = events(t,V)
         
-        %first event: energy prices match
-        value(1) =  ff_price(V,t) - re_price(t); %equate price of fossil fuel to price of renewable
-        isterminal(1) = 0; %stop integration if 1
-        direction(1) = 1; %only stop if crossing is hit in upward direction
+        %event: energy prices match
+        value(c.events.energy_prices_match) =  ff_price(V,t) - re_price(t); %equate price of fossil fuel to price of renewable
+        isterminal(c.events.energy_prices_match) = 0; %stop integration if 1
+        direction(c.events.energy_prices_match) = 1; %only stop if crossing is hit in upward direction
         
-        %second event: entire fossil fuel reserve is depleted
-        value(2) = 0;
-        isterminal(2) = 1; %stop integration if 1
-        direction(2) = 1; %stop if crossing is hit in either direction
+        %event: <XXX% of energy fraction supplied by fossil fuels
+        value(c.events.trivial_ff_energy_fraction) = frac_of_energy_from_ff(t,V)<c.energy_fraction;
+        isterminal(c.events.trivial_ff_energy_fraction) = 0; %stop integration if 1
+        direction(c.events.trivial_ff_energy_fraction) = 0; %stop if crossing is hit in either direction
         
-        %third event: <XXX% of energy fraction supplied by fossil fuels
-        value(3) = frac_of_energy_from_ff(t,V)<c.energy_fraction;
-        isterminal(3) = 1; %stop integration if 1
-        direction(3) = 0; %stop if crossing is hit in either direction
+        %event: entire fossil fuel reserve is depleted
+        value(c.events.total_ff_depletion) = 0;
+        isterminal(c.events.total_ff_depletion) = 1; %stop integration if 1
+        direction(c.events.total_ff_depletion) = 0; %stop if crossing is hit in either direction
+        
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

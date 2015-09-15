@@ -50,3 +50,4 @@ so(1).ff_fraction_init=[];
 so(1).ff_fractional_reservoir_depletion=[];
 so(1).t_cross_over=[];
 so(1).t_fossil_fuel_emissions_stop=[];
+so(1).t_total_depletion=[];

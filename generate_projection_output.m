@@ -16,11 +16,12 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
-relative_parameter_sensitivities_for_final_cumulative_carbon=1
+relative_parameter_sensitivities_for_final_cumulative_carbon=0
+    plot_parameter_value_vs_cumulative_emissions=0
 relative_parameter_sensitivities_at_2100=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_final_percent_reserves_depleted=0
-plot_paintbrushes=0
+plot_paintbrushes=1
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
@@ -66,6 +67,31 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     
     figure
     h=pie(a)
+    
+    if plot_parameter_value_vs_cumulative_emissions
+        net_warming=[so.net_warming];
+        
+        for pp=fliplr(I)'
+            param=zeros(c.ensemble_size,1);
+            for en=1:c.ensemble_size
+                param(en)=so(en).LHSparams(pp);
+            end
+
+            figure
+            colormap(copper(1000))
+            scatter(param,net_warming,10,net_warming,'o','fill')
+            axis tight
+            P=polyfit(param,net_warming',1);
+            xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits))
+            ylabel('Net warming (C)')
+            text(0.1,0.9,sprintf('y=%fx+%f',P(1),P(2)),'Units','normalized','fontsize',30)
+            
+            print('-depsc',strcat('figs/',p(pp).ParameterName,'_param_scatter.eps'))
+            
+        end
+    end
+    
+    
 end
 
 if relative_parameter_sensitivities_at_2100
@@ -317,7 +343,7 @@ if plot_paintbrushes
     
     close all
     
-    EndYear=floor([so.t_fossil_fuel_emissions_stop]);
+    EndYear=floor([so.t_fossil_fuel_emissions_stop])
     TotEmissions=[so.tot_emissions];
     NetWarming=[so.net_warming];
     nCeasedEmissions=zeros(1,c.tf);
@@ -326,13 +352,13 @@ if plot_paintbrushes
         FinalRePr(en)=so(en).re_pr(end);
         MinRePr(en)=so(en).LHSparams(7) .* so(en).LHSparams(6)./c.mwh_2_J;
     end
-    IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.;
+    IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.; %sets all of this array, where final renewable price is essentially at min, to 100%.
     for yr=1:c.tf
         i=find(EndYear==yr+c.start_year);
         nCeasedEmissions(yr)=numel(i);
         MeanTotCumEmissions(yr)=mean(TotEmissions(i));
         MeanNetWarming(yr)=mean(NetWarming(i));
-        MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i));
+        MeanIsRenewablesReached(yr)=mean(IsMinRenewablesReached(i)); %Describes % of runs that ended in a given year, that reached minimum value
     end
     year=(1:c.tf)+c.start_year;
     he=find(RCPyear(1,:)==2012);
@@ -421,7 +447,7 @@ if plot_paintbrushes
     y=bin_centers;
     pcolor(x,y,hist_arr),shading flat
     
-    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,'.b')
+    scatter(year,MeanTotCumEmissions,nCeasedEmissions.*5,'.b') %5 is to cosmetically scale the dot size.
 
     clear h
     for nRCP=1:4
