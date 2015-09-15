@@ -21,7 +21,7 @@ relative_parameter_sensitivities_for_final_cumulative_carbon=0
 relative_parameter_sensitivities_at_2100=0
 plot_cumulative_emissions_and_warming_pdfs=0
 plot_final_percent_reserves_depleted=0
-plot_paintbrushes=1
+plot_paintbrushes=0
 plot_mean_ending_cum_emissions=0
 plot_consumption_emission_validation=0
 plot_diagnostic_output=0
@@ -70,8 +70,9 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     
     if plot_parameter_value_vs_cumulative_emissions
         net_warming=[so.net_warming];
-        
+        n=0;
         for pp=fliplr(I)'
+	    n=n+1
             param=zeros(c.ensemble_size,1);
             for en=1:c.ensemble_size
                 param(en)=so(en).LHSparams(pp);
@@ -86,7 +87,7 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
             ylabel('Net warming (C)')
             text(0.1,0.9,sprintf('y=%fx+%f',P(1),P(2)),'Units','normalized','fontsize',30)
             
-            print('-depsc',strcat('figs/',p(pp).ParameterName,'_param_scatter.eps'))
+            print('-depsc',strcat('figs/parameter',num2str(n),'scatter.eps'))
             
         end
     end
