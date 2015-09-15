@@ -98,8 +98,8 @@ options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
 EventTime=so.event_times(so.which_event==c.events.trivial_ff_energy_fraction);
 EventTime=EventTime(1);
 if ~isempty(EventTime)
-    disp(['length(so.time)=' num2str(length(so.time))])
-    EventTime
+    %disp(['length(so.time)=' num2str(length(so.time))])
+    %EventTime
     iEventTime=find(so.time>EventTime,1,'first');
 else
     warning('Error: trivial fossil energy fraction not reached.')
@@ -112,11 +112,11 @@ end
 so=catstruct(so,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-so.burn_rate=so.burn_rate.*so.ff_emission_factor/c.g_2_Tt;
-so.discovery_rate=so.discovery_rate.*so.ff_emission_factor/c.g_2_Tt;
+so.burn_rate=single(so.burn_rate.*so.ff_emission_factor/c.g_2_Tt);
+so.discovery_rate=single(so.discovery_rate.*so.ff_emission_factor/c.g_2_Tt);
 
 so.burn_rate_max=max(so.burn_rate);
-so.cum_emissions=cumsum(so.burn_rate) + c.emissions_to_date;
+so.cum_emissions=single(cumsum(so.burn_rate) + c.emissions_to_date);
 so.tot_emissions=so.cum_emissions(iEventTime);
 %scale event time to real years
 so.event_times=so.event_times + c.start_year;
@@ -180,16 +180,16 @@ end
         %If being called for diagnostics (and not from the ode45 solver) save secondary fields (aside from dVdt) for diagnostics.  Note that in this case,
         %t and V are vectors.
         
-        diagnostics.burn_rate=burn_rate;
-        diagnostics.ff_emission_factor=fossil_fuel_emission_factor(t);
-        diagnostics.ff_pr=ff_price(V,t);
-        diagnostics.re_pr=re_price(t);
-        diagnostics.ff_fraction=frac_of_energy_from_ff(t,V);
-        diagnostics.tot_en_demand=total_energy_demand(t);
-        diagnostics.pop=population( t );
-        diagnostics.per_cap_dem=per_cap_demand( t );
-        diagnostics.discovery_rate=discovery_rate;
-        diagnostics.carbon_tax=carbon_tax( t );
+        diagnostics.burn_rate=single(burn_rate);
+        diagnostics.ff_emission_factor=single(fossil_fuel_emission_factor(t));
+        diagnostics.ff_pr=single(ff_price(V,t));
+        diagnostics.re_pr=single(re_price(t));
+        diagnostics.ff_fraction=single(frac_of_energy_from_ff(t,V));
+        diagnostics.tot_en_demand=single(total_energy_demand(t));
+        diagnostics.pop=single(population( t ));
+        diagnostics.per_cap_dem=single(per_cap_demand( t ));
+        diagnostics.discovery_rate=single(discovery_rate);
+        diagnostics.carbon_tax=single(carbon_tax( t ));
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
