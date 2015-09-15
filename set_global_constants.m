@@ -18,7 +18,7 @@
 
 function [c] = set_global_constants()
 
-c.ensemble_size=100000;
+c.ensemble_size=1000;
 
 %Set run-time.
 c.t0 = 0. ;               
