@@ -96,15 +96,12 @@ options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
 %volume, with time and ff_volume VECTORS.
 
 EventTime=so.event_times(so.which_event==c.events.trivial_ff_energy_fraction);
-EventTime=EventTime(1);
 if ~isempty(EventTime)
-    %disp(['length(so.time)=' num2str(length(so.time))])
-    %EventTime
+    EventTime=EventTime(1);
     iEventTime=find(so.time>EventTime,1,'first');
 else
-    warning('Error: trivial fossil energy fraction not reached.')
+    EventTime=so.time(end);
     iEventTime=length(so.time);
-    disp('iEventTime=',num2str(iEventTime))
 end
 
 [so.dVdt,diagnostics] = volume( so.time , so.ff_volume );

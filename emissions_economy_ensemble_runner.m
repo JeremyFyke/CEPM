@@ -34,9 +34,9 @@ c=set_global_constants();
 [model_parameters,c,p]=generate_parameter_ranges(c);
 so =initialize_output_structure(c);
 
-openpool(12)
-
-parfor n=1:c.ensemble_size 
+%openpool(12)
+%parfor n=1:c.ensemble_size 
+for n=1:c.ensemble_size 
     lastwarn('')
     if ( mod(n,10)-1 )==0
       disp(['Running ensemble number' num2str(n)])

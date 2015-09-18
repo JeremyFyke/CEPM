@@ -16,16 +16,16 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
-relative_parameter_sensitivities_for_final_cumulative_carbon=0
-    plot_parameter_value_vs_cumulative_emissions=0
-relative_parameter_sensitivities_at_2100=0
-plot_cumulative_emissions_and_warming_pdfs=0
-plot_final_percent_reserves_depleted=0
-plot_paintbrushes=0
-plot_mean_ending_cum_emissions=0
-plot_consumption_emission_validation=0
-plot_diagnostic_output=0
-plot_diversity_of_trajectories=0
+relative_parameter_sensitivities_for_final_cumulative_carbon=1;
+    plot_parameter_value_vs_cumulative_emissions=1;
+relative_parameter_sensitivities_at_2100=0;
+plot_cumulative_emissions_and_warming_pdfs=0;
+plot_final_percent_reserves_depleted=0;
+plot_paintbrushes=0;
+plot_mean_ending_cum_emissions=0;
+plot_consumption_emission_validation=0;
+plot_diagnostic_output=0;
+plot_diversity_of_trajectories=0;
 
 t_cross_over=nan(c.ensemble_size,1);
 t_total_depletion=nan(c.ensemble_size,1);
@@ -58,7 +58,8 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     explode=zeros(length(a),1); %Set up TCRE to be detached from rest of pie
     explode(end)=1;
     
-    h=pie(a,explode,ParameterNameSorted)
+    h=pie(double(a),explode,ParameterNameSorted);
+
     set(h(2:2:end),'FontSize',20);
     
     %colormap(copper)
@@ -66,27 +67,26 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     print('-depsc','figs/param_sense.eps')
     
     figure
-    h=pie(a)
+    h=pie(double(a));
     
     if plot_parameter_value_vs_cumulative_emissions
+        figure
+        colormap(copper(1000))
         net_warming=[so.net_warming];
         n=0;
         for pp=fliplr(I)'
-	    n=n+1
+            n=n+1
             param=zeros(c.ensemble_size,1);
             for en=1:c.ensemble_size
                 param(en)=so(en).LHSparams(pp);
             end
-
-            figure
-            colormap(copper(1000))
             scatter(param,net_warming,10,net_warming,'o','fill')
-            axis tight
+	    ax=[prctile(param,[0.1 99.9]) min(net_warming) max(net_warming)];
+	    axis(ax);
             P=polyfit(param,net_warming',1);
-            xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits))
-            ylabel('Net warming (C)')
+            xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits),'Interpreter','LaTex')
+            ylabel('Net warming (C)','Interpreter','LaTex')
             text(0.1,0.9,sprintf('y=%fx+%f',P(1),P(2)),'Units','normalized','fontsize',30)
-            
             print('-depsc',strcat('figs/parameter',num2str(n),'scatter.eps'))
             
         end
@@ -127,10 +127,10 @@ if relative_parameter_sensitivities_at_2100
         lab{n}=ParameterName{I(n)};
     end
     bar(a,'stack')
-    axis tight
+    axis tight;
     ax=axis;
     ax(1)=2;
-    axis(ax)
+    axis(ax);
     legend(lab,'Eastoutside')
     
     [a,I]=sort(abs(a));
@@ -188,18 +188,17 @@ if plot_cumulative_emissions_and_warming_pdfs
     bin_array=linspace(0,8,nbins);
     
     for param=1:1
-        hhist=hist([so.tot_emissions],bin_array),shading flat;
+        hhist=hist([so.tot_emissions],bin_array); shading flat;
         [n,x]=hist([so.tot_emissions],bin_array);
         dbin=mean(diff(bin_array))./2;
         for bin=1:nbins
-         %identify all simulations that fall within bin range
-         i=find([so.tot_emissions]>bin_array(bin)-dbin & [so.tot_emissions]>bin_array(bin)+dbin);
+          %identify all simulations that fall within bin range
+          i=find([so.tot_emissions]>bin_array(bin)-dbin & [so.tot_emissions]>bin_array(bin)+dbin);
          
         end
         
     end
     
-    figure
     hfig=subplot(2,1,1);
     hold on
     hist([so.tot_emissions],linspace(0,8,nbins)),shading flat
@@ -224,7 +223,7 @@ if plot_cumulative_emissions_and_warming_pdfs
         set(hflsolid,'EdgeColor','none','FaceColor',Tcol{t});
     end
     
-    axis(ax)
+    axis(ax);
     line([qemissions(1) qemissions(1)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
     line([qemissions(2) qemissions(2)],[ax(3) ax(4)],'linestyle','-','color','k','linewidth',4)
     line([qemissions(3) qemissions(3)],[ax(3) ax(4)],'linestyle','--','color','k','linewidth',3)
@@ -232,9 +231,9 @@ if plot_cumulative_emissions_and_warming_pdfs
     ylabel('# simulations')
 
     box on
-    ax=axis
+    ax=axis;
     ax(1)=0;ax(2)=7;
-    axis(ax)
+    axis(ax);
     
     subplot_label(hfig,-0.1,0.9,'(a)',20)
     %
@@ -303,7 +302,7 @@ end
 if plot_final_percent_reserves_depleted
     for i=1:c.ensemble_size
         clear t
-        t=find(so(i).burn_rate==so(i).burn_rate_max);
+        t=find(so(i).burn_rate==so(i).burn_rate_max,1,'first');
         cum_emissions_at_max_burn_rate(i)=so(i).cum_emissions(t);
         initial_volume(i)=so(i).LHSparams(1);
         max_volume(i)=so(i).LHSparams(2)+so(i).LHSparams(1);
@@ -344,7 +343,13 @@ if plot_paintbrushes
     
     close all
     
-    EndYear=floor([so.t_fossil_fuel_emissions_stop])
+    
+    for en=1:c.ensemble_size
+       i=find(so(en).which_event==c.events.trivial_ff_energy_fraction,1,'first');
+       EndYear(en)=so(en).event_times(i);
+    end    
+    
+    %EndYear=floor([so.t_fossil_fuel_emissions_stop]);
     TotEmissions=[so.tot_emissions];
     NetWarming=[so.net_warming];
     nCeasedEmissions=zeros(1,c.tf);
@@ -355,7 +360,7 @@ if plot_paintbrushes
     end
     IsMinRenewablesReached(FinalRePr<MinRePr.*1.001)=100.; %sets all of this array, where final renewable price is essentially at min, to 100%.
     for yr=1:c.tf
-        i=find(EndYear==yr+c.start_year);
+        i=find(floor(EndYear)==yr+c.start_year);
         nCeasedEmissions(yr)=numel(i);
         MeanTotCumEmissions(yr)=mean(TotEmissions(i));
         MeanNetWarming(yr)=mean(NetWarming(i));
@@ -435,7 +440,9 @@ if plot_paintbrushes
         cum_emis_arr_avg(en,1:en_len)=so(en).cum_emissions;
         cum_emis_arr_avg(en,en_len+1:c.tf)=so(en).cum_emissions(en_len);
     end
-    bin_centers=linspace(0,nanmax(cum_emis_arr(:)),nbins);
+    naxcumemistoplot=8;
+    %bin_centers=linspace(0,nanmax(cum_emis_arr(:)),nbins);
+    bin_centers=linspace(0,8,nbins);
     hist_arr=nan(nbins,c.tf);
     for yr=1:c.tf
         e=cum_emis_arr(:,yr);
@@ -455,10 +462,10 @@ if plot_paintbrushes
         h(nRCP)=plot(RCPyear(nRCP,he:end),squeeze(cumRCP(nRCP,he:end)),'color',cRCP(nRCP,:),'linestyle','--','linewidth',3);
     end
     h(5)=plot(RCPyear(1,1:he),cumRCP(1,1:he),'color','k','linestyle','--','linewidth',3);
-    legend(h,RCPname,'location','Northwest')
+    legend(h,RCPname,'location','Northwest');
     axis tight
     ax=axis;
-    ax(1)=1950;ax(2)=timeaxislimit;
+    ax(1)=1950;ax(2)=timeaxislimit;ax(4)=8;
     caxis([0 200])
     colormap(copper)
     axis(ax)
@@ -551,16 +558,20 @@ if plot_consumption_emission_validation
     nval=length(obs_consumption);
     
     %Weed out runs that finish before present day (outliers)
-    i=find( ([so.t_fossil_fuel_emissions_stop]-c.start_year)>=nval );
-    TotEnDemand=zeros(length(i),nval);
-    TotEmissions=zeros(length(i),nval);
-    FossilPricing=zeros(length(i),nval);
-    FossilDiscovery=zeros(length(i),nval);
-    for en=1:length(i)
-        TotEnDemand(en,:)=so(i(en)).tot_en_demand(1:nval)./1.e18; %To EJ
-        TotEmissions(en,:)=so(i(en)).burn_rate(1:nval);
-        FossilPricing(en,:)=so(i(en)).ff_pr(1:nval);
-        FossilDiscovery(en,:)=so(i(en)).discovery_rate(1:nval);
+    %for en=1:c.ensemble_size
+    %   i=find(so(en).which_event==c.events.trivial_ff_energy_fraction,1,'first');
+    %   EndYear(en)=so(en).event_times(i);
+    %end       
+    %i=find( (EndYear-c.start_year) >= nval,1,'first' );
+    TotEnDemand=zeros(c.ensemble_size,nval);
+    TotEmissions=zeros(c.ensemble_size,nval);
+    FossilPricing=zeros(c.ensemble_size,nval);
+    FossilDiscovery=zeros(c.ensemble_size,nval);
+    for en=1:c.ensemble_size
+        TotEnDemand(en,:)=so(en).tot_en_demand(1:nval)./1.e18; %To EJ
+        TotEmissions(en,:)=so(en).burn_rate(1:nval);
+        FossilPricing(en,:)=so(en).ff_pr(1:nval);
+        FossilDiscovery(en,:)=so(en).discovery_rate(1:nval);
     end
     
     mod_time=so(en).time(1:nval)+c.start_year;
@@ -568,6 +579,8 @@ if plot_consumption_emission_validation
     StdTotalEnergyDemand=std(TotEnDemand,1);
     minTotalEnergyDemand=MeanTotalEnergyDemand-StdTotalEnergyDemand;
     maxTotalEnergyDemand=MeanTotalEnergyDemand+StdTotalEnergyDemand;
+    
+    
     
     disp(['historical consumption trend=' num2str(observed_consumption_pf(1))])
     simulatedconsumptionpfmean=spa_sf(polyfit(mod_time,MeanTotalEnergyDemand',1), 2);
@@ -607,7 +620,7 @@ if plot_consumption_emission_validation
     StdTotalEmissions=std(TotEmissions,1);
     minTotalEmissions=MeanTotalEmissions-StdTotalEmissions;
     maxTotalEmissions=MeanTotalEmissions+StdTotalEmissions;
-    
+ 
     observed_emissions_pf=polyfit(obs_time(iyear:end),obs_emissions(iyear:end),1);
     observedemissionspf=spa_sf(observed_emissions_pf(1).*c.thou,2);
     obs_emissions_fit=polyval(observed_emissions_pf,obs_time(iyear:end));
@@ -640,15 +653,26 @@ if plot_consumption_emission_validation
     print('-depsc','figs/consumption_emission_validation')
     
     %Fossil price trends
-    MeanFossilPrice=mean(FossilPricing,1);
+    MeanFossilPrice=mean(FossilPricing,1);    
+    StdFossilPrice=std(FossilPricing,1);
+    minFossilPricing=MeanFossilPrice-StdFossilPrice;
+    maxFossilPricing=MeanFossilPrice+StdFossilPrice;
     simulatedfossilpricespfmean=spa_sf(polyfit(mod_time,MeanFossilPrice',1),1);
     disp(['mean historical increase in fossil fuel pricing (%/yr)=',num2str(simulatedfossilpricespfmean(1)./mean(MeanFossilPrice).*100)])
     
     %Fossil discovery trends
     MeanFossilDiscovery=mean(FossilDiscovery,1);
-    simulatedfossildiscoverypfmean=spa_sf(polyfit(mod_time,MeanFossilDiscovery',1),1);
-    disp(['mean historical increase in fossil fuel discovery (%/yr)=',num2str(simulatedfossildiscoverypfmean(1)./mean(MeanFossilDiscovery).*100)])    
+    StdFossilDiscovery=std(FossilDiscovery,1);
+    MinFossilDiscovery=MeanFossilDiscovery-StdFossilDiscovery;
+    MaxFossilDiscovery=MeanFossilDiscovery+StdFossilDiscovery;    
     
+    simulatedfossildiscoverypfmean=polyfit(mod_time,MeanFossilDiscovery',1)
+    simulatedfossildiscoverypfmin= polyfit(mod_time,MinFossilDiscovery',1)
+    simulatedfossildiscoverypfmax= polyfit(mod_time,MaxFossilDiscovery',1)
+    disp(['simulated mean historical increase in fossil fuel discovery (%/yr)=',num2str(simulatedfossildiscoverypfmean(1)./mean(MeanFossilDiscovery).*100)]) 
+    disp(['simulated min historical increase in fossil fuel discovery (%/yr)=',num2str(simulatedfossildiscoverypfmin(1)./mean(MinFossilDiscovery).*100)])       
+    disp(['simulated max historical increase in fossil fuel discovery (%/yr)=',num2str(simulatedfossildiscoverypfmax(1)./mean(MaxFossilDiscovery).*100)])  
+       
     if c.start_year<2000.
     latexcmd('output/modelhistoricaloutput',...
         observedconsumptionpf,...

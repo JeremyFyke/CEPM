@@ -29,8 +29,6 @@ function [mean_discovery,min_discovery,max_discovery,average_emission_factor]=ca
 %average_emission_factor: average emission factor of fossil fuel supply, in
 %units of %g C/J
 
-set_global_constants
-
 clear *reserves
 f='data/BP-Statistical_Review_of_world_energy_2014_workbook.xlsx';
 year=xlsread(f,'Oil_Proved_reserves_history','B3:AI3');
@@ -55,7 +53,7 @@ total_discovery=total_discovery./c.g_2_Tt;
 mean_discovery=mean(total_discovery);
 
 linear_discovery_rate=polyfit(1:length(total_discovery),total_discovery,1);
-disp(['Mean rate of fossil fuel discovery (%/yr)=',num2str(linear_discovery_rate./mean_discovery*100.)])
+disp(['Mean observed rate of fossil fuel discovery (%/yr)=',num2str(linear_discovery_rate./mean_discovery*100.)])
 
 std_disc=std(total_discovery);
 min_discovery=mean_discovery-std_disc;
