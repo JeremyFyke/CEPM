@@ -1,5 +1,5 @@
 %     Cumulative Emissions Projection Model (CEPM).
-%     Copyright (C) 2015 Jeremy Fyke
+%     Copyright (C) 2015 Jeremy Fyke (fyke@lanl.gov)
 %
 %     This file is part of CEPM.
 %
@@ -16,32 +16,32 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
-function [so] = emissions_economy(c,args)
+function [model_output] = emissions_economy(c,args)
+
+% Can Homo economicus save us from environmental apocalypse?
 
 tm1=0;
 ff_discovery_tot=0;
 
-% Can Homo economicus save us from environmental apocolypse?
-
-%Unpack LHS-varied parameters; assign LHS parameters to ensemble struture for diagnostics
-n=0;
-n=n+1;V0=args(n)        ;so.LHSparams(n)=V0;
-n=n+1;Vmax=args(n)      ;so.LHSparams(n)=Vmax;
-n=n+1;Pr_ff0=args(n)    ;so.LHSparams(n)=Pr_ff0;
-n=n+1;ffeftre=args(n)   ;so.LHSparams(n)=ffeftre;
-n=n+1;ffeffin=args(n)   ;so.LHSparams(n)=ffeffin;
-n=n+1;Pr_re0=args(n)    ;so.LHSparams(n)=Pr_re0;
-n=n+1;Pr_remin=args(n)  ;so.LHSparams(n)=Pr_remin;
-n=n+1;cpricefinal=args(n)   ;so.LHSparams(n)=cpricefinal;
-n=n+1;cpriceTre=args(n)   ;so.LHSparams(n)=cpriceTre;
-n=n+1;CTre=args(n)      ;so.LHSparams(n)=CTre;
-n=n+1;popmax=args(n)    ;so.LHSparams(n)=popmax;
-n=n+1;popinc=args(n)    ;so.LHSparams(n)=popinc;
-n=n+1;pcdmax=args(n)    ;so.LHSparams(n)=pcdmax;
-n=n+1;ipcdinc=args(n)   ;so.LHSparams(n)=ipcdinc;
-n=n+1;fffb=args(n)      ;so.LHSparams(n)=fffb;
-n=n+1;fffcexp=args(n)   ;so.LHSparams(n)=fffcexp;
-n=n+1;TCRE=args(n)      ;
+%Unpack LHS-varied parameters; assign LHS parameters to ensemble member structure for later diagnostics
+nLHS=0;
+nLHS=nLHS+1;V0=args(nLHS)        ;model_output.LHSparams(nLHS)=V0;
+nLHS=nLHS+1;Vmax=args(nLHS)      ;model_output.LHSparams(nLHS)=Vmax;
+nLHS=nLHS+1;Pr_ff0=args(nLHS)    ;model_output.LHSparams(nLHS)=Pr_ff0;
+nLHS=nLHS+1;ffeftre=args(nLHS)   ;model_output.LHSparams(nLHS)=ffeftre;
+nLHS=nLHS+1;ffeffin=args(nLHS)   ;model_output.LHSparams(nLHS)=ffeffin;
+nLHS=nLHS+1;Pr_re0=args(nLHS)    ;model_output.LHSparams(nLHS)=Pr_re0;
+nLHS=nLHS+1;Pr_remin=args(nLHS)  ;model_output.LHSparams(nLHS)=Pr_remin;
+nLHS=nLHS+1;cpricefinal=args(nLHS)   ;model_output.LHSparams(nLHS)=cpricefinal;
+nLHS=nLHS+1;cpriceTre=args(nLHS)   ;model_output.LHSparams(nLHS)=cpriceTre;
+nLHS=nLHS+1;CTre=args(nLHS)      ;model_output.LHSparams(nLHS)=CTre;
+nLHS=nLHS+1;popmax=args(nLHS)    ;model_output.LHSparams(nLHS)=popmax;
+nLHS=nLHS+1;popinc=args(nLHS)    ;model_output.LHSparams(nLHS)=popinc;
+nLHS=nLHS+1;pcdmax=args(nLHS)    ;model_output.LHSparams(nLHS)=pcdmax;
+nLHS=nLHS+1;ipcdinc=args(nLHS)   ;model_output.LHSparams(nLHS)=ipcdinc;
+nLHS=nLHS+1;fffb=args(nLHS)      ;model_output.LHSparams(nLHS)=fffb;
+nLHS=nLHS+1;fffcexp=args(nLHS)   ;model_output.LHSparams(nLHS)=fffcexp;
+nLHS=nLHS+1;TCRE=args(nLHS)      ;%TCRE is assigned to so structure below, after adjustment for saturation.
 
 %Convert from billion people, to people
 popmax=popmax.*c.bill;
@@ -88,69 +88,70 @@ Pr_re0 = Pr_re0 ./ c.mwh_2_J ;
 % set some ODE solver options and do the numerical iteration
 
 options = odeset('RelTol',1e-3,'AbsTol',1e-6,'Events',@events);
-[so.time , so.ff_volume , so.event_times, so.solution_values, so.which_event] = ...
+[model_output.time , model_output.ff_volume , model_output.event_times, model_output.solution_values, model_output.which_event] = ...
     ode45(@volume,c.t0:1:c.tf,V0,options);
 
 %%%%%%%%%%% Calculate diagnostics %%%%%%%%%%%%%%%%%%%%%%%
 %Post-calculate fossil fuel reserve evolution and diagnostics by re-calling
 %volume, with time and ff_volume VECTORS.
 
-EventTime=so.event_times(so.which_event==c.events.trivial_ff_energy_fraction);
+EventTime=model_output.event_times(model_output.which_event==c.events.trivial_ff_energy_fraction);
 if ~isempty(EventTime)
     EventTime=EventTime(1);
-    iEventTime=find(so.time>EventTime,1,'first');
+    iEventTime=find(model_output.time>EventTime,1,'first');
 else
-    EventTime=so.time(end);
-    iEventTime=length(so.time);
+    EventTime=model_output.time(end);
+    iEventTime=length(model_output.time);
 end
 
-[so.dVdt,diagnostics] = volume( so.time , so.ff_volume );
+[model_output.dVdt,diagnostics] = volume( model_output.time , model_output.ff_volume );
 %concatenate diagnostics generated within 'volume' routine to output structure...
-so=catstruct(so,diagnostics);
+model_output=catstruct(model_output,diagnostics);
 %...and recalculate some other diagnostics by conversion/value picking.
 
-so.burn_rate=single(so.burn_rate.*so.ff_emission_factor/c.g_2_Tt);
-so.discovery_rate=single(so.discovery_rate.*so.ff_emission_factor/c.g_2_Tt);
+model_output.burn_rate=single(model_output.burn_rate.*model_output.ff_emission_factor/c.g_2_Tt);
+model_output.discovery_rate=single(model_output.discovery_rate.*model_output.ff_emission_factor/c.g_2_Tt);
 
-so.burn_rate_max=max(so.burn_rate);
-so.cum_emissions=single(cumsum(so.burn_rate) + c.emissions_to_date);
-so.tot_emissions=so.cum_emissions(iEventTime);
+model_output.burn_rate_max=max(model_output.burn_rate);
+model_output.cum_emissions=single(cumsum(model_output.burn_rate) + c.emissions_to_date);
+model_output.tot_emissions=model_output.cum_emissions(iEventTime);
 %scale event time to real years
-so.event_times=so.event_times + c.start_year;
+model_output.event_times=model_output.event_times + c.start_year;
 %Scale TCRE if above the CE_TCRE saturation point (Leduc et al., 2015)
-so.TCRE_damper=0.;
-so.TCRE_orig=TCRE;
-if so.tot_emissions>c.CE_TCRE_saturation_point
-    so.TCRE_damper=(so.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor; %TCRE_dampening_factor in units: (Tc C^-1)
-    TCRE=TCRE.*(1.-so.TCRE_damper);
+model_output.TCRE_damper=0.;
+model_output.TCRE_orig=TCRE;
+if model_output.tot_emissions>c.CE_TCRE_saturation_point
+    model_output.TCRE_damper=(model_output.tot_emissions-c.CE_TCRE_saturation_point).*c.TCRE_dampening_factor; %TCRE_dampening_factor in units: (Tc C^-1)
+    TCRE=TCRE.*(1.-model_output.TCRE_damper);
 end
-so.LHSparams(n)=TCRE;
 
-so.net_warming=so.tot_emissions.*TCRE;
+model_output.LHSparams(nLHS)=TCRE;
 
-so.consumption_init=so.tot_en_demand(1);
-so.dconsumptiondt_init=so.tot_en_demand(2)-so.tot_en_demand(1);
-so.burn_rate_init=so.burn_rate(1);
-so.ff_fraction_init=so.ff_fraction(1);
-so.ff_fractional_reservoir_depletion=so.ff_volume(iEventTime)./V0;
+model_output.net_warming=model_output.tot_emissions.*TCRE;
 
-i=find(so.which_event==c.events.energy_prices_match);
+model_output.consumption_init=model_output.tot_en_demand(1);
+model_output.dconsumptiondt_init=model_output.tot_en_demand(2)-model_output.tot_en_demand(1);
+model_output.burn_rate_init=model_output.burn_rate(1);
+model_output.ff_fraction_init=model_output.ff_fraction(1);
+model_output.ff_fractional_reservoir_depletion=model_output.ff_volume(iEventTime)./V0;
+
+i=find(model_output.which_event==c.events.energy_prices_match);
 if (~isempty(i))
-    so.t_cross_over=so.event_times(i);
+    model_output.t_cross_over=model_output.event_times(i);
 else
-    so.t_cross_over=[];
+    model_output.t_cross_over=[];
 end
-i=find(so.which_event==c.events.trivial_ff_energy_fraction);
+i=find(model_output.which_event==c.events.trivial_ff_energy_fraction);
 if (~isempty(i))
-    so.t_fossil_fuel_emissions_stop=so.event_times(i);
+    model_output.t_fossil_fuel_emissions_stop=model_output.event_times(i);
 else
-    so.t_fossil_fuel_emissions_stop=[];
+    model_output.t_fossil_fuel_emissions_stop=[];
 end
-i=find(so.which_event==c.events.total_ff_depletion);
+i=find(model_output.which_event==c.events.total_ff_depletion);
 if (~isempty(i))
-    so.t_total_depletion=so.event_times(i);
+    model_output.t_total_depletion=model_output.event_times(i);
 else
-    so.t_total_depletion=[];
+    model_output.t_total_depletion=[];
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

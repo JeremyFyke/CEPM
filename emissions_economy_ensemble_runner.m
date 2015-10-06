@@ -1,5 +1,5 @@
 %     Cumulative Emissions Projection Model (CEPM).
-%     Copyright (C) 2015 Jeremy Fyke
+%     Copyright (C) 2015 Jeremy Fyke (fyke@lanl.gov)
 %   
 %     This file is part of CEPM.
 % 
@@ -22,7 +22,6 @@
 close all
 clear all
 
-%make figures and output directories, if they doesn't exist.
 if ~exist('figs','dir')
     [~,~,~] = mkdir('figs');
 end
@@ -30,43 +29,40 @@ if ~exist('output','dir')
    [~,~,~]=mkdir('output');
 end
 
+if ~exist('data','dir')
+   error('Error: Local input data directory does not exist.')
+end
+
+    disp('Setting global constant valus in structure c.')
 c=set_global_constants();
+    disp('Generating parameter ranges in model_parameter array.')
 [model_parameters,c,p]=generate_parameter_ranges(c);
-so =initialize_output_structure(c);
+    disp('Initializing output structure ensemble_output.')
+ensemble_output =initialize_output_structure(c);
 
 %openpool(12)
 %parfor n=1:c.ensemble_size 
 for n=1:c.ensemble_size 
     lastwarn('')
-    if ( mod(n,10)-1 )==0
-      disp(['Running ensemble number' num2str(n)])
+    if ( mod(n,10) )==0
+      disp(['Running ensemble number' num2str(n) '.'])
     end
+    
+    %examine model output for strange but non-fatal behaviour here.
+    %-discontinuous curves
+    %runaway emissions
+    %cumulative emissions of more than available
+    %...?
+    
+    %%%%%%%%%%%%%%%%%%%%RUN MODEL%%%%%%%%%%%%%%%%%%%%%%%%
     model_output = emissions_economy(c,model_parameters(n,:));
+    %%%%%%%%%%%%%%%END RUN MODEL%%%%%%%%%%%%%%%%%%%%%%%%%
     try
-        so(n) = model_output;
+        %Assign output from ensemble member to output structure.
+        ensemble_output(n) = model_output;
     catch
-        
-        %Compare model_output structure with expected structure
-        
-        for nn=1:size(model_parameters,2)
-            disp('')
-            if model_output.LHSparams(nn) < p(nn).lb || model_output.LHSparams(nn) > p(nn).ub
-
-                decorator='    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
-                initspace='    ';
-            else
-                decorator='_______________________________';   
-                initspace='';
-            end
-            disp(decorator)
-            disp([initspace 'LHS parameter=' num2str(model_output.LHSparams(nn))])
-            disp([initspace 'LHS parameter name=' p(nn).ParameterName])            
-            disp([initspace 'Minimum input value=' num2str(p(nn).lb)])
-            disp([initspace 'Maximum input value=' num2str(p(nn).ub)])
-            disp([initspace 'Parameter number=',num2str(nn)])
-        end
-        
-        error('Error in emissions economy output.')
+        %Try to diagnose source of error causing non-similar structures.
+        structure_error_analysis   
     end
 end
 

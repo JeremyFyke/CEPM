@@ -1,5 +1,5 @@
 %     Cumulative Emissions Projection Model (CEPM).
-%     Copyright (C) 2015 Jeremy Fyke
+%     Copyright (C) 2015 Jeremy Fyke (fyke@lanl.gov)
 %   
 %     This file is part of CEPM.
 % 
