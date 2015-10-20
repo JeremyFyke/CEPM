@@ -24,7 +24,7 @@ n=0;
 nSource=1;
 %%%%%%%%%%
 n=n+1 ;
-p(n).ParameterName='Initial fossil fuel reservoir reserves'; 
+p(n).ParameterName='Init fossil fuel reserves'; 
 p(n).ParameterUnits='Tt C';
 p(n).ParameterLatexSymbol='$V_{ff}(0)$';
 p(n).ParameterSource=nSource;
@@ -35,7 +35,7 @@ p(n).ub=1.94;
 
 %%%%%%%%%%
 n=n+1 ; 
-p(n).ParameterName='Maximum fossil fuel resources'; 
+p(n).ParameterName='Max fossil fuel resources'; 
 p(n).ParameterUnits='Tt C';
 p(n).ParameterLatexSymbol='$V_{ff_{max}}$';
 p(n).ParameterSource=iRogner_et_al_2012;
@@ -49,7 +49,7 @@ p(n).ub=7.665;
 
 %%%%%%%%%% 
 n=n+1 ;  
-p(n).ParameterName='Initial fossil fuel cost'; 
+p(n).ParameterName='Init fossil fuel cost'; 
 p(n).ParameterUnits='\$/brl oil';
 p(n).ParameterLatexSymbol='$Pr_{ff}(0)$';
 p(n).ParameterSource=nSource;
@@ -81,7 +81,7 @@ p(n).ub= c.coalEfactor; %g C/J
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Initial non-fossil energy unit cost'; 
+p(n).ParameterName='Init non-fossil energy unit cost'; 
 p(n).ParameterUnits='\$/MWh';
 p(n).ParameterLatexSymbol='$Pr_{nff}(0)$ ';
 p(n).ParameterSource=nSource;
@@ -92,7 +92,7 @@ p(n).ub= 500.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Minimum non-fossil energy unit cost'; 
+p(n).ParameterName='Min non-fossil energy unit cost'; 
 p(n).ParameterUnits='Fraction of initial cost';
 p(n).ParameterLatexSymbol='$Pr_{nff_{min}}$';
 p(n).ParameterSource=iauthor_estimate;
@@ -101,7 +101,7 @@ p(n).ub= 0.3;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Maximum carbon price'; 
+p(n).ParameterName='Max carbon price'; 
 p(n).ParameterUnits='\$/tonne C';
 p(n).ParameterLatexSymbol='$S_{ff_{max}}$';
 p(n).ParameterSource=nSource;
@@ -112,7 +112,7 @@ p(n).ub= 650.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='Carbon tax price'; 
+p(n).ParameterName='Carbon price trend'; 
 p(n).ParameterUnits='\$/tonne C/yr';
 p(n).ParameterLatexSymbol='$T_{S_{ff}}$';
 p(n).ParameterSource=iLontzek;
@@ -121,7 +121,7 @@ p(n).ub= 10.;
 
 %%%%%%%%%% 
 n=n+1 ; 
-p(n).ParameterName='E-folding time of non-fossil energy cost decline';
+p(n).ParameterName='Non-fossil cost decline e-folding time';
 p(n).ParameterUnits='Yr';
 p(n).ParameterLatexSymbol='$T_{nff}$';
 p(n).ParameterSource=iIEA_medium_term_market_report;%also: 'UofM Energy Institute Technical Paper "Renewable Energy Technology Review"';
@@ -130,7 +130,7 @@ p(n).ub= 20;
 
 %%%%%%%%%% 
 n=n+1; 
-p(n).ParameterName='Maximum population'; 
+p(n).ParameterName='Max population'; 
 p(n).ParameterUnits='Billion people';
 p(n).ParameterLatexSymbol='$P_{max}$';
 p(n).ParameterSource=nSource;
@@ -152,7 +152,7 @@ p(n).ub= 0.023;
 
 %%%%%%%%%% 
 n=n+1; 
-p(n).ParameterName='Maximum per-capita energy consumption'; %Ranges between Euro and NA energy consumption
+p(n).ParameterName='Max per-capita energy consumption'; %Ranges between Euro and NA energy consumption
 p(n).ParameterUnits='GJ/yr';
 p(n).ParameterLatexSymbol='$De_{{pc}_{max}}$';
 p(n).ParameterSource=nSource;
@@ -172,7 +172,7 @@ p(n).ub= 0.015 ;
 
 %%%%%%%%%% 
 n=n+1; 
-p(n).ParameterName='Fossil to non-fossil energy transfer delay';
+p(n).ParameterName='Fossil/non-fossil energy transfer delay';
 p(n).ParameterUnits='Unitless';
 p(n).ParameterLatexSymbol='$B$';
 p(n).ParameterSource=iauthor_estimate;
@@ -181,7 +181,7 @@ p(n).ub=1.;
 
 %%%%%%%%%% 
 n=n+1; 
-p(n).ParameterName='Fossil to non-fossil energy transfer fade strength'; 
+p(n).ParameterName='Fossil/non-fossil energy transfer fade strength'; 
 p(n).ParameterUnits='Unitless';
 p(n).ParameterLatexSymbol='$C$';
 p(n).ParameterSource=iauthor_estimate;

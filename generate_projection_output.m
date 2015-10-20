@@ -16,8 +16,9 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
 
-relative_parameter_sensitivities_for_final_cumulative_carbon=1;
-    plot_parameter_value_vs_cumulative_emissions=1;
+relative_parameter_sensitivities_for_final_cumulative_carbon=0;
+    plot_parameter_value_vs_cumulative_emissions=0;
+plot_2C_carbon_price_histogram_vs_total=1;
 relative_parameter_sensitivities_at_2100=0;
 plot_cumulative_emissions_and_warming_pdfs=0;
 plot_final_percent_reserves_depleted=0;
@@ -44,7 +45,11 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     end
     
     X=[ones(c.ensemble_size,1) normalized_model_parameters];
-    y=[so.net_warming]';
+    y=[so.net_warming];
+    for n=1:c.ensemble_size
+        cprice(n)=so(n).LHSparams(8);
+    end
+    
     a=X\y; %multiple linear regression, a are regression coefficients
     a=a(2:end);
     [a,I]=sort(abs(a));
@@ -70,29 +75,77 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     h=pie(double(a));
     
     if plot_parameter_value_vs_cumulative_emissions
+        FS=35;
         figure
-        colormap(copper(1000))
+        colormap(flipud(gray(1000)))
         net_warming=[so.net_warming];
         n=0;
+        nbins=50;
         for pp=fliplr(I)'
             n=n+1
             param=zeros(c.ensemble_size,1);
             for en=1:c.ensemble_size
                 param(en)=so(en).LHSparams(pp);
             end
-            scatter(param,net_warming,10,net_warming,'o','fill')
-	    ax=[prctile(param,[0.1 99.9]) min(net_warming) max(net_warming)];
-	    axis(ax);
+            %scatter(param,net_warming,10,net_warming,'x')
+            %scatter(param,net_warming,10,[0 0 0],'x')
+            [binvals,binlocs] = hist3([param,net_warming'],[nbins nbins]);
+            binvals(binvals<5)=nan;
+            contourf(binlocs{1},binlocs{2},binvals',30,'linestyle','none')
+            %contourf(binlocs{2}, binlocs{1}, binvals,30,'linestyle','none');
+	        ax=[prctile(param,[1 99]) prctile(net_warming,[1 99])];
+	        axis(ax);
+            hc=colorbar
+            caxis([0 400])
+            ylabel(hc,'Ensemble density','Interpreter','LaTex','fontsize',FS)
             P=polyfit(param,net_warming',1);
-            xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits),'Interpreter','LaTex')
-            ylabel('Net warming (C)','Interpreter','LaTex')
-            text(0.1,0.9,sprintf('y=%fx+%f',P(1),P(2)),'Units','normalized','fontsize',30)
+            xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits),'Interpreter','LaTex','fontsize',FS)
+            ylabel('Net warming (C)','Interpreter','LaTex','fontsize',FS)
+            title(sprintf('y=%fx+%f',P(1),P(2)),'Interpreter','LaTex','fontsize',FS)
             print('-depsc',strcat('figs/parameter',num2str(n),'scatter.eps'))
             
         end
     end
     
     
+end
+
+if plot_2C_carbon_price_histogram_vs_total;
+    %identify all runs with less than 2C warming
+    net_warming=[so.net_warming];
+    i=find(net_warming<2.);
+   
+    plotpanel=0
+    for paramnum=[2 7 8]
+        plotpanel=plotpanel+1
+        subplot(3,1,plotpanel)
+        LHSparam=zeros(c.ensemble_size,1);
+        for en=1:c.ensemble_size
+            LHSparam(en)=so(en).LHSparams(paramnum);
+        end
+        xbins=linspace(min(LHSparam),max(LHSparam),100)
+        hold on
+        histfit(LHSparam,100);
+        h = findobj(gca,'Type','patch');
+        histfit(LHSparam(i),100)
+        hh=findobj(gca,'Type','patch');
+        set(hh,'facecolor','b')
+        findobj(h,'Type','patch');
+        set(h,'facecolor','r')
+        ax=axis;
+        ax(1:2)=prctile(LHSparam,[0.1 99.9]);
+        axis(ax);
+        x=prctile(LHSparam,50);
+        line([x,x],ax(3:4),'color','k','linewidth',10)
+        hlabel(1)=line([x,x],ax(3:4),'color','r','linewidth',5)
+        x=prctile(LHSparam(i),50);
+        line([x,x],ax(3:4),'color','k','linewidth',10)
+        hlabel(2)=line([x,x],ax(3:4),'color','b','linewidth',5)
+        xlabel(sprintf('%s (%s)',p(paramnum).ParameterName,p(paramnum).ParameterUnits))
+        ylabel('# simulations')
+        legend(hlabel,{'All sims','Sims below dT=2^oC'})
+    end
+    print('-depsc',strcat('figs/top_param_dist_at_2C_threshold.eps'))
 end
 
 if relative_parameter_sensitivities_at_2100
