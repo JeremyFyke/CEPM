@@ -114,36 +114,36 @@ if plot_2C_carbon_price_histogram_vs_total;
     %identify all runs with less than 2C warming
     net_warming=[so.net_warming];
     i=find(net_warming<2.);
-   
-    plotpanel=0
-    for paramnum=[2 7 8]
-        plotpanel=plotpanel+1
-        subplot(3,1,plotpanel)
+    subplot_lab={'(a)','(b)','(c)'};
+    plotpanel=0;
+    for paramnum=[7 8 2]
+        plotpanel=plotpanel+1;
+        subplot(3,1,plotpanel);
         LHSparam=zeros(c.ensemble_size,1);
         for en=1:c.ensemble_size
             LHSparam(en)=so(en).LHSparams(paramnum);
         end
-        xbins=linspace(min(LHSparam),max(LHSparam),100)
+        xbins=linspace(prctile(LHSparam,0.01),prctile(LHSparam,99.90),1000);
         hold on
-        histfit(LHSparam,100);
-        h = findobj(gca,'Type','patch');
-        histfit(LHSparam(i),100)
-        hh=findobj(gca,'Type','patch');
-        set(hh,'facecolor','b')
-        findobj(h,'Type','patch');
-        set(h,'facecolor','r')
+        [muhat,sigmahat,muci,sigmaci] = normfit(LHSparam);
+        FullDistribution=normpdf(xbins,muhat,sigmahat);
+        [muhat,sigmahat,muci,sigmaci] = normfit(LHSparam(i));
+        ThresholdedDistribution=normpdf(xbins,muhat,sigmahat);
+        plot(xbins,FullDistribution,'r');
+        plot(xbins,ThresholdedDistribution,'b');        
         ax=axis;
-        ax(1:2)=prctile(LHSparam,[0.1 99.9]);
-        axis(ax);
-        x=prctile(LHSparam,50);
-        line([x,x],ax(3:4),'color','k','linewidth',10)
-        hlabel(1)=line([x,x],ax(3:4),'color','r','linewidth',5)
-        x=prctile(LHSparam(i),50);
-        line([x,x],ax(3:4),'color','k','linewidth',10)
-        hlabel(2)=line([x,x],ax(3:4),'color','b','linewidth',5)
-        xlabel(sprintf('%s (%s)',p(paramnum).ParameterName,p(paramnum).ParameterUnits))
-        ylabel('# simulations')
-        legend(hlabel,{'All sims','Sims below dT=2^oC'})
+        %ax(1:2)=prctile(LHSparam,[0.1 99.9]);
+        %axis(ax);
+        xfull=prctile(LHSparam,50);
+        hlabel(1)=line([xfull,xfull],ax(3:4),'color','r','linewidth',5);
+        xthresh=prctile(LHSparam(i),50);
+        hlabel(2)=line([xthresh,xthresh],ax(3:4),'color','b','linewidth',5);
+        xthresh-xfull
+        xlabel(sprintf('%s (%s)',p(paramnum).ParameterName,p(paramnum).ParameterUnits),'Interpreter','LaTex');
+        ylabel('P(x)')
+        set(gca,'Yticklabels',[])
+        legend(hlabel,{'Median, all','Median, below dT=2^oC'},'fontsize',15)
+        subplot_label(gca,-0.1,0.9,subplot_lab{plotpanel},20)
     end
     print('-depsc',strcat('figs/top_param_dist_at_2C_threshold.eps'))
 end
