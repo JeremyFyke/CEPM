@@ -396,7 +396,6 @@ if plot_paintbrushes
     
     close all
     
-    
     for en=1:c.ensemble_size
        i=find(so(en).which_event==c.events.trivial_ff_energy_fraction,1,'first');
        EndYear(en)=so(en).event_times(i);

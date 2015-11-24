@@ -22,16 +22,9 @@
 close all
 clear all
 
-if ~exist('figs','dir')
-    [~,~,~] = mkdir('figs');
-end
-if ~exist('output','dir')
-   [~,~,~]=mkdir('output');
-end
 
-if ~exist('data','dir')
-   error('Error: Local input data directory does not exist.')
-end
+    disp('Checking for necessary files and setting up output directories.')
+check_for_needed_inputs;
 
     disp('Setting global constant valus in structure c.')
 c=set_global_constants();
