@@ -18,9 +18,9 @@
 
 relative_parameter_sensitivities_for_final_cumulative_carbon=0;
     plot_parameter_value_vs_cumulative_emissions=0;
-plot_2C_carbon_price_histogram_vs_total=1;
+plot_2C_carbon_price_histogram_vs_total=0;
 relative_parameter_sensitivities_at_2100=0;
-plot_cumulative_emissions_and_warming_pdfs=0;
+plot_cumulative_emissions_and_warming_pdfs=1;
 plot_final_percent_reserves_depleted=0;
 plot_paintbrushes=0;
 plot_mean_ending_cum_emissions=0;
@@ -36,8 +36,10 @@ timeaxislimit=2500;
 
 close all
 
+so=ensemble_output;
+
 if relative_parameter_sensitivities_for_final_cumulative_carbon
-    figure
+    figure('visible','off')
     
     for n=1:size(model_parameters,2)
         tmp=model_parameters(:,n);
@@ -69,14 +71,14 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
     
     %colormap(copper)
     
-    print('-depsc','figs/param_sense.eps')
+    print('-dpng','figs/param_sense.png')
     
-    figure
+    figure('visible','off')
     h=pie(double(a));
     
     if plot_parameter_value_vs_cumulative_emissions
         FS=35;
-        figure
+        figure('visible','off')
         colormap(flipud(gray(1000)))
         net_warming=[so.net_warming];
         n=0;
@@ -102,7 +104,7 @@ if relative_parameter_sensitivities_for_final_cumulative_carbon
             xlabel(sprintf('%s (%s)',p(pp).ParameterName,p(pp).ParameterUnits),'Interpreter','LaTex','fontsize',FS)
             ylabel('Net warming (C)','Interpreter','LaTex','fontsize',FS)
             title(sprintf('y=%fx+%f',P(1),P(2)),'Interpreter','LaTex','fontsize',FS)
-            print('-depsc',strcat('figs/parameter',num2str(n),'scatter.eps'))
+            print('-dpng',strcat('figs/parameter',num2str(n),'scatter.png'))
             
         end
     end
@@ -143,14 +145,14 @@ if plot_2C_carbon_price_histogram_vs_total;
         ylabel('P(x)')
         set(gca,'Yticklabels',[])
         legend(hlabel,{'Median, all','Median, below dT=2^oC'},'fontsize',15)
-        subplot_label(gca,-0.1,0.9,subplot_lab{plotpanel},20)
+        %subplot_label(gca,-0.1,0.9,subplot_lab{plotpanel},20)
     end
-    print('-depsc',strcat('figs/top_param_dist_at_2C_threshold.eps'))
+    print('-dpng',strcat('figs/top_param_dist_at_2C_threshold.png'))
 end
 
 if relative_parameter_sensitivities_at_2100
     
-    figure
+    figure('visible','off')
     X=[ones(c.ensemble_size,1) normalized_model_parameters];
     tmax=200;
     a=zeros(tmax,size(normalized_model_parameters,2));
@@ -198,9 +200,9 @@ if relative_parameter_sensitivities_at_2100
     h=pie(a,explode,ParameterNameSorted)
     set(h(2:2:end),'FontSize',20);
     
-    print('-depsc','figs/param_sense_at_2100.eps')
+    print('-dpng','figs/param_sense_at_2100.png')
     
-    figure
+    figure('visible','off')
     h=pie(a)
 end
 
@@ -288,7 +290,7 @@ if plot_cumulative_emissions_and_warming_pdfs
     ax(1)=0;ax(2)=7;
     axis(ax);
     
-    subplot_label(hfig,-0.1,0.9,'(a)',20)
+    %subplot_label(hfig,-0.1,0.9,'(a)',20)
     %
     %      h=axes handle
     %  x=normalized distance from left
@@ -318,10 +320,10 @@ if plot_cumulative_emissions_and_warming_pdfs
         line([Tlim(t) Tlim(t)],[ax(3) ax(4)],'linestyle','-','color',Tcol{t},'linewidth',4)
     end
     
-    subplot_label(hfig,-0.1,0.9,'(b)',20)
+    %subplot_label(hfig,-0.1,0.9,'(b)',20)
 
     
-    print('-depsc','figs/cumulative_carbon_warming_pdfs')
+    print('-dpng','figs/cumulative_carbon_warming_pdfs')
     
     % SOME DISPLAY OUTPUT, AND OUTPUT WRITTEN TO .TEX FILE
     disp(['emissions 5/50/95 percentiles:',num2str(qemissions(1)),'/',num2str(qemissions(2)),'/',num2str(qemissions(3))])
@@ -420,7 +422,7 @@ if plot_paintbrushes
     end
     year=(1:c.tf)+c.start_year;
     he=find(RCPyear(1,:)==2012);
-    figure
+    figure('visible','off')
     
     hfig=subplot(1,2,1);
     
@@ -478,7 +480,7 @@ if plot_paintbrushes
     ax(1)=1950;ax(2)=timeaxislimit;ax(3)=-0.003;
     axis(ax)
     
-    subplot_label(hfig,-0.2,0.9,'(a)',20)
+    %subplot_label(hfig,-0.2,0.9,'(a)',20)
     
     hfig=subplot(1,2,2);
     
@@ -542,16 +544,16 @@ if plot_paintbrushes
     xlabel('Year')
     ylabel('Cumulative emissions (Tt C) ')
     
-    subplot_label(hfig,-0.2,0.9,'(b)',20)
+    %subplot_label(hfig,-0.2,0.9,'(b)',20)
     
     
-    print('-depsc','figs/probabalistic_emissions')
+    print('-dpng','figs/probabalistic_emissions')
     
 end
 
 if plot_mean_ending_cum_emissions
 
-    figure
+    figure('visible','off')
     
     EndYear=floor([so.t_fossil_fuel_emissions_stop]);
     TotEmissions=[so.tot_emissions];
@@ -585,7 +587,7 @@ if plot_mean_ending_cum_emissions
     xlabel('Year')
     ylabel('Year-mean cumulative emissions (Tt C)')
     
-    print('-depsc','figs/mean_ending_cum_emissions')
+    print('-dpng','figs/mean_ending_cum_emissions')
     
 end
 
@@ -595,10 +597,10 @@ if plot_consumption_emission_validation
         error('Looks like you are trying to print validation plot for a non-hindcast run..?')
     end
     
-    figure
+    figure('visible','off')
     
     h=subplot(2,1,1);
-    subplot_label(h,-0.1,0.9,'a)',25)
+    %subplot_label(h,-0.1,0.9,'a)',25)
     %Observed global consumption rates.
     data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');
     obs_consumption=data(3,1:end-1).*c.quads_2_J./1.e18; %To EJ
@@ -661,7 +663,7 @@ if plot_consumption_emission_validation
     
     %%%
     h=subplot(2,1,2);
-    subplot_label(h,-0.1,0.9,'b)',25)
+    %subplot_label(h,-0.1,0.9,'b)',25)
     %Observed global emission rates, 1980-2010.
     data=load('data/global.1751_2010_jer_added_2011_2012.ems');%http://cdiac.ornl.gov/ftp/ndp030/global.1751_2010.ems.  I manually added 2011 and 2012
     obs_emissions=data(end-nval:end-1,2)./1.e6;
@@ -702,7 +704,7 @@ if plot_consumption_emission_validation
     xlabel('Year')
     ylabel('Gt C per year')
     
-    print('-depsc','figs/consumption_emission_validation')
+    print('-dpng','figs/consumption_emission_validation')
     
     %Fossil price trends
     MeanFossilPrice=mean(FossilPricing,1);    

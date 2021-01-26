@@ -35,6 +35,7 @@ ensemble_output =initialize_output_structure(c);
 
 %openpool(12)
 %parfor n=1:c.ensemble_size 
+
 for n=1:c.ensemble_size 
     lastwarn('')
     if ( mod(n,10) )==0
@@ -58,6 +59,8 @@ for n=1:c.ensemble_size
         structure_error_analysis   
     end
 end
+
+disp('Done')
 
 %make pretty pictures
 generate_projection_output

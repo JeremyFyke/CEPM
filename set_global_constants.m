@@ -18,7 +18,7 @@
 
 function [c] = set_global_constants()
 
-c.ensemble_size=100000;
+c.ensemble_size=1000;
 
 %Constants
 c.thou=1.e3;
@@ -41,7 +41,7 @@ c.quads_2_J=1.055e18;
 %Observed global consumption rates, 1980-2012.
 data=xlsread('data/Total_Primary_Energy_Consumption_(Quadrillion_Btu).xls');%http://www.eia.gov/cfapps/ipdbproject/IEDIndex3.cfm?tid=44&pid=44&aid=2
 
-c.start_year=1980;
+c.start_year=2012;
 
 if c.start_year==1980
     c.n_validation_years=2012-c.start_year;

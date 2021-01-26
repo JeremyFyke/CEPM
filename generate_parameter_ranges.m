@@ -215,8 +215,8 @@ model_parameters=lhsnorm(mu,diag(covariance),c.ensemble_size);
 %% Convert input parameter data to Latex table
 
 %Round for clean presentation
-mu_rounded=spa_sf(mu,2);
-sigma_rounded=spa_sf(sigma,2);
+mu_rounded=round(mu,2);
+sigma_rounded=round(sigma,2);
 for nn=1:n
    p(nn).ParamRangeString=strcat(num2str(mu_rounded(nn)),'/',num2str(sigma_rounded(nn)),'$^',num2str(p(nn).ParameterSource),'$');
 end
@@ -252,15 +252,15 @@ clear mu_rounded sigma_rounded ParamRange data columnlabels fileID caption
 
 %% Create pdf plots of all parameter distributions
 
-for n=1:size(model_parameters,2)
-    figure
-    set(gcf,'Visible','Off')
-    hist(squeeze(model_parameters(:,n)),100)
-    axis tight
-    title(sprintf('%s (%s)',p(n).ParameterName,p(n).ParameterUnits),'interpreter','latex')
-    xlabel(strcat('Mean=',num2str(mu(n)),...
-                  ' Standard deviation=',num2str(sigma(n))))
-    print('-depsc2',strcat('figs/',p(n).ParameterName,'_distribution'))
-end
+% for n=1:size(model_parameters,2)
+%     figure
+%     set(gcf,'Visible','Off')
+%     hist(squeeze(model_parameters(:,n)),100)
+%     axis tight
+%     title(sprintf('%s (%s)',p(n).ParameterName,p(n).ParameterUnits),'interpreter','latex')
+%     xlabel(strcat('Mean=',num2str(mu(n)),...
+%                   ' Standard deviation=',num2str(sigma(n))))
+%     print('-depsc2',strcat('figs/',p(n).ParameterName,'_distribution'))
+% end
 
-disp('Parameter ranges plotted to file.')
+% disp('Parameter ranges plotted to file.')

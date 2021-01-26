@@ -23,13 +23,13 @@
 files={'catstruct.m' 'matrix2latex.m' };
 err=0;
 for f=1:length(files)
-    if (~existfile(files{f}))
+    if not(isfile(files{f}))
         disp([f ' is missing.  Download from Matlab Exchange.'])
         err=1;
     end
 end
 
-if ~exist('data','dir')
+if not(isfolder('data'))
    disp('Local input data directory does not exist.')
    err=1;
 end
