@@ -18,7 +18,7 @@
 
 function [c] = set_global_constants()
 
-c.ensemble_size=1000;
+c.ensemble_size=100000;
 
 %Constants
 c.thou=1.e3;
