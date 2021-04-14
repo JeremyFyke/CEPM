@@ -16,7 +16,7 @@
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/
 
-%% Run energy crossover model multiple times for a range of parameters.
+%% Run model multiple times for a series of max population and population increase rates
 %% Plot resulting spread in crossover times and cumulative emissions.
 
 close all
@@ -63,7 +63,7 @@ end
 disp('Done')
 
 %make pretty pictures
-generate_projection_output
+%generate_projection_output
 
 %save output for later
 if c.start_year<2000.

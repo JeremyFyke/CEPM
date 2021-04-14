@@ -25,23 +25,23 @@ ff_discovery_tot=0;
 
 %Unpack LHS-varied parameters; assign LHS parameters to ensemble member structure for later diagnostics
 nLHS=0;
-nLHS=nLHS+1;V0=args(nLHS)        ;model_output.LHSparams(nLHS)=V0;
-nLHS=nLHS+1;Vmax=args(nLHS)      ;model_output.LHSparams(nLHS)=Vmax;
-nLHS=nLHS+1;Pr_ff0=args(nLHS)    ;model_output.LHSparams(nLHS)=Pr_ff0;
-nLHS=nLHS+1;ffeftre=args(nLHS)   ;model_output.LHSparams(nLHS)=ffeftre;
-nLHS=nLHS+1;ffeffin=args(nLHS)   ;model_output.LHSparams(nLHS)=ffeffin;
-nLHS=nLHS+1;Pr_re0=args(nLHS)    ;model_output.LHSparams(nLHS)=Pr_re0;
-nLHS=nLHS+1;Pr_remin=args(nLHS)  ;model_output.LHSparams(nLHS)=Pr_remin;
-nLHS=nLHS+1;cpricefinal=args(nLHS)   ;model_output.LHSparams(nLHS)=cpricefinal;
-nLHS=nLHS+1;cpriceTre=args(nLHS)   ;model_output.LHSparams(nLHS)=cpriceTre;
-nLHS=nLHS+1;CTre=args(nLHS)      ;model_output.LHSparams(nLHS)=CTre;
-nLHS=nLHS+1;popmax=args(nLHS)    ;model_output.LHSparams(nLHS)=popmax;
-nLHS=nLHS+1;popinc=args(nLHS)    ;model_output.LHSparams(nLHS)=popinc;
-nLHS=nLHS+1;pcdmax=args(nLHS)    ;model_output.LHSparams(nLHS)=pcdmax;
-nLHS=nLHS+1;ipcdinc=args(nLHS)   ;model_output.LHSparams(nLHS)=ipcdinc;
-nLHS=nLHS+1;fffb=args(nLHS)      ;model_output.LHSparams(nLHS)=fffb;
-nLHS=nLHS+1;fffcexp=args(nLHS)   ;model_output.LHSparams(nLHS)=fffcexp;
-nLHS=nLHS+1;TCRE=args(nLHS)      ;%TCRE is assigned to so structure below, after adjustment for saturation.
+V0=c.V0;
+Vmax=c.Vmax;
+Pr_ff0=c.Pr_ff0;
+ffeftre=c.ffeftre;
+ffeffin=c.ffeffin;
+Pr_re0=c.Pr_re0;
+Pr_remin=c.Pr_remin;
+cpricefinal=c.cpricefinal;
+cpriceTre=c.cpriceTre;
+CTre=c.CTre;
+nLHS=nLHS+1;popmax=args(nLHS); model_output.LHSparams(nLHS)=popmax;
+nLHS=nLHS+1;popinc=args(nLHS); model_output.LHSparams(nLHS)=popinc;
+pcdmax=c.pcdmax;
+ipcdinc=c.ipcdinc;
+fffb=c.fffb;
+fffcexp=c.fffcexp;
+TCRE=c.TCRE;%TCRE is assigned to so structure below, after adjustment for saturation.
 
 %Convert from billion people, to people
 popmax=popmax.*c.bill;

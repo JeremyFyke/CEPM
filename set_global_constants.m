@@ -18,7 +18,7 @@
 
 function [c] = set_global_constants()
 
-c.ensemble_size=100000;
+c.ensemble_size=1000;
 
 %Constants
 c.thou=1.e3;
@@ -63,11 +63,13 @@ else
     error('Model not configured to use given syear.')
 end
 
+
+
 c.GlobalpercapconsumpInit= c.Globaltotenergyuseinit./c.P0;
 c.coalEfactor =2.58e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 c.oilEfactor   =2.0e-5;   %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
 c.gasEfactor   =1.53e-5;  %g C/j http://www.ipcc-nggip.iges.or.jp/public/gl/guidelin/ch1ref2.pdf
-
+[c.Dff0,~,~,c.ffef0] = calculate_historical_reserve_growth_rate(c);
 c.cprice0=-60; %$/ton C, Based on -15$/ton C02 subsidy value supplied by Gernot Wagner
 
 c.CE_TCRE_saturation_point=3.; %(Tc C): Emissions above which TCRE gets lower
@@ -80,3 +82,22 @@ c.events.trivial_ff_energy_fraction=2;
 c.events.total_ff_depletion=3;
 
 c.simulation_timestamp=datestr(now,30);
+
+c.V0=mean([1.002,1.94]);
+c.Vmax=mean([2.535,7.665]);
+c.Pr_ff0=mean([50.,100.]);
+c.ffeftre=mean([0.6e-7,1.e-7]);
+c.ffeffin=mean([c.gasEfactor,c.coalEfactor]);
+c.Pr_re0=mean([300.,500.]);
+c.Pr_remin=mean([0.1,0.3]);
+c.cpricefinal=mean([c.cprice0,650.]);
+c.cpriceTre=mean([5.,10.]);
+c.CTre=mean([10.,20.]);
+c.pcdmax=mean([133.e6*1055./c.bill,254.e6*1055./c.bill]);
+c.ipcdinc=mean([0.006,0.015]);
+c.fffb=mean([0.2,1.]);
+c.fffcexp=mean([-6,-4]);
+c.TCRE=mean([0.8,2.5]);
+
+
+
