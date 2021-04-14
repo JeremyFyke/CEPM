@@ -58,7 +58,7 @@ elseif c.start_year==2012
     c.P0 = 7.2e9 ;%World Bank
     c.emissions_to_date=.38; %historical ff emissions (Tt C, year 2012); Source: RCP data
     c.t0 = 0. ;               
-    c.tf = 4000 ; 
+    c.tf = 100 ; 
 else
     error('Model not configured to use given syear.')
 end

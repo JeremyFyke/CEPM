@@ -15,18 +15,20 @@
 % 
 %     You should have received a copy of the GNU General Public License
 %     along with CEPM.  If not, see <http://www.gnu.org/licenses/>.
-
+generate_emissions_percentiles=1
 relative_parameter_sensitivities_for_final_cumulative_carbon=0;
     plot_parameter_value_vs_cumulative_emissions=0;
 plot_2C_carbon_price_histogram_vs_total=0;
 relative_parameter_sensitivities_at_2100=0;
-plot_cumulative_emissions_and_warming_pdfs=1;
+plot_cumulative_emissions_and_warming_pdfs=0;
 plot_final_percent_reserves_depleted=0;
 plot_paintbrushes=0;
 plot_mean_ending_cum_emissions=0;
 plot_consumption_emission_validation=0;
 plot_diagnostic_output=0;
 plot_diversity_of_trajectories=0;
+
+c=set_global_constants();
 
 t_cross_over=nan(c.ensemble_size,1);
 t_total_depletion=nan(c.ensemble_size,1);
@@ -37,6 +39,53 @@ timeaxislimit=2500;
 close all
 
 so=ensemble_output;
+
+if generate_emissions_percentiles;
+   emis_arr=nan(c.ensemble_size,c.tf);
+   for en=1:c.ensemble_size
+      emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
+   end
+   plev=[5,50,95];
+   p=prctile(emis_arr,plev,1);%p is npercentiles by nyears
+   p(2,:)
+   p=p.*1.e15; %Tt C/yr -> T C/yr
+   p=p.*44./12.; %kg C/yr -> kg CO2/yr
+   p=p./31557600.;%kg CO2/yr -> kg CO2/sec, assuming a noleap calendar (365 days)
+   p=p./5.100644719e14;%kg/m^2/s
+   dimsize=size(p)
+   ntime=dimsize(2)
+   np=dimsize(1)
+   time=((1:dimsize(2))-3.).*365-182; %account for 2012 CEPM date, minus emissions date expected to start 2015
+   fin='CO2-em-AIR-anthro_input4MIPs_emissions_ScenarioMIP_IAMC-MESSAGE-GLOBIOM-ssp245-1-1_gn_201501-210012.nc'
+   lon=ncread(fin,'lon');
+   lat=ncread(fin,'lat');
+   
+   nlon=length(lon)
+   nlat=length(lat)
+
+   ncid = netcdf.create('p50emission.nc','CLOBBER');
+   londimid = netcdf.defDim(ncid,'lon',nlon);
+   latdimid = netcdf.defDim(ncid,'lat',nlat);
+   timdimid = netcdf.defDim(ncid,'time',ntime);
+   lonvarid = netcdf.defVar(ncid,'lon','NC_DOUBLE',londimid);
+   latvarid = netcdf.defVar(ncid,'lat','NC_DOUBLE',latdimid);
+   timvarid = netcdf.defVar(ncid,'time','NC_DOUBLE',timdimid);
+   emivarid = netcdf.defVar(ncid,'CO2_em_anthro','NC_DOUBLE',([londimid latdimid timdimid]));
+
+   netcdf.endDef(ncid);
+
+   netcdf.putVar(ncid,lonvarid,lon);
+   netcdf.putVar(ncid,latvarid,lat);
+   netcdf.putVar(ncid,timvarid,time);
+
+   for t=1:ntime
+      arr=ones(nlat,nlon)*p(2,t); %2==p50
+      netcdf.putVar(ncid,emivarid,[0 0 t-1],[nlon nlat 1],arr);
+   end
+   netcdf.close(ncid)
+
+end
+
 
 if relative_parameter_sensitivities_for_final_cumulative_carbon
     figure('visible','off')

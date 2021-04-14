@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import datetime as dt
 
-ntot=200#total years to save to record
+ntot=100#total years to save to record
 
 plt.switch_backend('agg')
 f=h5py.File('output/future_projection_output.mat','r')
 emissions=f['emis_arr']
 #plev=np.linspace(1,100,100)
+
 plev=50.
 p=np.transpose(np.nanpercentile(emissions,plev,axis=1))
 p=np.squeeze(p)

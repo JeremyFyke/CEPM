@@ -22,7 +22,6 @@
 close all
 clear all
 
-
     disp('Checking for necessary files and setting up output directories.')
 check_for_needed_inputs;
 
@@ -38,7 +37,7 @@ ensemble_output =initialize_output_structure(c);
 
 for n=1:c.ensemble_size 
     lastwarn('')
-    if ( mod(n,10) )==0
+    if ( mod(n,1000) )==0
       disp(['Running ensemble number' num2str(n) '.'])
     end
     
@@ -63,7 +62,7 @@ end
 disp('Done')
 
 %make pretty pictures
-generate_projection_output
+%generate_projection_output
 
 %save output for later
 if c.start_year<2000.
