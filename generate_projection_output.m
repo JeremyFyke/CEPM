@@ -46,19 +46,34 @@ if generate_emissions_percentiles;
       emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
    end
    plev=[5,50,95];
-   p=prctile(emis_arr,plev,1);%p is npercentiles by nyears
-   p(2,:)
+   %p=prctile(emis_arr,plev,1);%p is npercentiles by nyears
+   p=median(emis_arr,1)
+   
    p=p.*1.e15; %Tt C/yr -> T C/yr
    p=p.*44./12.; %kg C/yr -> kg CO2/yr
    p=p./31557600.;%kg CO2/yr -> kg CO2/sec, assuming a noleap calendar (365 days)
-   p=p./5.100644719e14;%kg/m^2/s
-   dimsize=size(p)
-   ntime=dimsize(2)
-   np=dimsize(1)
-   time=((1:dimsize(2))-3.).*365-182; %account for 2012 CEPM date, minus emissions date expected to start 2015
-   fin='CO2-em-AIR-anthro_input4MIPs_emissions_ScenarioMIP_IAMC-MESSAGE-GLOBIOM-ssp245-1-1_gn_201501-210012.nc'
+   p=p./510064471909654;%kg/m^2/s, with area of earth equivalent to that for 0.5 degree input4mip grids
+
+   dimsize=size(p);
+   ntime=dimsize(2);
+   np=dimsize(1);
+
+   dpy=365.; %365 calendar, in days
+   dpyd2=dpy./2.; %half a year
+   data_yrs=2012; %first year of data
+   record_yrs=2012; %days-since year
+   %take difference of first data year, and intended first record year.  
+   %then add on 1/2 year, so data starts 1/2 through first year
+   time=((1:dimsize(2))+data_yrs-record_yrs-1.).*dpy+dpyd2;
+   time_bnds=[time-dpyd2;time+dpyd2];
+   
+   fin='../data/CO2-em-anthro_input4MIPs_emissions_CMIP_CEDS-2017-05-18_gn_200001-201412.nc'
    lon=ncread(fin,'lon');
    lat=ncread(fin,'lat');
+   lon_bnds=ncread(fin,'lon_bnds');
+   lat_bnds=ncread(fin,'lat_bnds');
+
+
    
    nlon=length(lon)
    nlat=length(lat)
@@ -67,19 +82,58 @@ if generate_emissions_percentiles;
    londimid = netcdf.defDim(ncid,'lon',nlon);
    latdimid = netcdf.defDim(ncid,'lat',nlat);
    timdimid = netcdf.defDim(ncid,'time',ntime);
+   bndsdimid = netcdf.defDim(ncid,'bound',2);
    lonvarid = netcdf.defVar(ncid,'lon','NC_DOUBLE',londimid);
    latvarid = netcdf.defVar(ncid,'lat','NC_DOUBLE',latdimid);
    timvarid = netcdf.defVar(ncid,'time','NC_DOUBLE',timdimid);
+   timbndsvarid = netcdf.defVar(ncid,'time_bnds','NC_DOUBLE',([bndsdimid timdimid]));
+   latbndsvarid = netcdf.defVar(ncid,'lat_bnds','NC_DOUBLE',([bndsdimid latdimid]));
+   lonbndsvarid = netcdf.defVar(ncid,'lon_bnds','NC_DOUBLE',([bndsdimid londimid]));
    emivarid = netcdf.defVar(ncid,'CO2_em_anthro','NC_DOUBLE',([londimid latdimid timdimid]));
+
+   netcdf.putAtt(ncid,timvarid,'units','days since 2012-01-01 0:0:0');
+   netcdf.putAtt(ncid,timvarid,'long_name','time');
+   netcdf.putAtt(ncid,timvarid,'calendar','365_day');
+   netcdf.putAtt(ncid,timvarid,'axis','T');
+   netcdf.putAtt(ncid,timvarid,'bounds','time_bnds');
+   netcdf.putAtt(ncid,timvarid,'realtopology','linear');
+   netcdf.putAtt(ncid,timvarid,'time','standard_name');
+
+   netcdf.putAtt(ncid,londimid,'units','degrees_east');
+   netcdf.putAtt(ncid,londimid,'long_name','longitude');
+   netcdf.putAtt(ncid,londimid,'axis','X');
+   netcdf.putAtt(ncid,londimid,'bounds','lon_bnds');
+   netcdf.putAtt(ncid,londimid,'modulo',360.');
+   netcdf.putAtt(ncid,londimid,'realtopology','circular');
+   netcdf.putAtt(ncid,londimid,'standard_name','longitude');
+   netcdf.putAtt(ncid,londimid,'topology','circular');
+   
+   netcdf.putAtt(ncid,latdimid,'units','degrees_north');
+   netcdf.putAtt(ncid,latdimid,'long_name','latitude');
+   netcdf.putAtt(ncid,latdimid,'axis','Y');
+   netcdf.putAtt(ncid,latdimid,'bounds','lat_bnds');
+   netcdf.putAtt(ncid,latdimid,'realtopology','linear');
+   netcdf.putAtt(ncid,latdimid,'standard_name','latitude');
+
+
+   netcdf.putAtt(ncid,emivarid,'units','kg m-2 s-1');
+   netcdf.putAtt(ncid,emivarid,'_FillValue',1.e20);
+   netcdf.putAtt(ncid,emivarid,'long_name','CO2 Anthropogenic Emissions');
+   netcdf.putAtt(ncid,emivarid,'cell_methods','time: mean');
+   netcdf.putAtt(ncid,emivarid,'missing_value',1.e20);
 
    netcdf.endDef(ncid);
 
    netcdf.putVar(ncid,lonvarid,lon);
    netcdf.putVar(ncid,latvarid,lat);
    netcdf.putVar(ncid,timvarid,time);
+   netcdf.putVar(ncid,timbndsvarid,time_bnds);
+   netcdf.putVar(ncid,latbndsvarid,lat_bnds);
+   netcdf.putVar(ncid,lonbndsvarid,lon_bnds);
+
 
    for t=1:ntime
-      arr=ones(nlat,nlon)*p(2,t); %2==p50
+      arr=ones(nlat,nlon)*p(t); %2==p50
       netcdf.putVar(ncid,emivarid,[0 0 t-1],[nlon nlat 1],arr);
    end
    netcdf.close(ncid)
