@@ -45,11 +45,18 @@ if generate_emissions_percentiles;
    for en=1:c.ensemble_size
       emis_arr(en,1:length(so(en).burn_rate))=so(en).burn_rate;
    end
+   save('output/emissions_standalone.mat','emis_arr')
    plev=[5,10,25,50,75,90,95];
    percentiles=prctile(emis_arr,plev,1);%p is npercentiles by nyears
    %percentiles=median(emis_arr,1)
    
-   %TODO: scale percentiles by 2012 CMIP6 global annual average CO2 emissions value so they are entirely consistent with CMIP6 at this point.
+   percentiles(1,1)
+   
+   %Scale all data by 2012 CMIP6 global annual average CO2 emissions value so they are entirely consistent with CMIP6 at this point.
+   CMIP6_emissions_2012=0.0092; %from scale-calculator.sh
+   CEPM_emissions_2012=percentiles(1,1); %from first year of CEPM output
+   scale_factor=CMIP6_emissions_2012/CEPM_emissions_2012
+   percentiles=percentiles.*scale_factor;
    
    for n=1:length(plev)
        p=percentiles(n,:);
