@@ -24,7 +24,7 @@ files={'catstruct.m' 'matrix2latex.m' };
 err=0;
 for f=1:length(files)
     if not(isfile(files{f}))
-        disp([f ' is missing.  Download from Matlab Exchange.'])
+        disp([files{f} ' is missing.  Download from Matlab Exchange.'])
         err=1;
     end
 end
